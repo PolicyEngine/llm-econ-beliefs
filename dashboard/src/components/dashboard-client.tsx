@@ -167,7 +167,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
     let cancelled = false;
 
     void fetch(
-      `/api/responses?quantityId=${encodeURIComponent(
+      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/responses?quantityId=${encodeURIComponent(
         selectedQuantity.quantityId,
       )}&modelName=${encodeURIComponent(inspectedModelName)}`,
       { cache: "no-store" },
