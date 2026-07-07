@@ -3,11 +3,7 @@
 import { useState } from "react";
 
 import { ProviderMark } from "@/components/provider-mark";
-import {
-  getModelLabel,
-  getProviderForModel,
-  isJuly2026Model,
-} from "@/lib/model-meta";
+import { getModelLabel, getProviderForModel } from "@/lib/model-meta";
 import type {
   IntervalMethodDefinition,
   IntervalSnapshot,
@@ -132,7 +128,6 @@ export function IntervalPlot({ models, method, onSelectModel }: IntervalPlotProp
           const y = rowTop + ROW_HEIGHT / 2;
           const isHovered = hoveredModel === model.modelName;
           const provider = getProviderForModel(model.modelName);
-          const isNew = isJuly2026Model(model.modelName);
           const lower =
             interval.lower !== null
               ? scaleValue(interval.lower, domainMin, domainMax, plotWidth) +
@@ -188,19 +183,6 @@ export function IntervalPlot({ models, method, onSelectModel }: IntervalPlotProp
                 {getModelLabel(model.modelName)}
               </text>
 
-              {/* July 2026 addition marker */}
-              {isNew && (
-                <g>
-                  <title>Added to the panel in July 2026</title>
-                  <circle
-                    cx={44 + measureLabelWidth(getModelLabel(model.modelName))}
-                    cy={y}
-                    r={2.5}
-                    fill="var(--chart-1)"
-                  />
-                </g>
-              )}
-
               {/* Interval bar */}
               {lower !== null && upper !== null && (
                 <line
@@ -248,11 +230,6 @@ export function IntervalPlot({ models, method, onSelectModel }: IntervalPlotProp
       </svg>
     </div>
   );
-}
-
-/** Approximate Inter 13px/500 label width for the addition marker offset. */
-function measureLabelWidth(label: string): number {
-  return label.length * 7.1;
 }
 
 function buildNiceTicks(min: number, max: number, targetCount: number): number[] {
