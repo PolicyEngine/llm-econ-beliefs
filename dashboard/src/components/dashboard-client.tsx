@@ -10,6 +10,7 @@ import {
 
 import { IntervalPlot } from "@/components/interval-plot";
 import { ProviderMark } from "@/components/provider-mark";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   FLAGSHIP_MODEL_BY_PROVIDER,
   PROVIDER_LABELS,
@@ -17,6 +18,7 @@ import {
   getModelLabel,
   getProviderForModel,
   isFlagshipModel,
+  isJuly2026Model,
   type ProviderKey,
 } from "@/lib/model-meta";
 import type {
@@ -253,43 +255,33 @@ export function DashboardClient({ data }: DashboardClientProps) {
         }}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-md"
-              style={{ background: "color-mix(in oklab, var(--primary) 10%, transparent)" }}
+              style={{
+                background: "color-mix(in oklab, var(--chart-1) 12%, transparent)",
+              }}
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle
-                  cx="8"
-                  cy="8"
-                  r="6"
-                  stroke="var(--primary)"
-                  strokeWidth="1.5"
-                  fill="none"
-                />
-                <circle cx="8" cy="8" r="2.5" fill="var(--primary)" />
-                <line x1="8" y1="1" x2="8" y2="4" stroke="var(--primary)" strokeWidth="1" />
-                <line x1="8" y1="12" x2="8" y2="15" stroke="var(--primary)" strokeWidth="1" />
-                <line x1="1" y1="8" x2="4" y2="8" stroke="var(--primary)" strokeWidth="1" />
-                <line x1="12" y1="8" x2="15" y2="8" stroke="var(--primary)" strokeWidth="1" />
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="var(--chart-1)" strokeWidth="1.5" fill="none" />
+                <circle cx="8" cy="8" r="2.5" fill="var(--chart-1)" />
+                <line x1="8" y1="1" x2="8" y2="4" stroke="var(--chart-1)" strokeWidth="1" />
+                <line x1="8" y1="12" x2="8" y2="15" stroke="var(--chart-1)" strokeWidth="1" />
+                <line x1="1" y1="8" x2="4" y2="8" stroke="var(--chart-1)" strokeWidth="1" />
+                <line x1="12" y1="8" x2="15" y2="8" stroke="var(--chart-1)" strokeWidth="1" />
               </svg>
             </div>
             <h1
               className="font-sans text-lg font-semibold tracking-tight"
               style={{ color: "var(--foreground)" }}
             >
-              Elasticity Beliefs Atlas
+              Elasticity beliefs atlas
             </h1>
           </div>
-          <div className="flex items-center gap-5">
-            <Stat label="Quantities" value={`${data.stats.quantityCount}`} />
-            <Stat label="Models" value={`${data.stats.modelCount}`} />
+          <div className="flex items-center gap-4">
+            <Stat label="quantities" value={`${data.stats.quantityCount}`} />
+            <Stat label="models" value={`${data.stats.modelCount}`} />
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -317,8 +309,8 @@ export function DashboardClient({ data }: DashboardClientProps) {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search quantities..."
-                className="w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-[color:var(--primary)]"
+                placeholder="Search quantities…"
+                className="w-full rounded-md border py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-[color:var(--ring)] focus:ring-2 focus:ring-[color:color-mix(in_oklab,var(--ring)_25%,transparent)]"
                 style={{
                   background: "var(--card)",
                   borderColor: "var(--border)",
@@ -331,10 +323,13 @@ export function DashboardClient({ data }: DashboardClientProps) {
             {Array.from(domainGroups.entries()).map(([domain, quantities]) => (
               <div key={domain} className="mb-1">
                 <div
-                  className="sticky top-0 z-10 px-2 pb-1 pt-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em]"
-                  style={{ color: "var(--muted-foreground)", background: "var(--background)" }}
+                  className="sticky top-0 z-10 px-3 pb-1 pt-3 text-[11px] font-semibold"
+                  style={{
+                    color: "var(--muted-foreground)",
+                    background: "var(--background)",
+                  }}
                 >
-                  {domain}
+                  {sentenceCase(domain)}
                 </div>
                 {quantities.map((quantity) => {
                   const isSelected = quantity.quantityId === selectedQuantity.quantityId;
@@ -350,20 +345,33 @@ export function DashboardClient({ data }: DashboardClientProps) {
                           setInspectorOpen(false);
                         })
                       }
-                      className="group w-full rounded-lg px-3 py-2.5 text-left transition-all"
+                      className="group w-full rounded-md px-3 py-2 text-left transition-colors"
                       style={{
-                        background: isSelected ? "color-mix(in oklab, var(--primary) 10%, transparent)" : "transparent",
-                        border: isSelected ? "1px solid var(--primary)" : "1px solid transparent",
+                        background: isSelected
+                          ? "color-mix(in oklab, var(--chart-1) 10%, transparent)"
+                          : "transparent",
+                        boxShadow: isSelected
+                          ? "inset 2px 0 0 var(--chart-1)"
+                          : "none",
                       }}
                     >
                       <div
                         className="text-[13px] font-medium leading-snug"
-                        style={{ color: isSelected ? "var(--primary)" : "var(--foreground)" }}
+                        style={{
+                          color: isSelected ? "var(--primary)" : "var(--foreground)",
+                        }}
                       >
                         {quantity.quantityName}
                       </div>
-                      <span className="mt-1 font-mono text-[10px]" style={{ color: "var(--muted-foreground)" }}>
-                        {quantity.availableModels.length} model{quantity.availableModels.length !== 1 ? "s" : ""}
+                      <span
+                        className="mt-0.5 block text-[11px]"
+                        style={{
+                          color: "var(--muted-foreground)",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {quantity.availableModels.length} model
+                        {quantity.availableModels.length !== 1 ? "s" : ""}
                       </span>
                     </button>
                   );
@@ -377,14 +385,17 @@ export function DashboardClient({ data }: DashboardClientProps) {
         <section className="reveal min-w-0 p-6" style={{ animationDelay: "120ms" }}>
           {/* Quantity header */}
           <div className="mb-6">
-            <div
-              className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em]"
-              style={{ color: "var(--primary)" }}
+            <span
+              className="inline-block rounded-md px-2 py-0.5 text-[11px] font-medium"
+              style={{
+                background: "color-mix(in oklab, var(--chart-1) 12%, transparent)",
+                color: "var(--primary)",
+              }}
             >
-              {selectedQuantity.domain}
-            </div>
+              {sentenceCase(selectedQuantity.domain)}
+            </span>
             <h2
-              className="mt-2 font-sans text-4xl font-semibold leading-tight tracking-tight lg:text-[2.6rem]"
+              className="mt-2.5 font-sans text-3xl font-semibold leading-tight tracking-tight lg:text-4xl"
               style={{ color: "var(--foreground)" }}
             >
               {selectedQuantity.quantityName}
@@ -393,21 +404,21 @@ export function DashboardClient({ data }: DashboardClientProps) {
               className="mt-3 max-w-2xl text-sm leading-relaxed"
               style={{ color: "var(--muted-foreground)" }}
             >
-              Compare manifested belief centers across models. Swap interval
-              generators to see how pooled, REML, and Bayesian uncertainty bands
+              Compare elicited belief centers across models, and swap interval
+              methods to see how pooled, REML, and Bayesian uncertainty bands
               shift.
             </p>
             {quantityNote && (
               <div
-                className="mt-4 max-w-3xl rounded-lg border px-4 py-3 text-sm leading-relaxed"
+                className="mt-4 max-w-3xl rounded-md border-l-2 px-4 py-3 text-sm leading-relaxed"
                 style={{
-                  background: "var(--card)",
-                  borderColor: "var(--primary)",
+                  background: "color-mix(in oklab, var(--chart-1) 6%, transparent)",
+                  borderColor: "var(--chart-1)",
                   color: "var(--muted-foreground)",
                 }}
               >
                 <div
-                  className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  className="mb-1 text-[11px] font-semibold"
                   style={{ color: "var(--primary)" }}
                 >
                   Prompt note
@@ -417,13 +428,16 @@ export function DashboardClient({ data }: DashboardClientProps) {
             )}
           </div>
 
-          {/* Method and sort controls */}
+          {/* Toolbar: method, sort, provider, flagship */}
           <div
-            className="mb-3 rounded-lg border p-3"
+            className="mb-4 rounded-lg border"
             style={{ background: "var(--card)", borderColor: "var(--border)" }}
           >
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-3 p-3 xl:flex-row xl:items-center xl:justify-between">
+              <div
+                className="inline-flex w-fit items-center gap-0.5 rounded-md p-0.5"
+                style={{ background: "var(--muted)" }}
+              >
                 {data.methods.map((method) => {
                   const isActive = method.id === selectedMethod.id;
                   return (
@@ -431,13 +445,13 @@ export function DashboardClient({ data }: DashboardClientProps) {
                       key={method.id}
                       type="button"
                       onClick={() => setSelectedMethodId(method.id)}
-                      className="rounded-md px-3 py-2 text-xs font-medium transition-all"
+                      className="rounded px-3 py-1.5 text-xs font-medium transition-colors"
                       style={{
-                        background: isActive ? "var(--muted)" : "transparent",
-                        color: isActive ? "var(--foreground)" : "var(--muted-foreground)",
-                        boxShadow: isActive
-                          ? "0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
-                          : "none",
+                        background: isActive ? "var(--card)" : "transparent",
+                        color: isActive
+                          ? "var(--foreground)"
+                          : "var(--muted-foreground)",
+                        boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
                       }}
                     >
                       {method.shortLabel}
@@ -445,21 +459,16 @@ export function DashboardClient({ data }: DashboardClientProps) {
                   );
                 })}
               </div>
-              <label className="flex items-center gap-3 text-xs">
-                <span
-                  className="font-mono uppercase tracking-[0.15em]"
-                  style={{ color: "var(--muted-foreground)" }}
-                >
-                  Sort
-                </span>
+              <label className="flex items-center gap-2 text-xs">
+                <span style={{ color: "var(--muted-foreground)" }}>Sort by</span>
                 <select
                   value={sortMode}
                   onChange={(event) =>
                     setSortMode(event.target.value as "model" | "pointEstimate")
                   }
-                  className="rounded-md border px-3 py-2 outline-none transition"
+                  className="rounded-md border px-2.5 py-1.5 text-xs outline-none transition focus:border-[color:var(--ring)]"
                   style={{
-                    background: "var(--muted)",
+                    background: "var(--card)",
                     borderColor: "var(--border)",
                     color: "var(--foreground)",
                   }}
@@ -469,21 +478,11 @@ export function DashboardClient({ data }: DashboardClientProps) {
                 </select>
               </label>
             </div>
-          </div>
-
-          {/* Provider filter + flagship-only toggle */}
-          <div
-            className="mb-6 rounded-lg border p-3"
-            style={{ background: "var(--card)", borderColor: "var(--border)" }}
-          >
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className="font-mono text-[10px] uppercase tracking-[0.15em]"
-                  style={{ color: "var(--muted-foreground)" }}
-                >
-                  Provider
-                </span>
+            <div
+              className="flex flex-col gap-3 border-t p-3 xl:flex-row xl:items-center xl:justify-between"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <div className="flex flex-wrap items-center gap-1.5">
                 {(["openai", "anthropic", "google", "xai"] as ProviderKey[]).map(
                   (provider) => {
                     const isActive = selectedProviders.has(provider);
@@ -493,15 +492,19 @@ export function DashboardClient({ data }: DashboardClientProps) {
                         type="button"
                         onClick={() => toggleProvider(provider)}
                         aria-pressed={isActive}
-                        className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-all"
+                        className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors"
                         style={{
-                          background: isActive ? "var(--muted)" : "transparent",
-                          borderColor: isActive ? "var(--primary)" : "var(--border)",
-                          color: isActive ? "var(--foreground)" : "var(--muted-foreground)",
-                          opacity: isActive ? 1 : 0.55,
+                          background: isActive
+                            ? "color-mix(in oklab, var(--chart-1) 10%, transparent)"
+                            : "transparent",
+                          borderColor: isActive ? "var(--chart-1)" : "var(--border)",
+                          color: isActive
+                            ? "var(--foreground)"
+                            : "var(--muted-foreground)",
+                          opacity: isActive ? 1 : 0.6,
                         }}
                       >
-                        <ProviderMark provider={provider} size={14} />
+                        <ProviderMark provider={provider} size={13} />
                         <span>{PROVIDER_LABELS[provider]}</span>
                       </button>
                     );
@@ -509,22 +512,25 @@ export function DashboardClient({ data }: DashboardClientProps) {
                 )}
               </div>
               <label
-                className="flex items-center gap-2 text-xs"
+                className="flex cursor-pointer items-center gap-2 text-xs"
                 style={{ color: "var(--muted-foreground)" }}
               >
                 <input
                   type="checkbox"
                   checked={flagshipOnly}
                   onChange={(event) => setFlagshipOnly(event.target.checked)}
-                  className="h-4 w-4 cursor-pointer accent-[color:var(--primary)]"
+                  className="h-3.5 w-3.5 cursor-pointer accent-[color:var(--primary)]"
                 />
                 <span
-                  className="font-mono uppercase tracking-[0.15em]"
-                  style={{ color: flagshipOnly ? "var(--foreground)" : "var(--muted-foreground)" }}
+                  style={{
+                    color: flagshipOnly
+                      ? "var(--foreground)"
+                      : "var(--muted-foreground)",
+                  }}
                 >
-                  Show flagship model per provider
+                  Flagships only
                 </span>
-                <span style={{ color: "var(--muted-foreground)" }}>
+                <span className="hidden lg:inline" style={{ color: "var(--muted-foreground)" }}>
                   (
                   {(["openai", "anthropic", "google", "xai"] as ProviderKey[])
                     .map((p) => getModelLabel(FLAGSHIP_MODEL_BY_PROVIDER[p]))
@@ -534,14 +540,24 @@ export function DashboardClient({ data }: DashboardClientProps) {
               </label>
             </div>
           </div>
-          <p className="mb-5 text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
-            {selectedMethod.description}
+          <p
+            className="mb-4 text-xs leading-relaxed"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            {selectedMethod.description} Rows with a{" "}
+            <span
+              aria-hidden="true"
+              className="mx-0.5 inline-block h-1.5 w-1.5 rounded-full align-middle"
+              style={{ background: "var(--chart-1)" }}
+            />{" "}
+            marker joined the panel in July 2026. Click a row to inspect its runs.
           </p>
 
           {/* Interval plot */}
           <IntervalPlot
             models={sortedModelSummaries}
             method={selectedMethod}
+            onSelectModel={openInspector}
           />
 
           {/* Model cards grid — scales with model count */}
@@ -564,7 +580,10 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
       {/* Inspector drawer overlay */}
       {inspectorOpen && (
-        <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" style={{ animation: "reveal 200ms ease both" }}>
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+          style={{ animation: "reveal 200ms ease both" }}
+        >
           <div
             ref={drawerRef}
             className="absolute right-0 top-0 h-full w-full max-w-[480px] overflow-y-auto border-l"
@@ -575,10 +594,20 @@ export function DashboardClient({ data }: DashboardClientProps) {
             }}
           >
             {/* Drawer header */}
-            <div className="sticky top-0 z-10 border-b p-4 backdrop-blur-xl" style={{ background: "color-mix(in oklab, var(--background) 92%, transparent)", borderColor: "var(--border)" }}>
+            <div
+              className="sticky top-0 z-10 border-b p-4 backdrop-blur-xl"
+              style={{
+                background:
+                  "color-mix(in oklab, var(--background) 92%, transparent)",
+                borderColor: "var(--border)",
+              }}
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--muted-foreground)" }}>
+                  <div
+                    className="text-[11px] font-medium"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
                     Response inspector
                   </div>
                   <div className="mt-1 flex items-center gap-2">
@@ -586,17 +615,24 @@ export function DashboardClient({ data }: DashboardClientProps) {
                       provider={getProviderForModel(inspectedModelSummary?.modelName ?? "")}
                       size={16}
                     />
-                    <h3 className="font-sans text-xl font-semibold" style={{ color: "var(--foreground)" }}>
+                    <h3
+                      className="font-sans text-xl font-semibold"
+                      style={{ color: "var(--foreground)" }}
+                    >
                       {inspectedModelSummary
                         ? getModelLabel(inspectedModelSummary.modelName)
                         : "—"}
                     </h3>
+                    {inspectedModelSummary &&
+                      isJuly2026Model(inspectedModelSummary.modelName) && (
+                        <NewBadge />
+                      )}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setInspectorOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-md border transition hover:border-[color:var(--border-medium)]"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border transition-colors hover:bg-[color:var(--muted)]"
                   style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
                   aria-label="Close inspector"
                 >
@@ -622,17 +658,16 @@ export function DashboardClient({ data }: DashboardClientProps) {
                           setSelectedRunIndex(null);
                         })
                       }
-                      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[11px] font-medium transition-all"
+                      className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition-colors"
                       style={{
-                        background: isActive ? "color-mix(in oklab, var(--primary) 10%, transparent)" : "var(--card)",
+                        background: isActive
+                          ? "color-mix(in oklab, var(--chart-1) 10%, transparent)"
+                          : "var(--card)",
                         color: isActive ? "var(--primary)" : "var(--muted-foreground)",
-                        border: isActive ? "1px solid var(--primary)" : "1px solid var(--border)",
+                        borderColor: isActive ? "var(--chart-1)" : "var(--border)",
                       }}
                     >
-                      <ProviderMark
-                        provider={getProviderForModel(modelName)}
-                        size={12}
-                      />
+                      <ProviderMark provider={getProviderForModel(modelName)} size={12} />
                       <span>{getModelLabel(modelName)}</span>
                     </button>
                   );
@@ -644,13 +679,19 @@ export function DashboardClient({ data }: DashboardClientProps) {
             <div className="p-4">
               {/* Run pills */}
               <div className="mb-4">
-                <div className="mb-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--muted-foreground)" }}>
+                <div
+                  className="mb-2 text-[11px] font-medium"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
                   Runs ({activeRuns.length})
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {loadingActiveRuns ? (
-                    <div className="shimmer rounded-md px-4 py-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                      Loading...
+                    <div
+                      className="shimmer rounded-md px-4 py-2 text-xs"
+                      style={{ color: "var(--muted-foreground)" }}
+                    >
+                      Loading…
                     </div>
                   ) : activeRuns.length ? (
                     activeRuns.map((run) => {
@@ -660,23 +701,43 @@ export function DashboardClient({ data }: DashboardClientProps) {
                           key={run.runIndex}
                           type="button"
                           onClick={() => setSelectedRunIndex(run.runIndex)}
-                          className="rounded-md px-3 py-2 text-left transition-all"
+                          className="rounded-md border px-2.5 py-1.5 text-left transition-colors"
                           style={{
-                            background: isActive ? "var(--muted)" : "var(--card)",
-                            border: isActive ? "1px solid var(--border-medium)" : "1px solid var(--border)",
+                            background: isActive
+                              ? "color-mix(in oklab, var(--chart-1) 10%, transparent)"
+                              : "var(--card)",
+                            borderColor: isActive ? "var(--chart-1)" : "var(--border)",
                           }}
                         >
-                          <div className="font-mono text-[10px]" style={{ color: isActive ? "var(--primary)" : "var(--muted-foreground)" }}>
+                          <div
+                            className="text-[10px]"
+                            style={{
+                              color: isActive
+                                ? "var(--primary)"
+                                : "var(--muted-foreground)",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
                             #{run.runIndex}
                           </div>
-                          <div className="mt-0.5 font-mono text-xs font-semibold" style={{ color: "var(--foreground)" }}>
-                            {run.pointEstimate !== null ? formatNumber(run.pointEstimate) : "—"}
+                          <div
+                            className="mt-0.5 text-xs font-semibold"
+                            style={{
+                              color: "var(--foreground)",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {run.pointEstimate !== null
+                              ? formatNumber(run.pointEstimate)
+                              : "—"}
                           </div>
                         </button>
                       );
                     })
                   ) : (
-                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>No runs.</span>
+                    <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      No runs.
+                    </span>
                   )}
                 </div>
               </div>
@@ -706,14 +767,32 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline gap-2">
-      <span className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
-        {label}
-      </span>
-      <span className="font-mono text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+    <div className="hidden items-baseline gap-1.5 sm:flex">
+      <span
+        className="text-sm font-semibold"
+        style={{ color: "var(--foreground)", fontVariantNumeric: "tabular-nums" }}
+      >
         {value}
       </span>
+      <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+        {label}
+      </span>
     </div>
+  );
+}
+
+function NewBadge() {
+  return (
+    <span
+      className="rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+      style={{
+        background: "color-mix(in oklab, var(--chart-1) 12%, transparent)",
+        color: "var(--primary)",
+      }}
+      title="Added to the panel in July 2026"
+    >
+      Jul 2026
+    </span>
   );
 }
 
@@ -730,51 +809,66 @@ function ModelPanel({
 }) {
   return (
     <section
-      className="reveal-scale rounded-lg border p-4"
+      className="reveal-scale rounded-lg border p-4 transition-shadow hover:shadow-md"
       style={{ background: "var(--card)", borderColor: "var(--border)" }}
     >
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <ProviderMark
-              provider={getProviderForModel(model.modelName)}
-              size={16}
-            />
-            <h3 className="font-sans text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+            <ProviderMark provider={getProviderForModel(model.modelName)} size={16} />
+            <h3
+              className="truncate font-sans text-base font-semibold"
+              style={{ color: "var(--foreground)" }}
+            >
               {getModelLabel(model.modelName)}
             </h3>
+            {isJuly2026Model(model.modelName) && <NewBadge />}
           </div>
-          <p className="mt-1 font-mono text-[10px]" style={{ color: "var(--muted-foreground)" }}>
-            {model.experimentDir}
+          <p
+            className="mt-1 text-[11px]"
+            style={{ color: "var(--muted-foreground)", fontVariantNumeric: "tabular-nums" }}
+          >
+            {model.nSuccessfulRuns} runs · {model.sourceSummary.uniqueCitations} citations
           </p>
         </div>
         <button
           type="button"
           onClick={onInspect}
-          className="rounded-md border px-3 py-1.5 font-mono text-[11px] font-medium transition-all hover:border-[color:var(--primary)] hover:text-[color:var(--primary)]"
-          style={{ borderColor: "var(--border-medium)", color: "var(--muted-foreground)", background: "transparent" }}
+          className="shrink-0 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition-colors hover:border-[color:var(--chart-1)] hover:text-[color:var(--primary)]"
+          style={{
+            borderColor: "var(--border)",
+            color: "var(--muted-foreground)",
+            background: "transparent",
+          }}
         >
-          Inspect
+          Inspect runs
         </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <MetricTile label="Runs" value={`${model.nSuccessfulRuns}`} />
-        <MetricTile label="Citations" value={`${model.sourceSummary.uniqueCitations}`} />
-      </div>
-
-      <div className="mt-3 overflow-hidden rounded-md border" style={{ borderColor: "var(--border)" }}>
+      <div
+        className="mt-3 overflow-hidden rounded-md border"
+        style={{ borderColor: "var(--border)" }}
+      >
         <table className="min-w-full text-xs">
           <thead>
             <tr style={{ background: "var(--muted)" }}>
-              <th className="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+              <th
+                className="px-3 py-1.5 text-left text-[11px] font-medium"
+                style={{ color: "var(--muted-foreground)" }}
+              >
                 Method
               </th>
-              <th className="px-3 py-2 text-right font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+              <th
+                className="px-3 py-1.5 text-right text-[11px] font-medium"
+                style={{ color: "var(--muted-foreground)" }}
+              >
                 Center
               </th>
-              <th className="px-3 py-2 text-right font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
-                90% CI
+              <th
+                className="px-3 py-1.5 text-right text-[11px] font-medium"
+                style={{ color: "var(--muted-foreground)" }}
+              >
+                90% interval
               </th>
             </tr>
           </thead>
@@ -783,14 +877,41 @@ function ModelPanel({
               const interval = model.intervals[method.id];
               const isSelected = method.id === selectedMethodId;
               return (
-                <tr key={`${model.modelName}-${method.id}`} style={{ background: isSelected ? "color-mix(in oklab, var(--primary) 10%, transparent)" : "transparent" }}>
-                  <td className="border-t px-3 py-1.5 font-medium" style={{ borderColor: "var(--border)", color: isSelected ? "var(--primary)" : "var(--foreground)" }}>
+                <tr
+                  key={`${model.modelName}-${method.id}`}
+                  style={{
+                    background: isSelected
+                      ? "color-mix(in oklab, var(--chart-1) 8%, transparent)"
+                      : "transparent",
+                  }}
+                >
+                  <td
+                    className="border-t px-3 py-1.5 font-medium"
+                    style={{
+                      borderColor: "var(--border)",
+                      color: isSelected ? "var(--primary)" : "var(--foreground)",
+                    }}
+                  >
                     {method.shortLabel}
                   </td>
-                  <td className="border-t px-3 py-1.5 text-right font-mono" style={{ borderColor: "var(--border)", color: "var(--foreground)" }}>
+                  <td
+                    className="border-t px-3 py-1.5 text-right"
+                    style={{
+                      borderColor: "var(--border)",
+                      color: "var(--foreground)",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
                     {formatMaybeNumber(interval.center)}
                   </td>
-                  <td className="border-t px-3 py-1.5 text-right font-mono" style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}>
+                  <td
+                    className="border-t px-3 py-1.5 text-right"
+                    style={{
+                      borderColor: "var(--border)",
+                      color: "var(--muted-foreground)",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
                     {formatInterval(interval.lower, interval.upper)}
                   </td>
                 </tr>
@@ -801,38 +922,36 @@ function ModelPanel({
       </div>
 
       {model.sourceSummary.topAnchors.length > 0 && (
-        <div className="mt-3">
-          <div className="flex flex-wrap gap-1">
-            {model.sourceSummary.topAnchors.slice(0, 3).map((anchor) => (
-              <span
-                key={`${model.modelName}-${anchor.citation}`}
-                className="rounded border px-1.5 py-0.5 font-mono text-[9px]"
-                style={{ borderColor: "var(--border)", background: "var(--muted)", color: "var(--muted-foreground)" }}
-              >
-                {anchor.citation}
-              </span>
-            ))}
-          </div>
+        <div className="mt-3 flex flex-wrap gap-1">
+          {model.sourceSummary.topAnchors.slice(0, 3).map((anchor) => (
+            <span
+              key={`${model.modelName}-${anchor.citation}`}
+              className="max-w-full truncate rounded-md px-1.5 py-0.5 text-[10px]"
+              style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
+            >
+              {anchor.citation}
+            </span>
+          ))}
         </div>
       )}
 
       {(model.costPerRunUsd !== null || model.tokensPerRun !== null) && (
-        <details className="mt-3 rounded-md border" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
-          <summary className="cursor-pointer px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
-            Cost &amp; usage
+        <details className="mt-3 rounded-md border" style={{ borderColor: "var(--border)" }}>
+          <summary
+            className="cursor-pointer px-3 py-2 text-[11px] font-medium"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            Cost and usage
           </summary>
-          <div className="grid grid-cols-2 gap-2 px-3 pb-3 pt-1">
+          <div
+            className="grid grid-cols-2 gap-2 border-t px-3 pb-3 pt-2"
+            style={{ borderColor: "var(--border)" }}
+          >
             {model.costPerRunUsd !== null && (
-              <div>
-                <div className="font-mono text-[9px] uppercase" style={{ color: "var(--muted-foreground)" }}>$/run</div>
-                <div className="mt-0.5 font-mono text-xs" style={{ color: "var(--muted-foreground)" }}>{formatCurrency(model.costPerRunUsd)}</div>
-              </div>
+              <MetricTile label="Cost per run" value={formatCurrency(model.costPerRunUsd)} />
             )}
             {model.tokensPerRun !== null && (
-              <div>
-                <div className="font-mono text-[9px] uppercase" style={{ color: "var(--muted-foreground)" }}>Tokens/run</div>
-                <div className="mt-0.5 font-mono text-xs" style={{ color: "var(--muted-foreground)" }}>{model.tokensPerRun.toLocaleString()}</div>
-              </div>
+              <MetricTile label="Tokens per run" value={model.tokensPerRun.toLocaleString()} />
             )}
           </div>
         </details>
@@ -852,13 +971,16 @@ function PromptSection({
   if (!prompt) return null;
 
   return (
-    <div className="mt-8 rounded-lg border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-      <div className="mb-3 flex items-center gap-2">
-        <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--primary)" }}>
+    <div
+      className="mt-8 rounded-lg border p-5"
+      style={{ background: "var(--card)", borderColor: "var(--border)" }}
+    >
+      <div className="mb-3 flex items-baseline gap-2">
+        <div className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
           Elicitation prompt
         </div>
-        <span className="font-mono text-[10px]" style={{ color: "var(--muted-foreground)" }}>
-          ({formatPromptVersion(selectedRun?.promptVersion ?? runs[0]?.promptVersion ?? "?")})
+        <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+          {formatPromptVersion(selectedRun?.promptVersion ?? runs[0]?.promptVersion ?? "?")}
         </span>
       </div>
       <pre
@@ -901,40 +1023,53 @@ function ResponseDetail({
     <div>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+          <div className="text-[11px] font-medium" style={{ color: "var(--muted-foreground)" }}>
             Run {run.runIndex}
           </div>
           <div className="mt-1 flex items-center gap-2">
-            <ProviderMark
-              provider={getProviderForModel(model.modelName)}
-              size={14}
-            />
+            <ProviderMark provider={getProviderForModel(model.modelName)} size={14} />
             <h4 className="font-sans text-base font-semibold" style={{ color: "var(--foreground)" }}>
               {getModelLabel(model.modelName)}
             </h4>
           </div>
         </div>
-        <span className="rounded-md px-2 py-1 font-mono text-[10px]" style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}>
+        <span
+          className="rounded-md px-2 py-1 text-[11px]"
+          style={{
+            background: "var(--muted)",
+            color: "var(--muted-foreground)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
           {formatInterval(run.lowerBound, run.upperBound)}
         </span>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <MetricTile label="Point" value={formatMaybeNumber(run.pointEstimate)} />
-        <MetricTile label="Prompt" value={formatPromptVersion(run.promptVersion || "?")} />
-        <MetricTile label="p50" value={formatMaybeNumber(run.quantiles.p50)} />
+        <MetricTile label="Point estimate" value={formatMaybeNumber(run.pointEstimate)} />
+        <MetricTile label="Prompt version" value={formatPromptVersion(run.promptVersion || "?")} />
+        <MetricTile label="Median (p50)" value={formatMaybeNumber(run.quantiles.p50)} />
       </div>
 
       {/* Quantiles */}
       <div className="mt-4">
-        <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+        <div className="text-[11px] font-medium" style={{ color: "var(--muted-foreground)" }}>
           Quantiles
         </div>
         <div className="mt-2 grid grid-cols-5 gap-1.5">
           {["p05", "p25", "p50", "p75", "p95"].map((key) => (
-            <div key={key} className="rounded-md border px-2 py-2 text-center" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
-              <div className="font-mono text-[9px] uppercase" style={{ color: "var(--muted-foreground)" }}>{key}</div>
-              <div className="mt-1 font-mono text-[12px] font-semibold" style={{ color: "var(--foreground)" }}>
+            <div
+              key={key}
+              className="rounded-md border px-2 py-2 text-center"
+              style={{ borderColor: "var(--border)", background: "var(--muted)" }}
+            >
+              <div className="text-[10px]" style={{ color: "var(--muted-foreground)" }}>
+                {key}
+              </div>
+              <div
+                className="mt-1 text-[12px] font-semibold"
+                style={{ color: "var(--foreground)", fontVariantNumeric: "tabular-nums" }}
+              >
                 {formatMaybeNumber(run.quantiles[key])}
               </div>
             </div>
@@ -948,15 +1083,19 @@ function ResponseDetail({
       {/* Citations */}
       {run.citations.length > 0 && (
         <div className="mt-4">
-          <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+          <div className="text-[11px] font-medium" style={{ color: "var(--muted-foreground)" }}>
             Literature anchors
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {run.citations.map((citation) => (
               <span
                 key={`${run.runIndex}-${citation}`}
-                className="rounded-md border px-2 py-1 font-mono text-[10px]"
-                style={{ borderColor: "var(--border)", background: "var(--muted)", color: "var(--muted-foreground)" }}
+                className="rounded-md border px-2 py-1 text-[11px]"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--muted)",
+                  color: "var(--muted-foreground)",
+                }}
               >
                 {citation}
               </span>
@@ -976,7 +1115,7 @@ function TextSection({ title, text }: { title: string; text: string | null }) {
   if (!text) return null;
   return (
     <div className="mt-4">
-      <div className="font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+      <div className="text-[11px] font-medium" style={{ color: "var(--muted-foreground)" }}>
         {title}
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
@@ -989,10 +1128,16 @@ function TextSection({ title, text }: { title: string; text: string | null }) {
 function CollapsibleSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <details className="mt-3 rounded-md border" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
-      <summary className="cursor-pointer px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>
+      <summary
+        className="cursor-pointer px-3 py-2.5 text-[11px] font-medium"
+        style={{ color: "var(--muted-foreground)" }}
+      >
         {title}
       </summary>
-      <pre className="overflow-x-auto whitespace-pre-wrap border-t px-3 py-3 font-mono text-[11px] leading-relaxed" style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}>
+      <pre
+        className="overflow-x-auto whitespace-pre-wrap border-t px-3 py-3 font-mono text-[11px] leading-relaxed"
+        style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+      >
         {children}
       </pre>
     </details>
@@ -1001,22 +1146,46 @@ function CollapsibleSection({ title, children }: { title: string; children: Reac
 
 function MetricTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border px-3 py-2" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
-      <div className="font-mono text-[9px] uppercase tracking-[0.15em]" style={{ color: "var(--muted-foreground)" }}>{label}</div>
-      <div className="mt-1 font-mono text-sm font-semibold" style={{ color: "var(--foreground)" }}>{value}</div>
+    <div
+      className="rounded-md border px-3 py-2"
+      style={{ borderColor: "var(--border)", background: "var(--muted)" }}
+    >
+      <div className="text-[10px]" style={{ color: "var(--muted-foreground)" }}>
+        {label}
+      </div>
+      <div
+        className="mt-0.5 text-sm font-semibold"
+        style={{ color: "var(--foreground)", fontVariantNumeric: "tabular-nums" }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
 
 /* ---------- Formatters ---------- */
 
-function formatCurrency(value: number | null): string {
-  if (value === null) return "—";
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 4 }).format(value);
+function sentenceCase(value: string): string {
+  const spaced = value.replaceAll("_", " ").trim();
+  if (!spaced) return spaced;
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1).toLowerCase();
 }
 
-function formatInterval(lower: number | null | undefined, upper: number | null | undefined): string {
-  if (lower === null || lower === undefined || upper === null || upper === undefined) return "—";
+function formatCurrency(value: number | null): string {
+  if (value === null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 4,
+  }).format(value);
+}
+
+function formatInterval(
+  lower: number | null | undefined,
+  upper: number | null | undefined,
+): string {
+  if (lower === null || lower === undefined || upper === null || upper === undefined)
+    return "—";
   return `[${formatNumber(lower)}, ${formatNumber(upper)}]`;
 }
 

@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
 };
 
+const themeInitScript = `(function(){try{var t=localStorage.getItem("eba-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;if(d)document.documentElement.classList.add("dark");}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,9 +32,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${inter.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {children}
+      </body>
     </html>
   );
 }
