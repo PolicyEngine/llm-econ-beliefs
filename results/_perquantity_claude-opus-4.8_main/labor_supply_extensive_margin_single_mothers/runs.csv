@@ -1,0 +1,511 @@
+provider,model_name,quantity_id,run_index,prompt_version,tool_regime,parsed_ok,point_estimate,interpretation,lower_bound,upper_bound,confidence_level,quantiles,quantiles_repaired,citations,reasoning_summary,error,raw_response,prompt
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,1,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001), EITC and single mothers' employment | Eissa & Liebman (1996), Labor supply response to EITC | Chetty et al. (2013), micro vs macro elasticities / extensive margin","Single mothers have notably larger extensive-margin labor supply responses than the general population, driven by EITC and welfare-reform evidence. Participation elasticities in this literature commonly cluster around 0.5-1.0, larger than the ~0.2-0.3 typical of other groups. I center near 0.7 with meaningful spread reflecting methodological variation and definitional differences (employment vs participation).",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001), EITC and single mothers' employment"",""Eissa & Liebman (1996), Labor supply response to EITC"",""Chetty et al. (2013), micro vs macro elasticities / extensive margin""],""reasoning_summary"":""Single mothers have notably larger extensive-margin labor supply responses than the general population, driven by EITC and welfare-reform evidence. Participation elasticities in this literature commonly cluster around 0.5-1.0, larger than the ~0.2-0.3 typical of other groups. I center near 0.7 with meaningful spread reflecting methodological variation and definitional differences (employment vs participation).""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,2,v4,none,True,0.6,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.3,0.9,"{""p05"": 0.2, ""p25"": 0.4, ""p50"": 0.6, ""p75"": 0.85, ""p95"": 1.3}",False,"Meyer & Rosenbaum (2001), QJE - EITC and labor supply of single mothers | Eissa & Liebman (1996), QJE - EITC effects | Chetty et al. (2013) - micro vs macro elasticities meta-analysis","Single mothers are consistently found to have large extensive-margin labor supply responses, driven substantially by EITC and welfare-reform natural experiments. Participation elasticities cluster around 0.5-0.8, larger than the general population. Meta-analyses (e.g., Chetty et al.) put steady-state extensive elasticities near 0.25 on average but higher for low-income single parents. I center at ~0.6 with meaningful spread to reflect heterogeneity across studies and identification strategies.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.6,""quantiles"":{""p05"":0.2,""p25"":0.4,""p50"":0.6,""p75"":0.85,""p95"":1.3},""citations"":[""Meyer & Rosenbaum (2001), QJE - EITC and labor supply of single mothers"",""Eissa & Liebman (1996), QJE - EITC effects"",""Chetty et al. (2013) - micro vs macro elasticities meta-analysis""],""reasoning_summary"":""Single mothers are consistently found to have large extensive-margin labor supply responses, driven substantially by EITC and welfare-reform natural experiments. Participation elasticities cluster around 0.5-0.8, larger than the general population. Meta-analyses (e.g., Chetty et al.) put steady-state extensive elasticities near 0.25 on average but higher for low-income single parents. I center at ~0.6 with meaningful spread to reflect heterogeneity across studies and identification strategies.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,3,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,Meyer & Rosenbaum (2001) EITC and labor supply of single mothers | Eissa & Liebman (1996) EITC participation effects | Chetty et al. / Chetty (2013) micro vs macro elasticities review,"Single mothers show relatively large extensive-margin (participation) responses, notably from EITC-based natural experiments. Participation elasticities in this population are typically estimated around 0.5-1.0, larger than the general population's roughly 0.25-0.3. I center near 0.7 with substantial uncertainty reflecting variation across studies and definitions.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001) EITC and labor supply of single mothers"",""Eissa & Liebman (1996) EITC participation effects"",""Chetty et al. / Chetty (2013) micro vs macro elasticities review""],""reasoning_summary"":""Single mothers show relatively large extensive-margin (participation) responses, notably from EITC-based natural experiments. Participation elasticities in this population are typically estimated around 0.5-1.0, larger than the general population's roughly 0.25-0.3. I center near 0.7 with substantial uncertainty reflecting variation across studies and definitions.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,4,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.5,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 1.0, ""p95"": 1.5}",False,"Eissa and Liebman (1996) EITC and labor supply of single mothers | Meyer and Rosenbaum (2001) welfare, EITC, and single mothers' employment | Chetty et al. (2013) / Chetty (2012) reviews of extensive-margin elasticities","Single mothers are well documented to have large extensive-margin responses, driven by EITC and welfare reform evidence. Participation elasticities for this group are typically estimated well above the general-population average (~0.25). Meyer-Rosenbaum and Eissa-Liebman work implies elasticities in the 0.5-1.0 range, with some estimates higher. I center at ~0.7 with substantial uncertainty allowing for values up to 1.5.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":1.0,""p95"":1.5},""citations"":[""Eissa and Liebman (1996) EITC and labor supply of single mothers"",""Meyer and Rosenbaum (2001) welfare, EITC, and single mothers' employment"",""Chetty et al. (2013) / Chetty (2012) reviews of extensive-margin elasticities""],""reasoning_summary"":""Single mothers are well documented to have large extensive-margin responses, driven by EITC and welfare reform evidence. Participation elasticities for this group are typically estimated well above the general-population average (~0.25). Meyer-Rosenbaum and Eissa-Liebman work implies elasticities in the 0.5-1.0 range, with some estimates higher. I center at ~0.7 with substantial uncertainty allowing for values up to 1.5.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,5,v4,none,True,0.7,Medium-run extensive-margin employment/participation elasticity of US single mothers with respect to the net-of-tax wage.,0.2,1.5,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 1.0, ""p95"": 1.5}",False,"Meyer & Rosenbaum (2001, QJE) on EITC and single mothers' employment | Eissa & Liebman (1996, QJE) EITC labor supply | Chetty et al. (2013) micro/macro elasticity synthesis","Single mothers show relatively large extensive-margin responses in the US literature, particularly from EITC reforms. Participation elasticities are typically found in the 0.5-1.0 range, larger than for the general population. I center around 0.7 with substantial upside uncertainty reflecting studies finding elasticities near or above 1, and downside toward smaller estimates.",,"{""interpretation"":""Medium-run extensive-margin employment/participation elasticity of US single mothers with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":1.0,""p95"":1.5},""citations"":[""Meyer & Rosenbaum (2001, QJE) on EITC and single mothers' employment"",""Eissa & Liebman (1996, QJE) EITC labor supply"",""Chetty et al. (2013) micro/macro elasticity synthesis""],""reasoning_summary"":""Single mothers show relatively large extensive-margin responses in the US literature, particularly from EITC reforms. Participation elasticities are typically found in the 0.5-1.0 range, larger than for the general population. I center around 0.7 with substantial upside uncertainty reflecting studies finding elasticities near or above 1, and downside toward smaller estimates.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,6,v4,none,True,0.7,Medium-run extensive-margin employment/participation elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001) QJE, EITC and single mothers' employment | Eissa & Liebman (1996) QJE, Labor supply response to EITC | Chetty, Guren, Manoli & Weber (2011/2013) meta-analysis of extensive-margin elasticities","Single mothers show large extensive-margin responses, especially documented via EITC reforms. Meta-evidence suggests participation elasticities substantially above the general population, often in the 0.3-1.0 range with central estimates near 0.5-0.8. I center at ~0.7 with wide bounds reflecting heterogeneity across studies and specifications.",,"{""interpretation"":""Medium-run extensive-margin employment/participation elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001) QJE, EITC and single mothers' employment"",""Eissa & Liebman (1996) QJE, Labor supply response to EITC"",""Chetty, Guren, Manoli & Weber (2011/2013) meta-analysis of extensive-margin elasticities""],""reasoning_summary"":""Single mothers show large extensive-margin responses, especially documented via EITC reforms. Meta-evidence suggests participation elasticities substantially above the general population, often in the 0.3-1.0 range with central estimates near 0.5-0.8. I center at ~0.7 with wide bounds reflecting heterogeneity across studies and specifications.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,7,v4,none,True,0.7,Medium-run extensive-margin (employment/labor-force participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.5,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 1.0, ""p95"": 1.5}",False,Meyer & Rosenbaum (2001) welfare/EITC and single mothers' employment | Eissa & Liebman (1996) EITC labor supply | Chetty et al. / Chetty (2012) micro vs macro elasticity meta-discussion,"Single mothers show notably larger extensive-margin responses than the general population, driven by EITC and welfare reform evidence. Participation elasticities in this group commonly cluster around 0.5-1.0, higher than prime-age men. I center near 0.7 with wide uncertainty reflecting variation across studies, methods, and definitions of net-of-tax wage.",,"{""interpretation"":""Medium-run extensive-margin (employment/labor-force participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":1.0,""p95"":1.5},""citations"":[""Meyer & Rosenbaum (2001) welfare/EITC and single mothers' employment"",""Eissa & Liebman (1996) EITC labor supply"",""Chetty et al. / Chetty (2012) micro vs macro elasticity meta-discussion""],""reasoning_summary"":""Single mothers show notably larger extensive-margin responses than the general population, driven by EITC and welfare reform evidence. Participation elasticities in this group commonly cluster around 0.5-1.0, higher than prime-age men. I center near 0.7 with wide uncertainty reflecting variation across studies, methods, and definitions of net-of-tax wage.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,8,v4,none,True,0.7,Medium-run extensive-margin employment/participation elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001) on EITC and single mothers' labor supply | Eissa & Liebman (1996) EITC and labor force participation | Chetty, Guren, Manoli, Weber (2013) meta-analysis of participation elasticities","Single mothers are known to have relatively large extensive-margin (participation) elasticities, larger than for the general population, driven by EITC and welfare reform studies. Meta-analyses place participation elasticities near 0.2-0.4 broadly, but single mothers cluster higher, often 0.5-1.0. I center around 0.7 with substantial uncertainty upward given some estimates exceeding 1.",,"{""interpretation"":""Medium-run extensive-margin employment/participation elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001) on EITC and single mothers' labor supply"",""Eissa & Liebman (1996) EITC and labor force participation"",""Chetty, Guren, Manoli, Weber (2013) meta-analysis of participation elasticities""],""reasoning_summary"":""Single mothers are known to have relatively large extensive-margin (participation) elasticities, larger than for the general population, driven by EITC and welfare reform studies. Meta-analyses place participation elasticities near 0.2-0.4 broadly, but single mothers cluster higher, often 0.5-1.0. I center around 0.7 with substantial uncertainty upward given some estimates exceeding 1.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,9,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001), QJE - EITC and labor supply of single mothers | Eissa & Liebman (1996), QJE - EITC and labor force participation | Chetty et al. (2013) / Chetty (2012) - meta-analyses of labor supply elasticities","Single mothers show relatively large extensive-margin responses, driven by EITC and welfare reform evidence. Participation elasticities in this population are commonly estimated around 0.5-1.0, larger than the general population's roughly 0.25. I center near 0.7 with meaningful uncertainty, allowing values from ~0.2 up to ~1.4 to reflect heterogeneity across studies and specifications.",,"{""interpretation"": ""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"": 0.7,""quantiles"": {""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4},""citations"": [""Meyer & Rosenbaum (2001), QJE - EITC and labor supply of single mothers"",""Eissa & Liebman (1996), QJE - EITC and labor force participation"",""Chetty et al. (2013) / Chetty (2012) - meta-analyses of labor supply elasticities""],""reasoning_summary"": ""Single mothers show relatively large extensive-margin responses, driven by EITC and welfare reform evidence. Participation elasticities in this population are commonly estimated around 0.5-1.0, larger than the general population's roughly 0.25. I center near 0.7 with meaningful uncertainty, allowing values from ~0.2 up to ~1.4 to reflect heterogeneity across studies and specifications.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,10,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,Meyer & Rosenbaum (2001) welfare/EITC and single mothers' employment | Eissa & Liebman (1996) EITC and labor supply of single mothers | Chetty et al. (2013) / Chetty (2012) review of extensive-margin elasticities,"Single mothers are the group with the largest documented extensive-margin labor supply responses, driven by EITC and welfare reform evidence. Participation elasticities are typically found in the roughly 0.4–1.0 range, higher than the general population's near-zero-to-modest values. I center around 0.7 with substantial uncertainty reflecting variation across studies and the medium-run framing.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001) welfare/EITC and single mothers' employment"",""Eissa & Liebman (1996) EITC and labor supply of single mothers"",""Chetty et al. (2013) / Chetty (2012) review of extensive-margin elasticities""],""reasoning_summary"":""Single mothers are the group with the largest documented extensive-margin labor supply responses, driven by EITC and welfare reform evidence. Participation elasticities are typically found in the roughly 0.4–1.0 range, higher than the general population's near-zero-to-modest values. I center around 0.7 with substantial uncertainty reflecting variation across studies and the medium-run framing.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,11,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001), EITC and single mothers' labor supply | Eissa & Liebman (1996), EITC participation effects | Chetty et al. (2013) / Chetty (2012) micro vs macro extensive-margin elasticities","Single mothers show relatively large extensive-margin responsiveness, especially documented via EITC expansions. Participation elasticities in this population are commonly estimated in the 0.5-1.0 range, larger than for the general population. I center at ~0.7 with a right-skewed spread reflecting heterogeneity across studies and identification strategies.",,"{""interpretation"": ""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"": 0.7,""quantiles"": {""p05"": 0.2,""p25"": 0.45,""p50"": 0.7,""p75"": 0.95,""p95"": 1.4},""citations"": [""Meyer & Rosenbaum (2001), EITC and single mothers' labor supply"",""Eissa & Liebman (1996), EITC participation effects"",""Chetty et al. (2013) / Chetty (2012) micro vs macro extensive-margin elasticities""],""reasoning_summary"": ""Single mothers show relatively large extensive-margin responsiveness, especially documented via EITC expansions. Participation elasticities in this population are commonly estimated in the 0.5-1.0 range, larger than for the general population. I center at ~0.7 with a right-skewed spread reflecting heterogeneity across studies and identification strategies.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,12,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Eissa and Liebman (1996) EITC and labor supply of single mothers | Meyer and Rosenbaum (2001) welfare, EITC, employment of single mothers | Chetty et al. (2013) micro/macro labor supply elasticities review","Single mothers are known to have large extensive-margin responses relative to intensive margin, driven by EITC and welfare reform evidence. Participation elasticities in this population are commonly estimated around 0.5-1.0, higher than the general population. I center near 0.7 with a right skew to accommodate estimates near or above 1.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Eissa and Liebman (1996) EITC and labor supply of single mothers"",""Meyer and Rosenbaum (2001) welfare, EITC, employment of single mothers"",""Chetty et al. (2013) micro/macro labor supply elasticities review""],""reasoning_summary"":""Single mothers are known to have large extensive-margin responses relative to intensive margin, driven by EITC and welfare reform evidence. Participation elasticities in this population are commonly estimated around 0.5-1.0, higher than the general population. I center near 0.7 with a right skew to accommodate estimates near or above 1.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,13,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Meyer & Rosenbaum (2001), QJE, welfare/EITC and single mothers' employment | Eissa & Liebman (1996), QJE, EITC and labor supply of single mothers | Chetty et al. (2013) meta-analysis / Chetty (2012) on extensive vs intensive margin elasticities","Extensive-margin labor supply elasticities for single mothers are consistently found to be relatively large compared with the general population, driven by EITC and welfare reform evidence. Point estimates in the literature cluster around 0.5-1.0, so I center near 0.7 with substantial uncertainty reflecting variation across studies and definitions.",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Meyer & Rosenbaum (2001), QJE, welfare/EITC and single mothers' employment"",""Eissa & Liebman (1996), QJE, EITC and labor supply of single mothers"",""Chetty et al. (2013) meta-analysis / Chetty (2012) on extensive vs intensive margin elasticities""],""reasoning_summary"":""Extensive-margin labor supply elasticities for single mothers are consistently found to be relatively large compared with the general population, driven by EITC and welfare reform evidence. Point estimates in the literature cluster around 0.5-1.0, so I center near 0.7 with substantial uncertainty reflecting variation across studies and definitions.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,14,v4,none,True,0.7,Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.4,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 0.95, ""p95"": 1.4}",False,"Eissa and Liebman (1996), EITC and labor supply of single mothers | Meyer and Rosenbaum (2001), Welfare, the EITC, and the labor supply of single mothers | Chetty et al. (2013) / Chetty (2012) elasticity review on extensive margins","Single mothers show large extensive-margin responses, driven strongly by EITC expansions and welfare reform evidence. Participation elasticities for this group are typically well above the general population, commonly cited in the 0.5-1.0 range. I center near 0.7 with meaningful uncertainty, allowing tails down toward 0.2 (more conservative structural estimates) and up toward 1.4 (larger quasi-experimental responses).",,"{""interpretation"":""Medium-run extensive-margin (employment/participation) elasticity of single mothers in the US with respect to the net-of-tax wage."",""point_estimate"":0.7,""quantiles"":{""p05"":0.2,""p25"":0.45,""p50"":0.7,""p75"":0.95,""p95"":1.4},""citations"":[""Eissa and Liebman (1996), EITC and labor supply of single mothers"",""Meyer and Rosenbaum (2001), Welfare, the EITC, and the labor supply of single mothers"",""Chetty et al. (2013) / Chetty (2012) elasticity review on extensive margins""],""reasoning_summary"":""Single mothers show large extensive-margin responses, driven strongly by EITC expansions and welfare reform evidence. Participation elasticities for this group are typically well above the general population, commonly cited in the 0.5-1.0 range. I center near 0.7 with meaningful uncertainty, allowing tails down toward 0.2 (more conservative structural estimates) and up toward 1.4 (larger quasi-experimental responses).""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+anthropic,claude-opus-4.8,labor_supply.extensive_margin.single_mothers,15,v4,none,True,0.7,Medium-run extensive-margin (employment/labor-force participation) elasticity of single mothers in the US with respect to the net-of-tax wage.,0.2,1.5,0.9,"{""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 1.0, ""p95"": 1.5}",False,"Eissa and Liebman (1996) EITC and labor supply of single mothers | Meyer and Rosenbaum (2001) Welfare, EITC, and employment of single mothers | Chetty et al. (2013) / Chetty (2012) elasticity meta-analysis","Single mothers' labor supply responds strongly on the extensive margin, especially due to EITC and welfare reform evidence. Participation elasticities for this group are among the largest estimated, typically clustering around 0.5-1.0, higher than the general population. I center at 0.7 with a right-skewed range reflecting variation across studies and definitions.",,"{""interpretation"": ""Medium-run extensive-margin (employment/labor-force participation) elasticity of single mothers in the US with respect to the net-of-tax wage."", ""point_estimate"": 0.7, ""quantiles"": {""p05"": 0.2, ""p25"": 0.45, ""p50"": 0.7, ""p75"": 1.0, ""p95"": 1.5}, ""citations"": [""Eissa and Liebman (1996) EITC and labor supply of single mothers"", ""Meyer and Rosenbaum (2001) Welfare, EITC, and employment of single mothers"", ""Chetty et al. (2013) / Chetty (2012) elasticity meta-analysis""], ""reasoning_summary"": ""Single mothers' labor supply responds strongly on the extensive margin, especially due to EITC and welfare reform evidence. Participation elasticities for this group are among the largest estimated, typically clustering around 0.5-1.0, higher than the general population. I center at 0.7 with a right-skewed range reflecting variation across studies and definitions.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Employment participation elasticity of single mothers
+- Definition: Percent change in employment or labor-force participation from a 1 percent change in the net-of-tax wage.
+- Target interpretation: Medium-run employment participation elasticity with respect to the net-of-tax wage
+- Population/context: Single mothers in the United States
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"

@@ -4,6 +4,11 @@ For a given model, spawns one subprocess per quantity (each doing 15 runs),
 then merges all per-quantity outputs into a single canonical batch dir
 matching what a normal cell run would produce.
 
+Reruns resume from the staging directory by default: quantities whose staged
+`runs.jsonl` already holds a full set of records are skipped, so an
+interrupted panel run picks up where it left off. Pass `--fresh` to discard
+staged results and re-elicit everything.
+
 Usage:
     python3 scripts/run_v4_per_quantity.py --model claude-sonnet-4.6
 """
@@ -22,6 +27,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from run_v4_full_panel import count_records
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.experiment import (
@@ -182,6 +190,11 @@ def main() -> int:
         default="main",
     )
     parser.add_argument("--per-quantity-timeout", type=int, default=900)
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="discard any staged per-quantity results instead of resuming",
+    )
     args = parser.parse_args()
 
     if args.batch == "main":
@@ -201,16 +214,26 @@ def main() -> int:
         target_dir = REPO_ROOT / "results" / f"{args.model}-ies-clarify-batch15"
 
     staging_root = REPO_ROOT / "results" / f"_perquantity_{args.model}_{args.batch}"
-    if staging_root.exists():
+    if staging_root.exists() and args.fresh:
         shutil.rmtree(staging_root)
-    staging_root.mkdir(parents=True)
+    staging_root.mkdir(parents=True, exist_ok=True)
 
     print(f"Running {args.model} / {args.batch} per-quantity ({len(qids)} quantities)")
     start = time.time()
     successes = 0
     for i, qid in enumerate(qids, 1):
-        print(f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid}")
         sub = staging_root / qid.replace(".", "_")
+        _, staged_total = count_records(sub, args.prompt_version)
+        if staged_total >= 15:
+            print(
+                f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid} "
+                f"SKIP ({staged_total} staged runs)"
+            )
+            successes += 1
+            continue
+        if sub.exists():
+            shutil.rmtree(sub)  # partial cell from an interrupted run — redo cleanly
+        print(f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid}")
         if run_one_quantity(
             args.model,
             qid,

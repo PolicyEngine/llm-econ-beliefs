@@ -1,0 +1,511 @@
+provider,model_name,quantity_id,run_index,prompt_version,tool_regime,parsed_ok,point_estimate,interpretation,lower_bound,upper_bound,confidence_level,quantiles,quantiles_repaired,citations,reasoning_summary,error,raw_response,prompt
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,1,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity: percent change in annual hours worked among already-working prime-age U.S. workers for a 1 percent change in the net-of-tax wage, including substitution and income effects and excluding participation responses.",-0.08,0.22,0.9,"{""p05"": -0.08, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.1, ""p95"": 0.22}",False,"Pencavel (1986), Handbook of Labor Economics chapter on male labor supply | Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes","My belief is that intensive annual-hours responses for prime-age workers are small: substitution effects are positive but partly offset by income effects, and hours constraints plus stable full-time schedules limit adjustment. Male estimates are often near zero or slightly negative, while female intensive responses are somewhat larger, yielding a small positive overall elasticity.",,"{""citations"":[""Pencavel (1986), Handbook of Labor Economics chapter on male labor supply"",""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity: percent change in annual hours worked among already-working prime-age U.S. workers for a 1 percent change in the net-of-tax wage, including substitution and income effects and excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.08,""p25"":0,""p50"":0.05,""p75"":0.1,""p95"":0.22},""reasoning_summary"":""My belief is that intensive annual-hours responses for prime-age workers are small: substitution effects are positive but partly offset by income effects, and hours constraints plus stable full-time schedules limit adjustment. Male estimates are often near zero or slightly negative, while female intensive responses are somewhat larger, yielding a small positive overall elasticity.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,2,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses.",-0.05,0.25,0.9,"{""p05"": -0.05, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.25}",False,"Blundell and MaCurdy, Handbook of Labor Economics chapter on labor supply | Keane, 2011, Journal of Economic Literature review on labor supply and taxes | Chetty, 2012, bounds on taxable income/labor supply elasticities","My belief is that annual-hours responses among already-employed prime-age U.S. workers are small: substitution effects are positive but partly offset by income effects, and many workers face hours constraints or adjustment frictions. Estimates for men are often near zero, while married women and some groups are more responsive, so the population average is modestly positive with meaningful uncertainty.",,"{""citations"":[""Blundell and MaCurdy, Handbook of Labor Economics chapter on labor supply"",""Keane, 2011, Journal of Economic Literature review on labor supply and taxes"",""Chetty, 2012, bounds on taxable income/labor supply elasticities""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.05,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.25},""reasoning_summary"":""My belief is that annual-hours responses among already-employed prime-age U.S. workers are small: substitution effects are positive but partly offset by income effects, and many workers face hours constraints or adjustment frictions. Estimates for men are often near zero, while married women and some groups are more responsive, so the population average is modestly positive with meaningful uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,3,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: percent change in annual hours worked for a 1% change in the net-of-tax wage, including substitution and income effects but excluding participation.",-0.05,0.2,0.9,"{""p05"": -0.05, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.1, ""p95"": 0.2}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply | Keane (2011), Labour supply and taxes: a survey | Saez, Slemrod, and Giertz (2012), survey on taxable income responses","My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive, but income effects offset much of them, especially for men, while women’s hours are somewhat more responsive but still modest when participation is excluded.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply"",""Keane (2011), Labour supply and taxes: a survey"",""Saez, Slemrod, and Giertz (2012), survey on taxable income responses""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: percent change in annual hours worked for a 1% change in the net-of-tax wage, including substitution and income effects but excluding participation."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.05,""p25"":0.0,""p50"":0.05,""p75"":0.1,""p95"":0.2},""reasoning_summary"":""My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive, but income effects offset much of them, especially for men, while women’s hours are somewhat more responsive but still modest when participation is excluded.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,4,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers already employed: percent change in annual hours worked for a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation responses.",-0.05,0.2,0.9,"{""p05"": -0.05, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.1, ""p95"": 0.2}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), labor supply and taxes survey | Chetty (2012), bounds on elasticities using optimization frictions","My belief is that annual hours among already-employed prime-age U.S. workers are only weakly responsive to net wages. Substitution effects are positive but partly offset by income effects, and institutional/job constraints limit adjustment, yielding a small positive median with plausible values near zero or slightly negative.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), labor supply and taxes survey"",""Chetty (2012), bounds on elasticities using optimization frictions""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers already employed: percent change in annual hours worked for a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.05,""p25"":0,""p50"":0.05,""p75"":0.1,""p95"":0.2},""reasoning_summary"":""My belief is that annual hours among already-employed prime-age U.S. workers are only weakly responsive to net wages. Substitution effects are positive but partly offset by income effects, and institutional/job constraints limit adjustment, yielding a small positive median with plausible values near zero or slightly negative.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,5,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: the percent change in annual hours worked for a 1 percent increase in the net-of-tax wage, including substitution and income effects but excluding participation responses.",-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.3}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature, labor supply and taxes review | Chetty, Guren, Manoli, and Weber (2011), micro vs. macro labor supply elasticities","My prior is that intensive annual-hours responses among prime-age workers are small: substitution effects are positive but partly offset by income effects, and fixed schedules/institutional constraints limit adjustment. Estimates for men are often near zero, while women’s intensive-margin responses are somewhat larger, so for the pooled already-working prime-age population I center slightly above zero with meaningful uncertainty.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature, labor supply and taxes review"",""Chetty, Guren, Manoli, and Weber (2011), micro vs. macro labor supply elasticities""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: the percent change in annual hours worked for a 1 percent increase in the net-of-tax wage, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.3},""reasoning_summary"":""My prior is that intensive annual-hours responses among prime-age workers are small: substitution effects are positive but partly offset by income effects, and fixed schedules/institutional constraints limit adjustment. Estimates for men are often near zero, while women’s intensive-margin responses are somewhat larger, so for the pooled already-working prime-age population I center slightly above zero with meaningful uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,6,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers already employed: percent change in annual hours from a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation.",-0.1,0.25,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.25}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes | Pencavel (1986), Handbook of Labor Economics chapter on male labor supply","My belief is that intensive annual-hours responses for prime-age incumbent workers are small: substitution effects are positive, but income effects offset much of them, especially for men, while women’s intensive elasticities are modestly higher. Aggregating across prime-age workers yields a central estimate slightly above zero with meaningful uncertainty and some probability of near-zero or mildly negative uncompensated responses.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes"",""Pencavel (1986), Handbook of Labor Economics chapter on male labor supply""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers already employed: percent change in annual hours from a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.25},""reasoning_summary"":""My belief is that intensive annual-hours responses for prime-age incumbent workers are small: substitution effects are positive, but income effects offset much of them, especially for men, while women’s intensive elasticities are modestly higher. Aggregating across prime-age workers yields a central estimate slightly above zero with meaningful uncertainty and some probability of near-zero or mildly negative uncompensated responses.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,7,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for already-working prime-age U.S. workers, including substitution and income effects but excluding participation responses.",-0.05,0.25,0.9,"{""p05"": -0.05, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.1, ""p95"": 0.25}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes | Chetty et al. (2011), evidence on intensive-margin labor supply responses","My belief is that annual-hours responses among prime-age workers already employed are small, with offsetting income effects and institutional/job constraints limiting intensive-margin adjustment. Estimates can be near zero or modestly positive, especially for groups with more flexible hours, but large elasticities seem unlikely in this population.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes"",""Chetty et al. (2011), evidence on intensive-margin labor supply responses""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for already-working prime-age U.S. workers, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.05,""p25"":0.0,""p50"":0.05,""p75"":0.1,""p95"":0.25},""reasoning_summary"":""My belief is that annual-hours responses among prime-age workers already employed are small, with offsetting income effects and institutional/job constraints limiting intensive-margin adjustment. Estimates can be near zero or modestly positive, especially for groups with more flexible hours, but large elasticities seem unlikely in this population.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,8,v4,none,True,0.05,"Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: the percent change in annual hours worked for a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation responses.",-0.1,0.25,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.25}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), labor supply and taxes review | Saez, Slemrod, and Giertz (2012), taxable income elasticity review","For already-working prime-age U.S. workers, annual hours appear only weakly responsive to net wages. Substitution effects are positive but partly offset by income effects, with especially small elasticities for prime-age men and somewhat larger but still modest responses for women; excluding participation keeps the central estimate low.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), labor supply and taxes review"",""Saez, Slemrod, and Giertz (2012), taxable income elasticity review""],""interpretation"":""Intensive-margin uncompensated annual-hours elasticity for prime-age U.S. workers who are already employed: the percent change in annual hours worked for a 1 percent change in the net-of-tax wage, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.25},""reasoning_summary"":""For already-working prime-age U.S. workers, annual hours appear only weakly responsive to net wages. Substitution effects are positive but partly offset by income effects, with especially small elasticities for prime-age men and somewhat larger but still modest responses for women; excluding participation keeps the central estimate low.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,9,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses.",-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.3}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes | Chetty et al. (2011), bounds on elasticities using optimization frictions","For already-employed prime-age U.S. workers, annual-hours responses to net wages are generally believed to be small. Substitution effects are positive but partly offset by income effects, and many jobs have hours constraints, so my central estimate is near zero but slightly positive, with uncertainty allowing modest negative or moderately positive values.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes"",""Chetty et al. (2011), bounds on elasticities using optimization frictions""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.3},""reasoning_summary"":""For already-employed prime-age U.S. workers, annual-hours responses to net wages are generally believed to be small. Substitution effects are positive but partly offset by income effects, and many jobs have hours constraints, so my central estimate is near zero but slightly positive, with uncertainty allowing modest negative or moderately positive values.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,10,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for already-working prime-age U.S. workers, including substitution and income effects but excluding participation responses.",-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.3}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes | Saez, Slemrod, and Giertz (2012), Journal of Economic Literature review of taxable income elasticities","For prime-age workers already employed, annual-hours responses to wage changes are typically small because hours constraints, stable full-time schedules, and offsetting income effects dampen the substitution response. I place the center slightly positive but allow modest negative values from dominant income effects and a right tail for settings with more flexible hours or larger estimated substitution effects.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes"",""Saez, Slemrod, and Giertz (2012), Journal of Economic Literature review of taxable income elasticities""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for already-working prime-age U.S. workers, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.3},""reasoning_summary"":""For prime-age workers already employed, annual-hours responses to wage changes are typically small because hours constraints, stable full-time schedules, and offsetting income effects dampen the substitution response. I place the center slightly positive but allow modest negative values from dominant income effects and a right tail for settings with more flexible hours or larger estimated substitution effects.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,11,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses.",-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.3}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply | Keane (2011), Journal of Economic Literature survey on labor supply and taxes | Pencavel (1986), Handbook of Labor Economics survey on male labor supply","My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small: male uncompensated hours elasticities are often near zero or slightly negative, while female intensive elasticities are positive but much smaller than total participation-inclusive labor supply responses. Aggregating across workers yields a modest positive median with uncertainty allowing small negative or moderately positive values.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics chapter on labor supply"",""Keane (2011), Journal of Economic Literature survey on labor supply and taxes"",""Pencavel (1986), Handbook of Labor Economics survey on male labor supply""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.3},""reasoning_summary"":""My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small: male uncompensated hours elasticities are often near zero or slightly negative, while female intensive elasticities are positive but much smaller than total participation-inclusive labor supply responses. Aggregating across workers yields a modest positive median with uncertainty allowing small negative or moderately positive values.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,12,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses.",-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.3}",False,"Blundell and MaCurdy, Handbook of Labor Economics chapter on labor supply, 1999 | Keane, Journal of Economic Literature survey on labor supply and taxes, 2011 | Chetty, American Economic Review on bounds for labor supply elasticities using optimization frictions, 2012","My belief is that annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive but partly offset by income effects, institutional hour constraints, and limited short-run adjustment, so the uncompensated intensive elasticity is centered near zero but plausibly modestly positive, with some chance of negative estimates and an upper tail for more responsive subgroups or longer horizons.",,"{""citations"":[""Blundell and MaCurdy, Handbook of Labor Economics chapter on labor supply, 1999"",""Keane, Journal of Economic Literature survey on labor supply and taxes, 2011"",""Chetty, American Economic Review on bounds for labor supply elasticities using optimization frictions, 2012""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.3},""reasoning_summary"":""My belief is that annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive but partly offset by income effects, institutional hour constraints, and limited short-run adjustment, so the uncompensated intensive elasticity is centered near zero but plausibly modestly positive, with some chance of negative estimates and an upper tail for more responsive subgroups or longer horizons.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,13,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses.",-0.1,0.25,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.12, ""p95"": 0.25}",False,"Keane (2011), labor supply and taxes review | Blundell and MaCurdy (1999), labor supply review | Chetty et al. (2011), extensive vs intensive margins and taxable income responses","My belief is that intensive-margin annual-hours responses for prime-age workers are small: substitution effects are positive but often offset by income effects and hours constraints. Estimates for men are often near zero, while married women and some groups may show modest positive responses, so I center the overall prime-age working population slightly above zero with a fairly wide upper tail.",,"{""citations"":[""Keane (2011), labor supply and taxes review"",""Blundell and MaCurdy (1999), labor supply review"",""Chetty et al. (2011), extensive vs intensive margins and taxable income responses""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.1,""p25"":0,""p50"":0.05,""p75"":0.12,""p95"":0.25},""reasoning_summary"":""My belief is that intensive-margin annual-hours responses for prime-age workers are small: substitution effects are positive but often offset by income effects and hours constraints. Estimates for men are often near zero, while married women and some groups may show modest positive responses, so I center the overall prime-age working population slightly above zero with a fairly wide upper tail.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,14,v4,none,True,0.05,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses.",-0.05,0.2,0.9,"{""p05"": -0.05, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.1, ""p95"": 0.2}",False,"Blundell and MaCurdy (1999), labor supply review in Handbook of Labor Economics | Saez, Slemrod, and Giertz (2012), taxable income elasticity review | Keane (2011), labor supply and taxes review","My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive but partly offset by income effects, and institutional/job constraints make annual hours relatively inelastic. I allow for near-zero or modestly negative estimates at the low end, with an upper tail reflecting studies or subgroups finding more responsive hours.",,"{""citations"":[""Blundell and MaCurdy (1999), labor supply review in Handbook of Labor Economics"",""Saez, Slemrod, and Giertz (2012), taxable income elasticity review"",""Keane (2011), labor supply and taxes review""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, excluding participation responses."",""point_estimate"":0.05,""quantiles"":{""p05"":-0.05,""p25"":0,""p50"":0.05,""p75"":0.1,""p95"":0.2},""reasoning_summary"":""My belief is that intensive annual-hours responses among already-working prime-age U.S. workers are small. Substitution effects are positive but partly offset by income effects, and institutional/job constraints make annual hours relatively inelastic. I allow for near-zero or modestly negative estimates at the low end, with an upper tail reflecting studies or subgroups finding more responsive hours.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.5,labor_supply.marshallian_wage_elasticity.prime_age,15,v4,none,True,0.08,"Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses.",-0.05,0.3,0.9,"{""p05"": -0.05, ""p25"": 0.02, ""p50"": 0.08, ""p75"": 0.15, ""p95"": 0.3}",False,"Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply | Keane (2011), labor supply and taxes survey | Pencavel (1986), Handbook of Labor Economics chapter on male labor supply","My current belief is that intensive annual-hours responses among already-employed prime-age workers are small: male hours elasticities are often near zero, while female intensive responses are positive but modest, and income effects partly offset substitution effects. I therefore put the median around 0.08 with meaningful uncertainty and some probability of a near-zero or slightly negative uncompensated response.",,"{""citations"":[""Blundell and MaCurdy (1999), Handbook of Labor Economics survey on labor supply"",""Keane (2011), labor supply and taxes survey"",""Pencavel (1986), Handbook of Labor Economics chapter on male labor supply""],""interpretation"":""Intensive-margin uncompensated elasticity of annual hours worked with respect to the net-of-tax wage for prime-age U.S. workers who are already employed, including substitution and income effects but excluding participation responses."",""point_estimate"":0.08,""quantiles"":{""p05"":-0.05,""p25"":0.02,""p50"":0.08,""p75"":0.15,""p95"":0.3},""reasoning_summary"":""My current belief is that intensive annual-hours responses among already-employed prime-age workers are small: male hours elasticities are often near zero, while female intensive responses are positive but modest, and income effects partly offset substitution effects. I therefore put the median around 0.08 with meaningful uncertainty and some probability of a near-zero or slightly negative uncompensated response.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Uncompensated wage elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, allowing both substitution and income effects and excluding participation responses.
+- Target interpretation: Intensive-margin uncompensated annual-hours elasticity
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"

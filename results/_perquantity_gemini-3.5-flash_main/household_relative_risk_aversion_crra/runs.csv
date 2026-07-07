@@ -1,0 +1,773 @@
+provider,model_name,quantity_id,run_index,prompt_version,tool_regime,parsed_ok,point_estimate,interpretation,lower_bound,upper_bound,confidence_level,quantiles,quantiles_repaired,citations,reasoning_summary,error,raw_response,prompt
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,1,v4,none,True,2.0,"Coefficient of relative risk aversion (CRRA, denoted as sigma) in a representative household's utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,"Mehra and Prescott (1985), 'The Equity Premium: A Puzzle' | Hall (1988), 'Intertemporal Substitution in Consumption' | Epstein and Zin (1989), 'Substitution, Risk Aversion, and the Temporal Behavior of Consumption and Asset Returns: A Theoretical Framework'","Standard macroeconomic calibrations typically set the CRRA coefficient between 1 and 2, representing log utility or moderate risk aversion. However, asset pricing models often require higher values, up to 10, to explain the equity premium puzzle, spanning a wide range of empirical estimates.",,"{
+  ""interpretation"": ""Coefficient of relative risk aversion (CRRA, denoted as sigma) in a representative household's utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985), 'The Equity Premium: A Puzzle'"",
+    ""Hall (1988), 'Intertemporal Substitution in Consumption'"",
+    ""Epstein and Zin (1989), 'Substitution, Risk Aversion, and the Temporal Behavior of Consumption and Asset Returns: A Theoretical Framework'""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic calibrations typically set the CRRA coefficient between 1 and 2, representing log utility or moderate risk aversion. However, asset pricing models often require higher values, up to 10, to explain the equity premium puzzle, spanning a wide range of empirical estimates.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,2,v4,none,True,2.0,CRRA coefficient (sigma) in representative household utility over consumption,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) 'The Equity Premium: A Puzzle' | Friend and Blume (1975) 'The Demand for Risky Assets' | Hall (1988) 'Intertemporal Substitution in Consumption',"In macroeconomic calibrations, log utility (CRRA = 1) and values around 2 are standard benchmarks. While asset pricing puzzles often require much higher risk aversion (sometimes exceeding 10) to explain risk premia, micro-level and survey evidence generally point to values between 1 and 3.",,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in representative household utility over consumption"",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985) 'The Equity Premium: A Puzzle'"",
+    ""Friend and Blume (1975) 'The Demand for Risky Assets'"",
+    ""Hall (1988) 'Intertemporal Substitution in Consumption'""
+  ],
+  ""reasoning_summary"": ""In macroeconomic calibrations, log utility (CRRA = 1) and values around 2 are standard benchmarks. While asset pricing puzzles often require much higher risk aversion (sometimes exceeding 10) to explain risk premia, micro-level and survey evidence generally point to values between 1 and 3.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,3,v4,none,True,2.0,Coefficient of relative risk aversion (CRRA) in a representative household utility function over consumption.,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 3.5, ""p95"": 10.0}",False,"Mehra and Prescott (1985), 'The Equity Premium: A Puzzle' | Chetty (2006), 'A New Method of Estimating Risk Aversion' | Friend and Blume (1975), 'The Demand for Risky Assets'","Most macroeconomic and financial models calibrate the CRRA parameter between 1 (log utility) and 3. Microeconometric studies of labor supply and asset holdings often find estimates centering around 1 to 2, while asset pricing puzzles can sometimes motivate much higher values up to 10.",,"{
+  ""interpretation"": ""Coefficient of relative risk aversion (CRRA) in a representative household utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 3.5,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985), 'The Equity Premium: A Puzzle'"",
+    ""Chetty (2006), 'A New Method of Estimating Risk Aversion'"",
+    ""Friend and Blume (1975), 'The Demand for Risky Assets'""
+  ],
+  ""reasoning_summary"": ""Most macroeconomic and financial models calibrate the CRRA parameter between 1 (log utility) and 3. Microeconometric studies of labor supply and asset holdings often find estimates centering around 1 to 2, while asset pricing puzzles can sometimes motivate much higher values up to 10.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,4,v4,none,True,2.0,"CRRA coefficient (sigma) in household utility over consumption, representing the degree of relative risk aversion for a representative household.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,"Mehra and Prescott (1985), 'The equity premium: A puzzle' | Friend and Blume (1975), 'The demand for risky assets' | Hall (1988), 'Intertemporal substitution in consumption'","Standard macroeconomic calibrations and micro-empirical studies commonly find or use a CRRA coefficient between 1 (log utility) and 2. However, finance and asset pricing literatures often justify higher values, up to 10, to resolve empirical puzzles like the equity premium, prompting a right-skewed belief distribution.",,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption, representing the degree of relative risk aversion for a representative household."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 5.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985), 'The equity premium: A puzzle'"",
+    ""Friend and Blume (1975), 'The demand for risky assets'"",
+    ""Hall (1988), 'Intertemporal substitution in consumption'""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic calibrations and micro-empirical studies commonly find or use a CRRA coefficient between 1 (log utility) and 2. However, finance and asset pricing literatures often justify higher values, up to 10, to resolve empirical puzzles like the equity premium, prompting a right-skewed belief distribution.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,5,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative household's utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) | Hall (1988) | Chetty (2006),Standard macroeconomic calibrations and microeconomic estimates of the CRRA coefficient typically cluster between 1 (log utility) and 2. Higher values up to 10 are sometimes invoked in finance to explain asset pricing anomalies like the equity premium puzzle.,,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative household's utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Hall (1988)"",
+    ""Chetty (2006)""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic calibrations and microeconomic estimates of the CRRA coefficient typically cluster between 1 (log utility) and 2. Higher values up to 10 are sometimes invoked in finance to explain asset pricing anomalies like the equity premium puzzle.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,6,v4,none,True,2.0,,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative or calibrated household utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161."",
+    ""Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic and Dynamic Stochastic General Equilibrium (DSGE) models typically calibrate the CRRA coefficient to a range between 1 (log utility) and 3. Empirical micro-estimates from portfolio choice and labor supply often center around 2. While resolving the equity premium puzzle in simple setups sometimes pushes the parameter higher, values above 10 are generally considered theoretically and empirically implausible.""",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative or calibrated household utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161."",
+    ""Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic and Dynamic Stochastic General Equilibrium (DSGE) models typically calibrate the CRRA coefficient to a range between 1 (log utility) and 3. Empirical micro-estimates from portfolio choice and labor supply often center around 2. While resolving the equity premium puzzle in simple setups sometimes pushes the parameter higher, values above 10 are generally considered theoretically and empirically implausible.""","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,7,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA), often denoted as sigma, in a representative household utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) 'The Equity Premium: A Puzzle' | Friend and Blume (1975) 'The Demand for Risky Assets',"The CRRA parameter is typically calibrated to 1 (log utility) or 2 in standard macroeconomic models. Asset pricing literature often suggests higher values (up to 10) to reconcile the equity premium puzzle, resulting in a subjective probability distribution centered around 2 but skewed rightward.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA), often denoted as sigma, in a representative household utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985) 'The Equity Premium: A Puzzle'"",
+    ""Friend and Blume (1975) 'The Demand for Risky Assets'""
+  ],
+  ""reasoning_summary"": ""The CRRA parameter is typically calibrated to 1 (log utility) or 2 in standard macroeconomic models. Asset pricing literature often suggests higher values (up to 10) to reconcile the equity premium puzzle, resulting in a subjective probability distribution centered around 2 but skewed rightward.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,8,v4,none,True,2.0,,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption"",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 5.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Friend and Blume (1975)"",
+    ""Arrow (1971)""
+  ],
+  ""reasoning_summary"": ""Calibrations in macroeconomic models typically default to a CRRA of 1 (logarithmic utility) or 2. Micro-data estimates and asset pricing models often suggest higher values, but a range between 1 and 5 covers most standard applications, with 10 representing an upper bound of standard macroeconomic consensus limit of plausible risk aversion.""",,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption"",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 5.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Friend and Blume (1975)"",
+    ""Arrow (1971)""
+  ],
+  ""reasoning_summary"": ""Calibrations in macroeconomic models typically default to a CRRA of 1 (logarithmic utility) or 2. Micro-data estimates and asset pricing models often suggest higher values, but a range between 1 and 5 covers most standard applications, with 10 representing an upper bound of standard macroeconomic consensus limit of plausible risk aversion.""","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,9,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA), commonly denoted as sigma or gamma, in a representative household's utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,"Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161. | Chetty, R. (2006). A new method of estimating risk aversion. American Economic Review, 96(5), 1821-1834. | Hall, R. E. (1988). Intertemporal substitution in consumption. Journal of Political Economy, 96(2), 339-357.","Standard macroeconomic DSGE calibrations typically use a CRRA coefficient of 1 (log utility) or 2. Microeconomic estimates based on labor supply or consumption choices often find values around 1 to 3, while financial economics and asset pricing literature often require values up to 10 or higher to resolve premium puzzles.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA), commonly denoted as sigma or gamma, in a representative household's utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161."",
+    ""Chetty, R. (2006). A new method of estimating risk aversion. American Economic Review, 96(5), 1821-1834."",
+    ""Hall, R. E. (1988). Intertemporal substitution in consumption. Journal of Political Economy, 96(2), 339-357.""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic DSGE calibrations typically use a CRRA coefficient of 1 (log utility) or 2. Microeconomic estimates based on labor supply or consumption choices often find values around 1 to 3, while financial economics and asset pricing literature often require values up to 10 or higher to resolve premium puzzles.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,10,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA), commonly denoted as sigma, in a representative household's utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) 'The Equity Premium: A Puzzle' | Friend and Blume (1975) 'The Demand for Risky Assets',"In macroeconomic and DSGE modeling, a CRRA value of 1 (log utility) or 2 is the standard calibration. Micro-empirical studies and portfolio choice literature often find estimates around 1 to 3, while macro-finance puzzles (like the equity premium puzzle) often push the upper bound of plausible values toward 10.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA), commonly denoted as sigma, in a representative household's utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985) 'The Equity Premium: A Puzzle'"",
+    ""Friend and Blume (1975) 'The Demand for Risky Assets'""
+  ],
+  ""reasoning_summary"": ""In macroeconomic and DSGE modeling, a CRRA value of 1 (log utility) or 2 is the standard calibration. Micro-empirical studies and portfolio choice literature often find estimates around 1 to 3, while macro-finance puzzles (like the equity premium puzzle) often push the upper bound of plausible values toward 10.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,11,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA, typically denoted as sigma or gamma) in a representative household's power utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,"Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161. | Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.","Standard macroeconomic DSGE models commonly calibrate this parameter to 1 (log utility) or 2. Asset pricing literature and micro-empirical estimations suggest a wider range, with values up to 10 occasionally deemed plausible to explain financial market anomalies, though values above 5 are often viewed as high for macroeconomic aggregates.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted as sigma or gamma) in a representative household's power utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 5.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161."",
+    ""Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic DSGE models commonly calibrate this parameter to 1 (log utility) or 2. Asset pricing literature and micro-empirical estimations suggest a wider range, with values up to 10 occasionally deemed plausible to explain financial market anomalies, though values above 5 are often viewed as high for macroeconomic aggregates.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,12,v4,none,True,2.0,CRRA coefficient (sigma) in household utility over consumption for a representative or calibrated household block,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) | Friend and Blume (1975) | Hall (1988),"Standard macroeconomic models typically calibrate the CRRA coefficient to be between 1 (logarithmic utility) and 2. In finance and asset pricing literature, higher values (up to 10) are sometimes used to reconcile empirical equity risk premia, while values significantly above 10 are generally viewed as implausibly high.",,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption for a representative or calibrated household block"",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Friend and Blume (1975)"",
+    ""Hall (1988)""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic models typically calibrate the CRRA coefficient to be between 1 (logarithmic utility) and 2. In finance and asset pricing literature, higher values (up to 10) are sometimes used to reconcile empirical equity risk premia, while values significantly above 10 are generally viewed as implausibly high.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,13,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA), commonly denoted as sigma, in a representative or calibrated household's utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,"Mehra and Prescott (1985), 'The equity premium: A puzzle' | Friend and Blume (1975), 'The Demand for Risky Assets'","Empirical estimations and standard macroeconomic calibrations typically cluster around a CRRA value of 1 (log utility) to 2. While some asset pricing models require higher values (up to 10) to explain risk premia, values above 10 are widely considered theoretically and behaviorally implausible.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA), commonly denoted as sigma, in a representative or calibrated household's utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985), 'The equity premium: A puzzle'"",
+    ""Friend and Blume (1975), 'The Demand for Risky Assets'""
+  ],
+  ""reasoning_summary"": ""Empirical estimations and standard macroeconomic calibrations typically cluster around a CRRA value of 1 (log utility) to 2. While some asset pricing models require higher values (up to 10) to explain risk premia, values above 10 are widely considered theoretically and behaviorally implausible.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,14,v4,none,True,2.0,CRRA coefficient (sigma) in representative household utility over consumption,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) | Hall (1988) | Arrow (1971),"Standard macroeconomic and DSGE models commonly calibrate the CRRA coefficient to 1 (log utility) or 2. In asset pricing models, higher values up to 10 are often used to address the equity premium puzzle, while microeconometric estimates often hover between 1 and 3.",,"{
+  ""interpretation"": ""CRRA coefficient (sigma) in representative household utility over consumption"",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 4.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Hall (1988)"",
+    ""Arrow (1971)""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic and DSGE models commonly calibrate the CRRA coefficient to 1 (log utility) or 2. In asset pricing models, higher values up to 10 are often used to address the equity premium puzzle, while microeconometric estimates often hover between 1 and 3.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,15,v4,none,True,2.0,The coefficient of relative risk aversion (CRRA) in a representative household utility function over consumption.,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) | Friend and Blume (1975) | Hall (1988),"Standard macroeconomic calibrations typically set the CRRA coefficient between 1 (log utility) and 2. Empirical micro-evidence and asset pricing literature often find or require higher values, typically ranging up to 10 to explain risk premia, while values above 10 are generally considered theoretically or behaviorally implausible.",,"{
+  ""interpretation"": ""The coefficient of relative risk aversion (CRRA) in a representative household utility function over consumption."",
+  ""point_estimate"": 2.0,
+  ""quantiles"": {
+    ""p05"": 0.5,
+    ""p25"": 1.0,
+    ""p50"": 2.0,
+    ""p75"": 5.0,
+    ""p95"": 10.0
+  },
+  ""citations"": [
+    ""Mehra and Prescott (1985)"",
+    ""Friend and Blume (1975)"",
+    ""Hall (1988)""
+  ],
+  ""reasoning_summary"": ""Standard macroeconomic calibrations typically set the CRRA coefficient between 1 (log utility) and 2. Empirical micro-evidence and asset pricing literature often find or require higher values, typically ranging up to 10 to explain risk premia, while values above 10 are generally considered theoretically or behaviorally implausible.""
+}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Coefficient of relative risk aversion
+- Definition: CRRA coefficient in household utility over consumption.
+- Target interpretation: CRRA coefficient, often denoted sigma
+- Population/context: Representative household or calibrated household block
+- Units: coefficient
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"

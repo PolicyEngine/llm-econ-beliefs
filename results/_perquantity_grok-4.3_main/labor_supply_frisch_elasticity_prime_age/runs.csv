@@ -1,0 +1,511 @@
+provider,model_name,quantity_id,run_index,prompt_version,tool_regime,parsed_ok,point_estimate,interpretation,lower_bound,upper_bound,confidence_level,quantiles,quantiles_repaired,citations,reasoning_summary,error,raw_response,prompt
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,1,v4,none,True,0.5,Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working,0.1,1.2,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.2}",False,,Micro estimates cluster 0.3-0.6; macro calibrations often higher but I weight evidence toward moderate value around 0.5.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working"",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.2},""citations"":[],""reasoning_summary"":""Micro estimates cluster 0.3-0.6; macro calibrations often higher but I weight evidence toward moderate value around 0.5.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,2,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers (lifecycle/macro calibration),0.15,1.0,0.9,"{""p05"": 0.15, ""p25"": 0.3, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty 2012,"Micro estimates for intensive margin typically 0.2-0.5; macro often uses higher values, with substantial uncertainty around the exact Frisch parameter.",,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers (lifecycle/macro calibration)"",""point_estimate"":0.4,""quantiles"":{""p05"":0.15,""p25"":0.3,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty 2012""],""reasoning_summary"":""Micro estimates for intensive margin typically 0.2-0.5; macro often uses higher values, with substantial uncertainty around the exact Frisch parameter.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,3,v4,none,True,0.4,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working, used in lifecycle or macro calibration",0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty 2012 | Keane 2011,Micro estimates often 0.2-0.5; uncertainty allows higher values for macro consistency.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working, used in lifecycle or macro calibration"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty 2012"",""Keane 2011""],""reasoning_summary"":""Micro estimates often 0.2-0.5; uncertainty allows higher values for macro consistency.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,4,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers already employed,0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty et al. 2013 meta | Keane 2011 survey | Prescott RBC calibration tradition,Micro estimates cluster low once participation and wealth effects are stripped; macro calibration tolerance raises upper quantiles modestly.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already employed"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty et al. 2013 meta"",""Keane 2011 survey"",""Prescott RBC calibration tradition""],""reasoning_summary"":""Micro estimates cluster low once participation and wealth effects are stripped; macro calibration tolerance raises upper quantiles modestly.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,5,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers,0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,,Typical micro estimates low (~0.2-0.5); macro calibrations often higher; central belief 0.4 with moderate uncertainty.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[],""reasoning_summary"":""Typical micro estimates low (~0.2-0.5); macro calibrations often higher; central belief 0.4 with moderate uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,6,v4,none,True,0.5,Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working,0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}",False,,Micro estimates often low; macro calibrations and some quasi-experiments support moderate values around 0.5 with uncertainty.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working"",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.5},""citations"":[],""reasoning_summary"":""Micro estimates often low; macro calibrations and some quasi-experiments support moderate values around 0.5 with uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,7,v4,none,True,0.3,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already employed, used in lifecycle/macro calibration",0.1,0.7,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.7}",False,Chetty et al. 2013 survey | Keane 2011 | Bianchi et al. macro calibrations,Micro estimates cluster low (0.1-0.4) while macro often needs modestly higher; my median reflects compromise on intensive-margin annual Frisch.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already employed, used in lifecycle/macro calibration"",""point_estimate"":0.3,""quantiles"":{""p05"":0.1,""p25"":0.2,""p50"":0.3,""p75"":0.45,""p95"":0.7},""citations"":[""Chetty et al. 2013 survey"",""Keane 2011"",""Bianchi et al. macro calibrations""],""reasoning_summary"":""Micro estimates cluster low (0.1-0.4) while macro often needs modestly higher; my median reflects compromise on intensive-margin annual Frisch.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,8,v4,none,True,0.35,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (holding MU wealth constant, excluding participation)",0.05,1.1,0.9,"{""p05"": 0.05, ""p25"": 0.2, ""p50"": 0.35, ""p75"": 0.6, ""p95"": 1.1}",False,Chetty et al. 2013 handbook | Keane 2011 survey | Macro RBC calibrations ~0.5-1,Micro estimates cluster 0.2-0.5; macro needs somewhat higher but evidence for intensive Frisch remains modest with wide uncertainty.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (holding MU wealth constant, excluding participation)"",""point_estimate"":0.35,""quantiles"":{""p05"":0.05,""p25"":0.2,""p50"":0.35,""p75"":0.6,""p95"":1.1},""citations"":[""Chetty et al. 2013 handbook"",""Keane 2011 survey"",""Macro RBC calibrations ~0.5-1""],""reasoning_summary"":""Micro estimates cluster 0.2-0.5; macro needs somewhat higher but evidence for intensive Frisch remains modest with wide uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,9,v4,none,True,0.4,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working, used in lifecycle/macro calibration",0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,,Micro estimates cluster 0.2-0.5; macro calibrations often higher; wide uncertainty around central tendency of 0.4.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working, used in lifecycle/macro calibration"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[],""reasoning_summary"":""Micro estimates cluster 0.2-0.5; macro calibrations often higher; wide uncertainty around central tendency of 0.4.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,10,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working,0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty et al. 2013 | Keane 2011 review,Micro estimates cluster around 0.3-0.5; macro often higher but target is micro intensive margin.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty et al. 2013"",""Keane 2011 review""],""reasoning_summary"":""Micro estimates cluster around 0.3-0.5; macro often higher but target is micro intensive margin.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,11,v4,none,True,0.5,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (holding MU wealth constant, no participation).",0.15,1.4,0.9,"{""p05"": 0.15, ""p25"": 0.35, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.4}",False,,Micro estimates cluster 0.2-0.6; macro calibrations often 0.5-1; uncertainty spans lower micro to higher macro-consistent values.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (holding MU wealth constant, no participation)."",""point_estimate"":0.5,""quantiles"":{""p05"":0.15,""p25"":0.35,""p50"":0.5,""p75"":0.75,""p95"":1.4},""citations"":[],""reasoning_summary"":""Micro estimates cluster 0.2-0.6; macro calibrations often 0.5-1; uncertainty spans lower micro to higher macro-consistent values.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,12,v4,none,True,0.4,"Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (percent change in hours from 1% net-of-tax wage change, MU wealth constant, no participation).",0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty et al. 2011 | Keane 2011,Micro estimates for intensive Frisch often 0.2-0.5; macro calibrations higher but target here is micro prime-age annual hours.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (percent change in hours from 1% net-of-tax wage change, MU wealth constant, no participation)."",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty et al. 2011"",""Keane 2011""],""reasoning_summary"":""Micro estimates for intensive Frisch often 0.2-0.5; macro calibrations higher but target here is micro prime-age annual hours.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,13,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers,0.05,1.2,0.9,"{""p05"": 0.05, ""p25"": 0.2, ""p50"": 0.4, ""p75"": 0.7, ""p95"": 1.2}",False,,Micro estimates cluster low (0.1-0.6); macro often higher but target interpretation favors modest positive value with right skew.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers"",""point_estimate"":0.4,""quantiles"":{""p05"":0.05,""p25"":0.2,""p50"":0.4,""p75"":0.7,""p95"":1.2},""citations"":[],""reasoning_summary"":""Micro estimates cluster low (0.1-0.6); macro often higher but target interpretation favors modest positive value with right skew.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,14,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers,0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,,Micro labor estimates typically 0.2-0.5; macro calibrations higher but intensive margin remains moderate.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[],""reasoning_summary"":""Micro labor estimates typically 0.2-0.5; macro calibrations higher but intensive margin remains moderate.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+litellm_completion,grok-4.3,labor_supply.frisch_elasticity.prime_age,15,v4,none,True,0.4,Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (lifecycle/macro calibration),0.1,1.0,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 1.0}",False,Chetty 2012 meta-analysis | Keane 2011 review | Bianchi et al. 2023,Micro estimates cluster 0.2-0.5 after correcting for frictions and selection; macro needs somewhat higher but Frisch intensive remains moderate.,,"{""interpretation"":""Intensive-margin annual-hours Frisch elasticity for prime-age US workers already working (lifecycle/macro calibration)"",""point_estimate"":0.4,""quantiles"":{""p05"":0.1,""p25"":0.25,""p50"":0.4,""p75"":0.6,""p95"":1.0},""citations"":[""Chetty 2012 meta-analysis"",""Keane 2011 review"",""Bianchi et al. 2023""],""reasoning_summary"":""Micro estimates cluster 0.2-0.5 after correcting for frictions and selection; macro needs somewhat higher but Frisch intensive remains moderate.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Frisch elasticity of labor supply
+- Definition: Percent change in annual hours worked from a 1 percent change in the net-of-tax wage, holding the marginal utility of wealth constant and excluding participation responses.
+- Target interpretation: Intensive-margin annual-hours Frisch elasticity used in lifecycle or macro calibration
+- Population/context: Prime-age workers in the United States who are already working
+- Units: elasticity
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
