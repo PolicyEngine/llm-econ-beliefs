@@ -246,37 +246,27 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
   return (
     <div className="relative z-10 min-h-screen">
-      {/* Top bar */}
-      <header
-        className="reveal sticky top-0 z-30 border-b px-5 py-3 backdrop-blur-xl"
-        style={{
-          background: "color-mix(in oklab, var(--background) 85%, transparent)",
-          borderColor: "var(--border)",
-        }}
+      {/* Page band */}
+      <div
+        className="reveal border-b px-5 py-6"
+        style={{ borderColor: "var(--border)" }}
       >
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-md"
-              style={{
-                background: "color-mix(in oklab, var(--chart-1) 12%, transparent)",
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="6" stroke="var(--chart-1)" strokeWidth="1.5" fill="none" />
-                <circle cx="8" cy="8" r="2.5" fill="var(--chart-1)" />
-                <line x1="8" y1="1" x2="8" y2="4" stroke="var(--chart-1)" strokeWidth="1" />
-                <line x1="8" y1="12" x2="8" y2="15" stroke="var(--chart-1)" strokeWidth="1" />
-                <line x1="1" y1="8" x2="4" y2="8" stroke="var(--chart-1)" strokeWidth="1" />
-                <line x1="12" y1="8" x2="15" y2="8" stroke="var(--chart-1)" strokeWidth="1" />
-              </svg>
-            </div>
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-end justify-between gap-4">
+          <div>
             <h1
-              className="font-sans text-lg font-semibold tracking-tight"
+              className="font-sans text-2xl font-semibold tracking-tight"
               style={{ color: "var(--foreground)" }}
             >
-              Elasticity beliefs atlas
+              AI beliefs about economic parameters
             </h1>
+            <p
+              className="mt-1.5 max-w-2xl text-sm leading-relaxed"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              What frontier language models answer when asked for their beliefs
+              about economic elasticities, elicited under a fixed prompt with
+              repeated independent runs.
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <Stat label="quantities" value={`${data.stats.quantityCount}`} />
@@ -284,13 +274,13 @@ export function DashboardClient({ data }: DashboardClientProps) {
             <ThemeToggle />
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Two-column layout: sidebar + main */}
       <div className="mx-auto grid max-w-[1400px] xl:grid-cols-[280px_minmax(0,1fr)]">
         {/* Left sidebar: quantities */}
         <aside
-          className="reveal border-r xl:sticky xl:top-[53px] xl:h-[calc(100svh-53px)] xl:overflow-hidden"
+          className="reveal border-r xl:sticky xl:top-[58px] xl:h-[calc(100svh-58px)] xl:overflow-hidden"
           style={{ borderColor: "var(--border)", animationDelay: "60ms" }}
         >
           <div className="p-4">
@@ -319,7 +309,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-0.5 overflow-y-auto px-2 pb-4 xl:max-h-[calc(100svh-53px-72px)]">
+          <div className="flex flex-col gap-0.5 overflow-y-auto px-2 pb-4 xl:max-h-[calc(100svh-58px-72px)]">
             {Array.from(domainGroups.entries()).map(([domain, quantities]) => (
               <div key={domain} className="mb-1">
                 <div
@@ -581,7 +571,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
       {/* Inspector drawer overlay */}
       {inspectorOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-[1100] bg-black/30 backdrop-blur-sm"
           style={{ animation: "reveal 200ms ease both" }}
         >
           <div

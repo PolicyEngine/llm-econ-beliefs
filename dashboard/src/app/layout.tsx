@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
+import { PolicyEngineShell } from "@policyengine/ui-kit";
 import "./globals.css";
 
 // Matches the GA4 property used by policyengine-app-v2/website so
@@ -69,39 +70,26 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <div className="flex-1">{children}</div>
-        <footer
-          className="border-t px-5 py-4 text-xs"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--muted-foreground)",
-          }}
-        >
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2">
-            <span>
-              A{" "}
-              <a
-                href="https://policyengine.org"
-                className="font-medium underline-offset-2 hover:underline"
-                style={{ color: "var(--primary)" }}
-              >
-                PolicyEngine
-              </a>{" "}
-              research project
-            </span>
-            <span className="flex items-center gap-4">
+        <PolicyEngineShell country="us" showFooter mainClassName="flex-1">
+          <div className="flex-1">{children}</div>
+          <div
+            className="border-t px-5 py-3 text-xs"
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--muted-foreground)",
+            }}
+          >
+            <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2">
               <a
                 href="https://github.com/PolicyEngine/llm-econ-beliefs"
                 className="underline-offset-2 hover:underline"
               >
                 Code and data
               </a>
-              <span>
-                Elicited April and July 2026 · 17 models · v4 prompts
-              </span>
-            </span>
+              <span>Elicited April and July 2026 · 17 models · v4 prompts</span>
+            </div>
           </div>
-        </footer>
+        </PolicyEngineShell>
       </body>
     </html>
   );
