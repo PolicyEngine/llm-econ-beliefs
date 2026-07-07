@@ -55,3 +55,20 @@ artifacts were produced before that fix.)
 Transient per-quantity staging dirs live at
 `results/_perquantity_<model>_<batch>/` during a run and are consumed
 by the merge step.
+
+## July 2026 model additions
+
+Six models released after the April rerun were elicited under the same
+v4 prompts in July 2026 via `scripts/run_v4_new_models.py`:
+
+- `gpt-5.5` (OpenAI Chat Completions path)
+- `claude-fable-5`, `claude-opus-4.8`, `claude-sonnet-5` (native
+  Anthropic SDK path — structured outputs, no sampling parameters,
+  model-default thinking)
+- `gemini-3.5-flash`, `grok-4.3` (LiteLLM path)
+
+All six ran through the per-quantity fallback with the fixed merge, so
+their `summary.csv` cost columns are aggregated end to end (no
+`$0.0000` caveat). The Anthropic-path runs used four concurrent
+workers per quantity; draws remain independent single-request
+elicitations.

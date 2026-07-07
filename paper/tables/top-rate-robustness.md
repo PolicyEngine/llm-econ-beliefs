@@ -1,15 +1,21 @@
-Note: Robustness of the utilitarian optimal top-rate mapping in Table 4 to the Pareto tail parameter a and the CRRA coefficient gamma. Each cell is the median implied optimal top rate tau* = (1 - g_bar) / (1 - g_bar + a e) computed at the model's pooled ETI median under the (a, gamma) pair in the column header, where g_bar = a / (a + gamma). The baseline column (a = 1.470, gamma = 1) reproduces the median column in Table 4. The a = 1.3 / 1.5 / 1.7 columns vary only the Pareto tail while keeping log utility (gamma = 1); the final column replaces log utility with CRRA at gamma = 2 while holding a at the microdata estimate. Under log utility the corresponding welfare weights g_bar are 1.3/2.3 = 0.565, 1.470/(1 + 1.470) = 0.595, 1.5/2.5 = 0.600, and 1.7/2.7 = 0.630; under gamma = 2 with a = 1.470, g_bar = 1.470/(1.470 + 2) = 0.424.
+Note: Robustness of the utilitarian optimal top-rate mapping in Table 4 to the Pareto tail parameter a and the CRRA coefficient gamma. Each cell is the median implied optimal top rate tau* = (1 - g_bar) / (1 - g_bar + a e) computed at the model's pooled ETI median under the (a, gamma) pair in the column header, where g_bar = a / (a + gamma). The baseline column (a = 1.500, gamma = 1) reproduces the median column in Table 4. The a = 1.3 / 1.5 / 1.7 columns vary only the Pareto tail while keeping log utility (gamma = 1); the final column replaces log utility with CRRA at gamma = 2 while holding a at the microdata estimate. Under log utility the corresponding welfare weights g_bar are 1.3/2.3 = 0.565, 1.500/(1 + 1.500) = 0.600, 1.5/2.5 = 0.600, and 1.7/2.7 = 0.630; under gamma = 2 with a = 1.500, g_bar = 1.500/(1.500 + 2) = 0.429.
 
-| Model | ETI median | Baseline top rate (a=1.470, gamma=1) | Top rate (a=1.3, gamma=1) | Top rate (a=1.5, gamma=1) | Top rate (a=1.7, gamma=1) | Top rate (a=1.470, gamma=2) |
+| Model | ETI median | Baseline top rate (a=1.500, gamma=1) | Top rate (a=1.3, gamma=1) | Top rate (a=1.5, gamma=1) | Top rate (a=1.7, gamma=1) | Top rate (a=1.500, gamma=2) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Gemini 3.1 Pro | 0.351 | 44.0% | 48.8% | 43.2% | 38.3% | 52.8% |
-| Gemini 3.1 Flash-Lite | 0.389 | 41.5% | 46.2% | 40.7% | 35.9% | 50.2% |
-| Claude Opus 4.7 | 0.4 | 40.8% | 45.5% | 40.0% | 35.3% | 49.5% |
-| Gemini 3 Flash | 0.4 | 40.8% | 45.5% | 40.0% | 35.3% | 49.5% |
-| Grok 4.1 Fast | 0.4 | 40.8% | 45.5% | 40.0% | 35.3% | 49.5% |
-| GPT-5.4 | 0.42 | 39.6% | 44.3% | 38.8% | 34.2% | 48.3% |
-| GPT-5.4 mini | 0.437 | 38.7% | 43.4% | 37.9% | 33.3% | 47.3% |
-| Claude Sonnet 4.6 | 0.5 | 35.5% | 40.1% | 34.8% | 30.3% | 44.0% |
-| Grok 4.20 | 0.5 | 35.5% | 40.1% | 34.8% | 30.3% | 44.0% |
-| Claude Haiku 4.5 | 0.502 | 35.4% | 40.0% | 34.7% | 30.3% | 43.8% |
-| GPT-5.4 nano | 0.546 | 33.5% | 38.0% | 32.8% | 28.5% | 41.8% |
+| Gemini 3.1 Pro | 0.351 | 43.2% | 48.8% | 43.2% | 38.3% | 52.1% |
+| Gemini 3.5 Flash | 0.357 | 42.8% | 48.4% | 42.8% | 37.9% | 51.6% |
+| GPT-5.5 | 0.369 | 42.0% | 47.6% | 42.0% | 37.1% | 50.8% |
+| Claude Opus 4.8 | 0.383 | 41.0% | 46.6% | 41.0% | 36.2% | 49.8% |
+| Gemini 3.1 Flash-Lite | 0.389 | 40.7% | 46.2% | 40.7% | 35.9% | 49.5% |
+| Claude Opus 4.7 | 0.4 | 40.0% | 45.5% | 40.0% | 35.3% | 48.8% |
+| Gemini 3 Flash | 0.4 | 40.0% | 45.5% | 40.0% | 35.3% | 48.8% |
+| Grok 4.1 Fast | 0.4 | 40.0% | 45.5% | 40.0% | 35.3% | 48.8% |
+| GPT-5.4 | 0.42 | 38.8% | 44.3% | 38.8% | 34.2% | 47.6% |
+| Claude Fable 5 | 0.437 | 37.9% | 43.4% | 37.9% | 33.3% | 46.6% |
+| GPT-5.4 mini | 0.437 | 37.9% | 43.4% | 37.9% | 33.3% | 46.6% |
+| Grok 4.3 | 0.439 | 37.8% | 43.3% | 37.8% | 33.2% | 46.5% |
+| Claude Sonnet 5 | 0.471 | 36.1% | 41.5% | 36.1% | 31.6% | 44.7% |
+| Claude Sonnet 4.6 | 0.5 | 34.8% | 40.1% | 34.8% | 30.3% | 43.2% |
+| Grok 4.20 | 0.5 | 34.8% | 40.1% | 34.8% | 30.3% | 43.2% |
+| Claude Haiku 4.5 | 0.502 | 34.7% | 40.0% | 34.7% | 30.3% | 43.1% |
+| GPT-5.4 nano | 0.546 | 32.8% | 38.0% | 32.8% | 28.5% | 41.1% |

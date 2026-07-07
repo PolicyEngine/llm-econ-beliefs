@@ -1,6 +1,13 @@
 "use client";
 
-import { getModelLabel } from "@/lib/model-meta";
+import { useState } from "react";
+
+import { ProviderMark } from "@/components/provider-mark";
+import {
+  getModelLabel,
+  getProviderForModel,
+  isJuly2026Model,
+} from "@/lib/model-meta";
 import type {
   IntervalMethodDefinition,
   IntervalSnapshot,
@@ -10,15 +17,18 @@ import type {
 interface IntervalPlotProps {
   models: ModelSummary[];
   method: IntervalMethodDefinition;
+  onSelectModel?: (modelName: string) => void;
 }
 
-const LEFT_GUTTER = 192;
-const RIGHT_GUTTER = 72;
-const TOP_GUTTER = 32;
-const ROW_HEIGHT = 64;
+const LEFT_GUTTER = 216;
+const RIGHT_GUTTER = 132;
+const TOP_GUTTER = 30;
+const ROW_HEIGHT = 46;
 const CHART_WIDTH = 960;
 
-export function IntervalPlot({ models, method }: IntervalPlotProps) {
+export function IntervalPlot({ models, method, onSelectModel }: IntervalPlotProps) {
+  const [hoveredModel, setHoveredModel] = useState<string | null>(null);
+
   const rows = models
     .map((model) => ({
       model,
@@ -34,7 +44,7 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
   if (!rows.length) {
     return (
       <div
-        className="rounded-lg border px-6 py-8 text-center text-xs"
+        className="rounded-lg border px-6 py-8 text-center text-sm"
         style={{
           background: "var(--card)",
           borderColor: "var(--border)",
@@ -52,7 +62,7 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
     ),
   );
   const plotWidth = CHART_WIDTH - LEFT_GUTTER - RIGHT_GUTTER;
-  const chartHeight = TOP_GUTTER + rows.length * ROW_HEIGHT + 8;
+  const chartHeight = TOP_GUTTER + rows.length * ROW_HEIGHT + 10;
   const ticks = buildNiceTicks(
     Math.min(...allValues, 0),
     Math.max(...allValues, 0),
@@ -60,77 +70,43 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
   );
   const domainMin = ticks[0] ?? Math.min(...allValues, 0);
   const domainMax = ticks[ticks.length - 1] ?? Math.max(...allValues, 0);
-  const zeroX =
-    scaleValue(0, domainMin, domainMax, plotWidth) + LEFT_GUTTER;
+  const zeroInDomain = domainMin <= 0 && domainMax >= 0;
+  const zeroX = scaleValue(0, domainMin, domainMax, plotWidth) + LEFT_GUTTER;
 
   return (
     <div
-      className="rounded-lg border"
-      style={{
-        background: "var(--card)",
-        borderColor: "var(--border)",
-      }}
+      className="overflow-hidden rounded-lg border"
+      style={{ background: "var(--card)", borderColor: "var(--border)" }}
     >
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${chartHeight}`}
         className="h-auto w-full"
         role="img"
         aria-label={`${method.label} comparison across models`}
+        onMouseLeave={() => setHoveredModel(null)}
       >
-        <defs>
-          {/* Interval gradient: gold to blue */}
-          <linearGradient id="interval-bar" x1="0%" x2="100%">
-            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="var(--primary)" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.6" />
-          </linearGradient>
-
-          {/* Glow filter for center dot */}
-          <filter id="dot-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-
-          {/* Subtle glow for the bar */}
-          <filter id="bar-glow" x="-20%" y="-200%" width="140%" height="500%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-
-        {/* Zero reference line */}
-        <line
-          x1={zeroX}
-          x2={zeroX}
-          y1={TOP_GUTTER - 4}
-          y2={chartHeight - 4}
-          stroke="var(--chart-2)"
-          strokeOpacity="0.6"
-          strokeWidth="1.5"
-        />
-
-        {/* Tick lines and labels */}
+        {/* Gridlines and tick labels */}
         {ticks.map((tick) => {
           const x =
             scaleValue(tick, domainMin, domainMax, plotWidth) + LEFT_GUTTER;
-          const isZero = Math.abs(tick) < 1e-10;
           return (
             <g key={tick}>
               <line
                 x1={x}
                 x2={x}
-                y1={TOP_GUTTER - 4}
-                y2={chartHeight - 4}
-                stroke={isZero ? "transparent" : "var(--border)"}
-                strokeDasharray="2 8"
+                y1={TOP_GUTTER - 6}
+                y2={chartHeight - 6}
+                stroke="var(--border)"
+                strokeWidth="1"
               />
               <text
                 x={x}
                 y={16}
                 textAnchor="middle"
-                fill={isZero ? "var(--chart-2)" : "var(--muted-foreground)"}
-                fontSize="10"
-                fontFamily="var(--font-mono), monospace"
+                fill="var(--muted-foreground)"
+                fontSize="11"
+                fontFamily="var(--font-sans), sans-serif"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               >
                 {formatTickNumber(tick)}
               </text>
@@ -138,9 +114,25 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
           );
         })}
 
+        {/* Zero reference line */}
+        {zeroInDomain && (
+          <line
+            x1={zeroX}
+            x2={zeroX}
+            y1={TOP_GUTTER - 6}
+            y2={chartHeight - 6}
+            stroke="var(--chart-5)"
+            strokeWidth="1.25"
+          />
+        )}
+
         {/* Data rows */}
         {rows.map(({ model, interval }, index) => {
-          const y = TOP_GUTTER + index * ROW_HEIGHT + ROW_HEIGHT / 2;
+          const rowTop = TOP_GUTTER + index * ROW_HEIGHT;
+          const y = rowTop + ROW_HEIGHT / 2;
+          const isHovered = hoveredModel === model.modelName;
+          const provider = getProviderForModel(model.modelName);
+          const isNew = isJuly2026Model(model.modelName);
           const lower =
             interval.lower !== null
               ? scaleValue(interval.lower, domainMin, domainMax, plotWidth) +
@@ -158,135 +150,95 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
               : null;
 
           return (
-            <g key={model.modelName}>
-              {/* Row background on hover area */}
-              {index > 0 && (
-                <line
-                  x1={0}
-                  x2={CHART_WIDTH}
-                  y1={y - ROW_HEIGHT / 2}
-                  y2={y - ROW_HEIGHT / 2}
-                  stroke="var(--border)"
-                  strokeOpacity="0.5"
-                />
-              )}
+            <g
+              key={model.modelName}
+              onMouseEnter={() => setHoveredModel(model.modelName)}
+              onClick={onSelectModel ? () => onSelectModel(model.modelName) : undefined}
+              style={{ cursor: onSelectModel ? "pointer" : "default" }}
+              role={onSelectModel ? "button" : undefined}
+              aria-label={
+                onSelectModel
+                  ? `Inspect ${getModelLabel(model.modelName)} runs`
+                  : undefined
+              }
+            >
+              {/* Row hover surface */}
+              <rect
+                x={0}
+                y={rowTop}
+                width={CHART_WIDTH}
+                height={ROW_HEIGHT}
+                fill={isHovered ? "var(--muted)" : "transparent"}
+              />
+
+              {/* Provider mark */}
+              <foreignObject x={14} y={y - 8} width={16} height={16}>
+                <ProviderMark provider={provider} size={14} />
+              </foreignObject>
 
               {/* Model label */}
               <text
-                x={14}
-                y={y - 4}
+                x={38}
+                y={y + 4}
                 fill="var(--foreground)"
                 fontSize="13"
-                fontFamily="var(--font-sans), serif"
-                fontWeight="600"
+                fontFamily="var(--font-sans), sans-serif"
+                fontWeight="500"
               >
                 {getModelLabel(model.modelName)}
               </text>
-              <text
-                x={14}
-                y={y + 12}
-                fill="var(--muted-foreground)"
-                fontSize="10"
-                fontFamily="var(--font-mono), monospace"
-              >
-                {model.nSuccessfulRuns} runs
-              </text>
 
-              {/* Faint baseline */}
-              <line
-                x1={LEFT_GUTTER}
-                x2={CHART_WIDTH - RIGHT_GUTTER}
-                y1={y}
-                y2={y}
-                stroke="var(--border)"
-                strokeOpacity="0.4"
-              />
+              {/* July 2026 addition marker */}
+              {isNew && (
+                <g>
+                  <title>Added to the panel in July 2026</title>
+                  <circle
+                    cx={44 + measureLabelWidth(getModelLabel(model.modelName))}
+                    cy={y}
+                    r={2.5}
+                    fill="var(--chart-1)"
+                  />
+                </g>
+              )}
 
               {/* Interval bar */}
               {lower !== null && upper !== null && (
-                <>
-                  {/* Glow layer */}
-                  <line
-                    x1={lower}
-                    x2={upper}
-                    y1={y}
-                    y2={y}
-                    stroke="var(--primary)"
-                    strokeOpacity="0.15"
-                    strokeLinecap="round"
-                    strokeWidth="20"
-                  />
-                  {/* Main bar */}
-                  <line
-                    x1={lower}
-                    x2={upper}
-                    y1={y}
-                    y2={y}
-                    stroke="url(#interval-bar)"
-                    strokeLinecap="round"
-                    strokeWidth="6"
-                    filter="url(#bar-glow)"
-                  />
-                  {/* Whisker caps */}
-                  <line
-                    x1={lower}
-                    x2={lower}
-                    y1={y - 10}
-                    y2={y + 10}
-                    stroke="var(--primary)"
-                    strokeWidth="1.5"
-                    strokeOpacity="0.7"
-                  />
-                  <line
-                    x1={upper}
-                    x2={upper}
-                    y1={y - 10}
-                    y2={y + 10}
-                    stroke="var(--primary)"
-                    strokeWidth="1.5"
-                    strokeOpacity="0.7"
-                  />
-                </>
+                <line
+                  x1={lower}
+                  x2={upper}
+                  y1={y}
+                  y2={y}
+                  stroke="var(--chart-1)"
+                  strokeOpacity={isHovered ? 0.5 : 0.35}
+                  strokeLinecap="round"
+                  strokeWidth="8"
+                />
               )}
 
               {/* Center dot */}
               {center !== null && (
                 <>
-                  {/* Outer glow */}
                   <circle
                     cx={center}
                     cy={y}
-                    r={10}
-                    fill="var(--primary)"
-                    opacity="0.08"
+                    r={5.5}
+                    fill="var(--card)"
+                    stroke="var(--chart-1)"
+                    strokeWidth="2"
                   />
-                  {/* Core */}
-                  <circle
-                    cx={center}
-                    cy={y}
-                    r={5}
-                    fill="var(--primary)"
-                    filter="url(#dot-glow)"
-                  />
-                  {/* Inner bright core */}
-                  <circle
-                    cx={center}
-                    cy={y}
-                    r={2}
-                    fill="var(--primary-foreground)"
-                    opacity="0.6"
-                  />
+                  <circle cx={center} cy={y} r={2.6} fill="var(--chart-1)" />
                 </>
               )}
 
               {/* Right-side value label */}
               <text
-                x={CHART_WIDTH - 8}
+                x={CHART_WIDTH - 12}
                 y={y + 4}
                 textAnchor="end"
-                fill="var(--muted-foreground)"
-                fontSize="11"
-                fontFamily="var(--font-mono), monospace"
+                fill={isHovered ? "var(--foreground)" : "var(--muted-foreground)"}
+                fontSize="11.5"
+                fontFamily="var(--font-sans), sans-serif"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               >
                 {formatIntervalLabel(interval)}
               </text>
@@ -296,6 +248,11 @@ export function IntervalPlot({ models, method }: IntervalPlotProps) {
       </svg>
     </div>
   );
+}
+
+/** Approximate Inter 13px/500 label width for the addition marker offset. */
+function measureLabelWidth(label: string): number {
+  return label.length * 7.1;
 }
 
 function buildNiceTicks(min: number, max: number, targetCount: number): number[] {

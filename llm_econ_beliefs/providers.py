@@ -21,10 +21,42 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
     "claude-haiku-4.5": "claude-haiku-4-5-20251001",
     "grok-4.20": "xai/grok-4.20-reasoning",
     "grok-4.1-fast": "xai/grok-4-1-fast-non-reasoning",
+    "grok-4.3": "xai/grok-4.3",
     "gemini-3.1-pro-preview": "gemini/gemini-3.1-pro-preview",
     "gemini-3-flash-preview": "gemini/gemini-3-flash-preview",
     "gemini-3.1-flash-lite-preview": "gemini/gemini-3.1-flash-lite-preview",
+    "gemini-3.5-flash": "gemini/gemini-3.5-flash",
 }
+
+# Reasoning tokens count against the completion cap for these models, so give
+# them more headroom than the 1200-token default used for the April 2026 panel
+# (the cap only guards against runaways; billing reflects actual generation).
+LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
+    "gemini-3.5-flash": 4000,
+    "grok-4.3": 4000,
+}
+
+# GPT-5.5 reasons far more than the 5.4 family on sign-convention prompts and
+# can exhaust a 1200-token completion budget before emitting any visible text.
+OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
+    "gpt-5.5": 8000,
+}
+
+# Panel-facing names for models served through the native Anthropic SDK path.
+# Claude Fable 5 / Opus 4.8 / Sonnet 5 reject sampling parameters and manage
+# thinking themselves, so they run through `run_anthropic_prompt_logged`
+# rather than the LiteLLM forced-function-call path used for older Claude
+# models.
+ANTHROPIC_MODEL_ALIASES: dict[str, str] = {
+    "claude-fable-5": "claude-fable-5",
+    "claude-opus-4.8": "claude-opus-4-8",
+    "claude-sonnet-5": "claude-sonnet-5",
+}
+
+# Cap, not a floor: billed output reflects actual generation. Sonnet 5's
+# adaptive thinking occasionally runs long on elicitation prompts, so leave
+# generous headroom to avoid truncated (failed) runs.
+ANTHROPIC_MAX_OUTPUT_TOKENS = 32000
 
 
 DEFAULT_BELIEF_JSON_SCHEMA: dict[str, Any] = {
@@ -64,6 +96,109 @@ DEFAULT_BELIEF_JSON_SCHEMA: dict[str, Any] = {
 def resolve_litellm_model_name(model_name: str) -> str:
     """Resolve a PolicyBench-style alias to the underlying LiteLLM model name."""
     return POLICYBENCH_LITELLM_MODEL_ALIASES.get(model_name, model_name)
+
+
+def resolve_anthropic_model_name(model_name: str) -> str:
+    """Resolve a panel-facing alias to the Anthropic API model ID."""
+    return ANTHROPIC_MODEL_ALIASES.get(model_name, model_name)
+
+
+def _import_anthropic() -> Any:
+    try:
+        return importlib.import_module("anthropic")
+    except ImportError as exc:
+        raise RuntimeError(
+            "anthropic is not installed in this Python environment. "
+            "Install it with `uv pip install anthropic` (or `pip install anthropic`)."
+        ) from exc
+
+
+_ANTHROPIC_CLIENTS: dict[float, Any] = {}
+
+
+def _anthropic_client(timeout_seconds: float) -> Any:
+    """Return a shared Anthropic client so parallel runs reuse connections."""
+    client = _ANTHROPIC_CLIENTS.get(timeout_seconds)
+    if client is None:
+        anthropic = _import_anthropic()
+        client = anthropic.Anthropic(timeout=timeout_seconds, max_retries=4)
+        _ANTHROPIC_CLIENTS[timeout_seconds] = client
+    return client
+
+
+def run_anthropic_prompt_logged(
+    prompt: str,
+    *,
+    model_name: str,
+    json_schema: dict[str, Any] | None = DEFAULT_BELIEF_JSON_SCHEMA,
+    max_output_tokens: int = ANTHROPIC_MAX_OUTPUT_TOKENS,
+    timeout_seconds: float = 900.0,
+    client: Any | None = None,
+) -> ProviderBatchResult:
+    """Run one prompt through the Anthropic API and return one structured output.
+
+    Requests carry no sampling or thinking configuration: Claude Fable 5,
+    Opus 4.8, and Sonnet 5 reject non-default `temperature`/`top_p`, and each
+    model keeps its own default thinking behavior (always-on for Fable 5,
+    adaptive-on for Sonnet 5, off for Opus 4.8). Structured output is enforced
+    with `output_config.format`, which mirrors the strict JSON-schema regime
+    used on the OpenAI path.
+    """
+    if json_schema is None:
+        raise ValueError("Anthropic structured output requires a JSON schema")
+
+    if client is None:
+        client = _anthropic_client(timeout_seconds)
+    resolved_model_name = resolve_anthropic_model_name(model_name)
+
+    with client.messages.stream(
+        model=resolved_model_name,
+        max_tokens=max_output_tokens,
+        output_config={"format": {"type": "json_schema", "schema": json_schema}},
+        messages=[{"role": "user", "content": prompt}],
+    ) as stream:
+        response = stream.get_final_message()
+
+    if response.stop_reason == "refusal":
+        details = getattr(response, "stop_details", None)
+        explanation = getattr(details, "explanation", None) if details else None
+        raise RuntimeError(
+            f"Anthropic request refused: {explanation or 'no explanation provided'}"
+        )
+    if response.stop_reason == "max_tokens":
+        raise RuntimeError(
+            f"Anthropic response truncated at max_tokens={max_output_tokens}"
+        )
+
+    text = next(
+        (block.text for block in response.content if block.type == "text"),
+        None,
+    )
+    if not text or not text.strip():
+        raise RuntimeError("Anthropic response contained no text output")
+
+    input_tokens = getattr(response.usage, "input_tokens", None)
+    output_tokens = getattr(response.usage, "output_tokens", None)
+    cache_read_tokens = getattr(response.usage, "cache_read_input_tokens", None)
+    usage: dict[str, Any] = {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "cache_creation_input_tokens": getattr(
+            response.usage, "cache_creation_input_tokens", None
+        ),
+        "cache_read_input_tokens": cache_read_tokens,
+    }
+    if input_tokens is not None and output_tokens is not None:
+        usage["total_tokens"] = input_tokens + output_tokens
+    if cache_read_tokens:
+        usage["prompt_tokens_details"] = {"cached_tokens": cache_read_tokens}
+
+    request_id = getattr(response, "id", None)
+    return ProviderBatchResult(
+        outputs=[text.strip()],
+        request_id=request_id if isinstance(request_id, str) else None,
+        usage=usage,
+    )
 
 
 def build_litellm_belief_tool(
@@ -108,13 +243,17 @@ def run_litellm_prompt_logged(
     model_name: str,
     json_schema: dict[str, Any] | None = DEFAULT_BELIEF_JSON_SCHEMA,
     temperature: float = 1.0,
-    max_completion_tokens: int = 1200,
+    max_completion_tokens: int | None = None,
     timeout_seconds: int = 180,
 ) -> ProviderBatchResult:
     """Run one prompt through LiteLLM and return one structured output."""
     litellm = _import_litellm()
     resolved_model_name = resolve_litellm_model_name(model_name)
     output_mode = _litellm_output_mode(model_name)
+    if max_completion_tokens is None:
+        max_completion_tokens = LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL.get(
+            model_name, 1200
+        )
 
     request_kwargs: dict[str, Any] = {
         "model": resolved_model_name,
@@ -345,13 +484,17 @@ def run_openai_prompt_batch_logged(
     json_schema: dict[str, Any] | None = DEFAULT_BELIEF_JSON_SCHEMA,
     n: int = 1,
     temperature: float = 1.0,
-    max_completion_tokens: int = 1200,
+    max_completion_tokens: int | None = None,
     timeout_seconds: int = 180,
 ) -> ProviderBatchResult:
     """Run one prompt through the OpenAI Chat Completions API and return all choices."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
+    if max_completion_tokens is None:
+        max_completion_tokens = OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL.get(
+            model_name, 1200
+        )
 
     payload = build_openai_chat_payload(
         prompt,

@@ -7,7 +7,7 @@ format:
 ---
 
 ::: {.abstract}
-This paper studies the prompt-conditioned response distributions that frontier large language models produce when directly asked about economic elasticities. Rather than asking whether the models can forecast realized outcomes or simulate policy behavior, I ask a narrower question: under a fixed elicitation protocol, what point estimates and uncertainty distributions do the models return? The main dataset contains 4,290 successful runs across 11 frontier models, 26 U.S.-scoped quantities (including a capital-gains convention sibling), and 15 runs per model-quantity cell, all under a single direction-first v4 prompt that embeds neutral sign-convention clarifiers for the two quantities with documented ambiguity. The headline analysis focuses on a nine-quantity canonical elasticity subpanel; simulation-facing PolicyEngine response coefficients and the capital-gains convention audit appear in separate appendix tables.
+This paper studies the prompt-conditioned response distributions that frontier large language models produce when directly asked about economic elasticities. Rather than asking whether the models can forecast realized outcomes or simulate policy behavior, I ask a narrower question: under a fixed elicitation protocol, what point estimates and uncertainty distributions do the models return? The main dataset contains 6,630 successful runs across 17 frontier models (11 elicited in April 2026 and 6 in July 2026), 26 U.S.-scoped quantities (including a capital-gains convention sibling), and 15 runs per model-quantity cell, all under a single direction-first v4 prompt that embeds neutral sign-convention clarifiers for the two quantities with documented ambiguity. The headline analysis focuses on a nine-quantity canonical elasticity subpanel; simulation-facing PolicyEngine response coefficients and the capital-gains convention audit appear in separate appendix tables.
 
 Three descriptive findings stand out. First, the model ordering is domain-specific rather than global. On the labor-and-tax subpanel, the most elastic models by average within-quantity absolute-value rank are Claude Sonnet 4.6 and Grok 4.20; on the macro-and-trade subpanel, that ordering changes sharply, with GPT-5.4 mini and GPT-5.4 nano moving to the top. Second, most labor-and-tax pooled centers fall inside rough review-based benchmark ranges, though the capital-gains realizations elasticity remains the most cross-model-dispersed canonical object. Third, the capital-gains convention audit — eliciting both parameterizations of the same economic object in parallel under the v4 clarifier — confirms the sign-convention story holds up: models return a negative w.r.t.-tax-rate elasticity paired with a positive w.r.t.-net-of-tax-rate elasticity, consistent with the identity $\varepsilon_\tau = -\tau/(1-\tau) \cdot \varepsilon_{1-\tau}$. The paper's contribution is methodological and descriptive: it offers a reproducible protocol for eliciting economic parameter distributions from LLMs and documents how those prompt-conditioned distributions vary across models and domains.
 :::
@@ -111,7 +111,7 @@ The choice of $R = 15$ is pragmatic rather than theoretically optimal. Appendix 
 
 ### Models
 
-The current main panel includes 11 models:
+The current main panel includes 17 models. Eleven were elicited in the April 2026 rerun:
 
 - `gpt-5.4`
 - `gpt-5.4-mini`
@@ -125,16 +125,26 @@ The current main panel includes 11 models:
 - `grok-4.20`
 - `grok-4.1-fast`
 
-The design is intentionally symmetric across providers: same quantities, same prompt family, same number of repeated runs. Anthropic's current main-tier model is Claude Opus 4.7; Sonnet and Haiku have not yet shipped 4.7 releases, so the 4.6 and 4.5 versions stand in for their respective tiers. The other three providers are at their current frontier across all tiers represented.
+Six models released after that rerun were elicited in July 2026 under the same v4 prompts, quantities, and repeated-run design:
+
+- `gpt-5.5`
+- `claude-fable-5`
+- `claude-opus-4.8`
+- `claude-sonnet-5`
+- `gemini-3.5-flash`
+- `grok-4.3`
+
+The design is intentionally symmetric across providers: same quantities, same prompt family, same number of repeated runs. Each provider appears at its frontier tier as of its elicitation date; superseded models remain in the panel, which makes within-provider generation-to-generation belief shifts directly observable.
 
 ### Generation protocol and exclusions
 
 The generation protocol is fixed across the main no-tools panel.
 
-- All models are run at `temperature = 1.0`.
+- Models run at `temperature = 1.0` where the API accepts a sampling parameter. Claude Fable 5, Claude Opus 4.8, and Claude Sonnet 5 reject sampling parameters, so their requests carry none and repeated-draw variation comes from default sampling.
 - OpenAI models use Chat Completions with strict JSON-schema output and batched draws up to `n = 8` per request for cost efficiency.
-- Anthropic, Gemini, and xAI models are run through LiteLLM with one request per run. Claude and Grok use forced function-call output; Gemini uses forced JSON-object output.
-- The nominal completion budget is `1200` tokens per run.
+- Claude models through Opus 4.7 and all Gemini and xAI models run through LiteLLM with one request per run. Claude (through Opus 4.7) and Grok use forced function-call output; Gemini uses forced JSON-object output.
+- The July 2026 Claude additions (Fable 5, Opus 4.8, Sonnet 5) run through the native Anthropic API with strict JSON-schema structured outputs and one request per run. Each keeps its provider-default reasoning configuration: always-on for Fable 5, adaptive for Sonnet 5, off for Opus 4.8.
+- The nominal completion budget is `1200` tokens per run for the April panel. Models whose reasoning tokens count against the completion budget receive more headroom (`4000` tokens for `gemini-3.5-flash` and `grok-4.3`; `32000` for the native-path Claude models); the budget is a truncation guard, not part of the elicitation content.
 - Each run is an independent request with no conversational carryover, no tool access, and no manual repair of malformed outputs.
 - A run counts as successful if and only if it returns machine-parseable structured output. Failed runs are left missing and excluded from pooled summaries.
 
@@ -142,14 +152,14 @@ The generation protocol is fixed across the main no-tools panel.
 
 The underlying no-tools v4 data collection contains:
 
-- 11 models
+- 17 models (11 elicited April 2026, 6 elicited July 2026)
 - 26 quantities (9 canonical elasticities plus 1 capital-gains convention sibling, 3 preference/macro objects, 1 TFP persistence, and 12 PolicyEngine simulation-facing coefficients)
 - 15 runs per model-quantity cell
-- 4,290 successful runs at 100% parse rate across all cells
+- 6,630 successful runs at 100% parse rate across all cells
 
-Success rates are uniformly 100% under v4: every planned run for every model-quantity cell parsed cleanly into structured JSON. Under the earlier v3 panel a single model (`grok-4.20`) had a 12% structured-output failure rate that affected 38 runs; that failure mode did not recur in the v4 rerun.
+Success rates are uniformly 100% under v4: every planned run for every model-quantity cell parsed cleanly into structured JSON. Under the earlier v3 panel a single model (`grok-4.20`) had a 12% structured-output failure rate that affected 38 runs; that failure mode did not recur in the v4 rerun. In the July 2026 extension, 58 runs (2.3% of the extension) initially failed on infrastructure errors — empty responses from `gpt-5.5` exhausting the completion budget on reasoning, missing forced tool calls from `grok-4.3`, three `claude-sonnet-5` responses exceeding a 32,000-token output cap, one transient schema-compilation error, and one safety-classifier false positive — and were re-elicited as fresh independent draws under identical prompts. Because these failures are provider-side artifacts rather than content, the replacement does not select on elicited values.
 
-Tracked API cost at the model-total level, for all 11 models, sorted by decreasing spend:
+Tracked API cost at the model-total level for the April panel, sorted by decreasing spend:
 
 - `claude-opus-4.7`: `$8.345`
 - `claude-sonnet-4.6`: `$4.277`
@@ -163,7 +173,16 @@ Tracked API cost at the model-total level, for all 11 models, sorted by decreasi
 - `gpt-5.4-nano`: `$0.118`
 - `grok-4.1-fast`: `$0.058`
 
-Total tracked v4 rerun cost: `$23.15` across 4,290 successful runs. Four premium-tier models (`claude-sonnet-4.6`, `claude-opus-4.7`, `gemini-3.1-pro-preview`, `grok-4.20`) were re-elicited quantity-by-quantity to work around a provider-side SSL hang that appeared only when many sequential structured-output calls were pipelined through a single LiteLLM client; the per-quantity subprocess fallback now preserves request-log aggregation, so cost figures for those four models are end-to-end tracked rather than extrapolated. Cost dispersion across models is large: the most expensive model (`claude-opus-4.7`) costs roughly 140x the cheapest (`grok-4.1-fast`), and per-successful-run cost ranges by more than two orders of magnitude between the cheapest and most expensive cells.
+And for the July 2026 additions:
+
+- `claude-fable-5`: `$18.001`
+- `claude-opus-4.8`: `$5.860`
+- `gpt-5.5`: `$5.768`
+- `gemini-3.5-flash`: `$4.484`
+- `claude-sonnet-5`: `$2.878`
+- `grok-4.3`: `$0.751`
+
+Total tracked v4 cost: `$23.15` for the April rerun plus `$37.74` for the July additions, `$60.89` across 6,630 successful runs. Four April premium-tier models (`claude-sonnet-4.6`, `claude-opus-4.7`, `gemini-3.1-pro-preview`, `grok-4.20`) were re-elicited quantity-by-quantity to work around a provider-side SSL hang that appeared only when many sequential structured-output calls were pipelined through a single LiteLLM client; the per-quantity subprocess fallback now preserves request-log aggregation, so cost figures for those four models are end-to-end tracked rather than extrapolated. The July additions ran through the same per-quantity path with the fixed cost aggregation. Cost dispersion across models is large: the most expensive model (`claude-fable-5`, whose always-on reasoning is billed as output tokens) costs roughly 310x the cheapest (`grok-4.1-fast`), and per-successful-run cost ranges by more than two orders of magnitude between the cheapest and most expensive cells.
 
 ## Main Descriptive Results
 
@@ -193,7 +212,7 @@ The macro-and-trade subpanel contains only three quantities, so the ranking is e
 
 Table 3 compares the labor-and-tax pooled centers to rough review-based benchmark intervals. These are not benchmark truths; they are hand-coded literature anchors intended to check whether the elicited centers are at least living in the right neighborhood.
 
-For most labor-and-tax quantities, the answer is yes. Every one of the 11 models falls inside the rough benchmark range for the Frisch elasticity and, under v4, for capital gains realizations as well — the sign-convention clarifier in v4 eliminated the wrong-sign outliers that appeared in the earlier v3 panel. `10 / 11` lie inside for the uncompensated wage elasticity, the extensive-margin single-mother elasticity, and the canonical income elasticity. ETI is the remaining quantity where `9 / 11` models fall inside the rough range, with two models ranging just above the upper review anchor of `0.5`. Within the in-range cluster, several models (`Claude Sonnet 4.6` at `0.500`, `Grok 4.20` at `0.497`) concentrate at the upper edge of the Saez, Slemrod, and Giertz 2012 window. That even the benchmark-consistent models lean toward the upper anchor is itself a finding about LLM priors on the ETI.
+For most labor-and-tax quantities, the answer is yes. Every one of the 17 models falls inside the rough benchmark range for the Frisch elasticity. `16 / 17` lie inside for capital gains realizations, the uncompensated wage elasticity, and the extensive-margin single-mother elasticity, and `14 / 17` for the canonical income elasticity. The sign-convention clarifier in v4 eliminated the wrong-sign outliers that appeared in the earlier v3 panel for every April model, but one July addition reintroduces the pattern: `gemini-3.5-flash` centers essentially at zero on both sign-sensitive quantities (`+0.010` for capital gains realizations, `+0.011` for the income elasticity), which suggests the clarifier reduces but does not eliminate sign instability in new model generations. `gpt-5.5` also centers just above the income-elasticity band at `-0.035`. ETI remains a quantity with upper-edge pressure: `15 / 17` models fall inside the rough range, with the same two April models (`claude-haiku-4.5` at `0.507`, `gpt-5.4-nano` at `0.552`) just above the upper review anchor of `0.5`. Within the in-range cluster, several models (`Claude Sonnet 4.6` at `0.500`, `Grok 4.20` at `0.497`, and now `Claude Sonnet 5` at `0.473`) concentrate at the upper edge of the Saez, Slemrod, and Giertz 2012 window. That even the benchmark-consistent models lean toward the upper anchor is itself a finding about LLM priors on the ETI.
 
 This benchmark table is useful because it distinguishes two kinds of disagreement. On many quantities, the models disagree with each other but still sit inside a conventional literature neighborhood. On a few quantities, the disagreement includes benchmark outliers. Appendix Table A6 sharpens the same point from a different angle: on every canonical quantity, cross-model spread in pooled centers remains smaller than the average pooled 90 percent width, with the largest spread-to-width ratio occurring for the capital gains realizations elasticity.
 

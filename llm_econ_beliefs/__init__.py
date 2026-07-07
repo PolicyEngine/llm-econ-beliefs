@@ -38,6 +38,9 @@ from .models import (
 from .mappings import get_parameter_mapping, list_mapping_systems, list_parameter_mappings
 from .parse import parse_belief_response
 from .pricing import (
+    ANTHROPIC_MODEL_PRICING,
+    ANTHROPIC_PRICING_AS_OF,
+    ANTHROPIC_PRICING_SOURCE_URL,
     OPENAI_MODEL_PRICING,
     OPENAI_PRICING_AS_OF,
     OPENAI_PRICING_SOURCE_URL,
@@ -51,7 +54,9 @@ from .providers import (
     build_litellm_belief_tool,
     build_openai_chat_payload,
     build_openai_response_payload,
+    resolve_anthropic_model_name,
     resolve_litellm_model_name,
+    run_anthropic_prompt_logged,
     run_claude_prompt,
     run_litellm_prompt_logged,
     run_openai_prompt_batch,
@@ -88,6 +93,12 @@ def run_litellm_experiment(*args, **kwargs):
     return _run_litellm_experiment(*args, **kwargs)
 
 
+def run_anthropic_experiment(*args, **kwargs):
+    from .experiment import run_anthropic_experiment as _run_anthropic_experiment
+
+    return _run_anthropic_experiment(*args, **kwargs)
+
+
 def summarize_run_results(*args, **kwargs):
     from .experiment import summarize_run_results as _summarize_run_results
 
@@ -114,6 +125,9 @@ def write_comparison_csv(*args, **kwargs):
 
 __all__ = [
     "__version__",
+    "ANTHROPIC_MODEL_PRICING",
+    "ANTHROPIC_PRICING_AS_OF",
+    "ANTHROPIC_PRICING_SOURCE_URL",
     "AggregatedBelief",
     "CalibratedDistribution",
     "CalibrationExample",
@@ -161,9 +175,12 @@ __all__ = [
     "parse_belief_response",
     "piecewise_distribution_from_quantiles",
     "resolve_quantity_ids",
+    "resolve_anthropic_model_name",
     "resolve_litellm_model_name",
     "random_effects_meta_analysis",
     "read_summary_rows",
+    "run_anthropic_experiment",
+    "run_anthropic_prompt_logged",
     "run_claude_experiment",
     "run_claude_prompt",
     "run_litellm_experiment",

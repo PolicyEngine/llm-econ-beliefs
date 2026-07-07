@@ -8,9 +8,11 @@ from .models import RequestLog
 
 TOKENS_PER_MILLION = 1_000_000
 OPENAI_PRICING_SOURCE_URL = "https://openai.com/api/pricing/"
-OPENAI_PRICING_AS_OF = "2026-04-05"
+OPENAI_PRICING_AS_OF = "2026-07-07"
 OPENAI_WEB_SEARCH_CALL_USD = 0.01
 OPENAI_CODE_INTERPRETER_SESSION_USD = 0.03
+ANTHROPIC_PRICING_SOURCE_URL = "https://platform.claude.com/docs/en/pricing"
+ANTHROPIC_PRICING_AS_OF = "2026-07-07"
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class ModelPricing:
 
 
 OPENAI_MODEL_PRICING: dict[str, ModelPricing] = {
+    "gpt-5.5": ModelPricing(5.00, 0.50, 30.00),
     "gpt-5.4": ModelPricing(2.50, 0.25, 15.00),
     "gpt-5.4-mini": ModelPricing(0.750, 0.075, 4.500),
     "gpt-5.4-nano": ModelPricing(0.20, 0.02, 1.25),
@@ -33,9 +36,37 @@ OPENAI_MODEL_PRICING: dict[str, ModelPricing] = {
     "gpt-5-nano": ModelPricing(0.05, 0.005, 0.40),
 }
 
+ANTHROPIC_MODEL_PRICING: dict[str, ModelPricing] = {
+    "claude-fable-5": ModelPricing(
+        10.00,
+        1.00,
+        50.00,
+        source_url=ANTHROPIC_PRICING_SOURCE_URL,
+        as_of_date=ANTHROPIC_PRICING_AS_OF,
+    ),
+    "claude-opus-4.8": ModelPricing(
+        5.00,
+        0.50,
+        25.00,
+        source_url=ANTHROPIC_PRICING_SOURCE_URL,
+        as_of_date=ANTHROPIC_PRICING_AS_OF,
+    ),
+    # Introductory Sonnet 5 pricing runs through 2026-08-31; sticker is $3/$15.
+    "claude-sonnet-5": ModelPricing(
+        2.00,
+        0.20,
+        10.00,
+        source_url=ANTHROPIC_PRICING_SOURCE_URL,
+        as_of_date=ANTHROPIC_PRICING_AS_OF,
+    ),
+}
+
 
 def lookup_model_pricing(provider: str, model_name: str) -> ModelPricing | None:
     """Return pricing for a provider/model pair when known."""
+    if provider == "anthropic":
+        return ANTHROPIC_MODEL_PRICING.get(model_name)
+
     if provider not in {"openai_chat_completions", "openai_responses"}:
         return None
 
