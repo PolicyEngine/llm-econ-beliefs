@@ -362,3 +362,27 @@ def test_run_litellm_prompt_logged_uses_model_specific_completion_cap(monkeypatc
 
     assert fake_litellm.kwargs["max_tokens"] == 4000
     assert fake_litellm.kwargs["model"] == "xai/grok-4.3"
+
+
+def test_run_openai_prompt_batch_logged_default_cap_is_model_specific(monkeypatch):
+    captured = {}
+
+    class _StopAfterPayload(Exception):
+        pass
+
+    def fake_build_payload(prompt, *, model_name, json_schema, n, temperature, max_completion_tokens):
+        captured[model_name] = max_completion_tokens
+        raise _StopAfterPayload
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(
+        "llm_econ_beliefs.providers.build_openai_chat_payload", fake_build_payload
+    )
+
+    from llm_econ_beliefs.providers import run_openai_prompt_batch_logged
+
+    for model_name in ("gpt-5.5", "gpt-5.4-mini"):
+        with pytest.raises(_StopAfterPayload):
+            run_openai_prompt_batch_logged("hello", model_name=model_name, n=1)
+    assert captured["gpt-5.5"] == 8000
+    assert captured["gpt-5.4-mini"] == 1200

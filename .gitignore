@@ -13,3 +13,6 @@ dashboard/.claude/
 dashboard/package-lock.json
 
 .vercel
+
+# Transient per-quantity staging (consumed by the merge step)
+results/_perquantity_*/

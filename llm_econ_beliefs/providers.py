@@ -36,6 +36,12 @@ LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "grok-4.3": 4000,
 }
 
+# GPT-5.5 reasons far more than the 5.4 family on sign-convention prompts and
+# can exhaust a 1200-token completion budget before emitting any visible text.
+OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
+    "gpt-5.5": 8000,
+}
+
 # Panel-facing names for models served through the native Anthropic SDK path.
 # Claude Fable 5 / Opus 4.8 / Sonnet 5 reject sampling parameters and manage
 # thinking themselves, so they run through `run_anthropic_prompt_logged`
@@ -478,13 +484,17 @@ def run_openai_prompt_batch_logged(
     json_schema: dict[str, Any] | None = DEFAULT_BELIEF_JSON_SCHEMA,
     n: int = 1,
     temperature: float = 1.0,
-    max_completion_tokens: int = 1200,
+    max_completion_tokens: int | None = None,
     timeout_seconds: int = 180,
 ) -> ProviderBatchResult:
     """Run one prompt through the OpenAI Chat Completions API and return all choices."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
+    if max_completion_tokens is None:
+        max_completion_tokens = OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL.get(
+            model_name, 1200
+        )
 
     payload = build_openai_chat_payload(
         prompt,
