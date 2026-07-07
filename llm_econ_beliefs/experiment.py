@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -20,6 +21,7 @@ from .parse import parse_belief_response
 from .pricing import estimate_request_cost
 from .providers import (
     OPENAI_CHAT_COMPLETIONS_MAX_N,
+    run_anthropic_prompt_logged,
     run_claude_prompt,
     run_litellm_prompt_logged,
     run_openai_prompt_batch_logged,
@@ -137,6 +139,7 @@ def run_litellm_experiment(
     prompt_version: str = "v2",
     tool_regime: str = "none",
     temperature: float = 1.0,
+    max_workers: int = 1,
     invoke_batch: Callable[[str, str, int], ProviderBatchResult | list[str]] | None = None,
 ) -> tuple[list[RunResult], list[dict[str, object]]]:
     """Run a repeated-prompt experiment through LiteLLM-backed providers."""
@@ -167,6 +170,49 @@ def run_litellm_experiment(
         tool_regime=tool_regime,
         invoke_batch=invoke_batch,
         batch_size=1,
+        max_workers=max_workers,
+    )
+
+
+def run_anthropic_experiment(
+    *,
+    quantity_ids: Sequence[str],
+    n_runs: int,
+    output_dir: str | Path,
+    model_name: str = "claude-sonnet-5",
+    prompt_version: str = "v2",
+    tool_regime: str = "none",
+    max_workers: int = 4,
+    invoke_batch: Callable[[str, str, int], ProviderBatchResult | list[str]] | None = None,
+) -> tuple[list[RunResult], list[dict[str, object]]]:
+    """Run a repeated-prompt experiment through the native Anthropic API."""
+    if tool_regime != "none":
+        raise ValueError("Anthropic provider path currently supports tool_regime='none' only")
+
+    if invoke_batch is None:
+        def invoke_batch(
+            prompt: str,
+            current_model_name: str,
+            n: int,
+        ) -> ProviderBatchResult:
+            if n != 1:
+                raise ValueError("Anthropic runner expects n=1 per request")
+            return run_anthropic_prompt_logged(
+                prompt,
+                model_name=current_model_name,
+            )
+
+    return _run_batched_experiment(
+        provider="anthropic",
+        quantity_ids=quantity_ids,
+        n_runs=n_runs,
+        output_dir=output_dir,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        tool_regime=tool_regime,
+        invoke_batch=invoke_batch,
+        batch_size=1,
+        max_workers=max_workers,
     )
 
 
@@ -181,13 +227,21 @@ def _run_batched_experiment(
     tool_regime: str,
     invoke_batch: Callable[[str, str, int], ProviderBatchResult | list[str]],
     batch_size: int,
+    max_workers: int = 1,
 ) -> tuple[list[RunResult], list[dict[str, object]]]:
-    """Run an experiment where a provider may return multiple draws per request."""
+    """Run an experiment where a provider may return multiple draws per request.
+
+    With ``max_workers > 1`` the provider requests are issued concurrently but
+    the output artifacts keep the same deterministic (quantity, run_index)
+    ordering as a sequential run.
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if batch_size <= 0:
         raise ValueError("batch_size must be positive")
+    if max_workers <= 0:
+        raise ValueError("max_workers must be positive")
 
     runs = build_run_grid(
         model_names=[model_name],
@@ -204,59 +258,83 @@ def _run_batched_experiment(
     for run in runs:
         grouped_runs.setdefault((run.model_name, run.quantity_id), []).append(run)
 
-    request_index = 0
+    batches: list[tuple[str, list]] = []
     for (_, quantity_id), run_group in sorted(grouped_runs.items()):
         for start in range(0, len(run_group), batch_size):
-            batch_runs = run_group[start : start + batch_size]
-            prompt = batch_runs[0].prompt
-            try:
-                raw_batch_result = invoke_batch(prompt, batch_runs[0].model_name, len(batch_runs))
-                batch_result = _normalize_batch_result(raw_batch_result)
-                raw_responses = batch_result.outputs
-                if len(raw_responses) != len(batch_runs):
-                    raise RuntimeError(
-                        f"Provider returned {len(raw_responses)} responses for {len(batch_runs)} runs"
+            batches.append((quantity_id, run_group[start : start + batch_size]))
+
+    def _invoke_one(
+        batch: tuple[str, list],
+    ) -> tuple[ProviderBatchResult | None, Exception | None]:
+        _, batch_runs = batch
+        try:
+            raw_batch_result = invoke_batch(
+                batch_runs[0].prompt, batch_runs[0].model_name, len(batch_runs)
+            )
+            return _normalize_batch_result(raw_batch_result), None
+        except Exception as exc:
+            return None, exc
+
+    if max_workers > 1 and len(batches) > 1:
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            outcomes = list(pool.map(_invoke_one, batches))
+    else:
+        outcomes = [_invoke_one(batch) for batch in batches]
+
+    request_index = 0
+    for (quantity_id, batch_runs), (batch_result, invoke_error) in zip(
+        batches, outcomes, strict=True
+    ):
+        try:
+            if invoke_error is not None:
+                raise invoke_error
+            raw_responses = batch_result.outputs
+            if len(raw_responses) != len(batch_runs):
+                raise RuntimeError(
+                    f"Provider returned {len(raw_responses)} responses for {len(batch_runs)} runs"
+                )
+            if batch_result.request_id is not None or batch_result.usage:
+                request_index += 1
+                request_logs.append(
+                    _request_log_from_batch_result(
+                        provider=provider,
+                        model_name=batch_runs[0].model_name,
+                        quantity_id=quantity_id,
+                        prompt_version=batch_runs[0].prompt_version,
+                        tool_regime=batch_runs[0].tool_regime,
+                        batch_size=len(batch_runs),
+                        request_index=request_index,
+                        batch_result=batch_result,
                     )
-                if batch_result.request_id is not None or batch_result.usage:
-                    request_index += 1
-                    request_logs.append(
-                        _request_log_from_batch_result(
-                            provider=provider,
-                            model_name=batch_runs[0].model_name,
-                            quantity_id=quantity_id,
-                            prompt_version=batch_runs[0].prompt_version,
-                            tool_regime=batch_runs[0].tool_regime,
-                            batch_size=len(batch_runs),
-                            request_index=request_index,
-                            batch_result=batch_result,
-                        )
+                )
+            batch_records = []
+            for run, raw_response in zip(batch_runs, raw_responses, strict=True):
+                parsed = parse_belief_response(raw_response, quantity_id=run.quantity_id)
+                batch_records.append(
+                    _record_from_parsed(
+                        run,
+                        parsed,
+                        raw_response,
+                        provider=provider,
                     )
-                for run, raw_response in zip(batch_runs, raw_responses, strict=True):
-                    parsed = parse_belief_response(raw_response, quantity_id=run.quantity_id)
-                    records.append(
-                        _record_from_parsed(
-                            run,
-                            parsed,
-                            raw_response,
-                            provider=provider,
-                        )
+                )
+            records.extend(batch_records)
+        except Exception as exc:
+            for run in batch_runs:
+                records.append(
+                    RunResult(
+                        provider=provider,
+                        model_name=run.model_name,
+                        quantity_id=run.quantity_id,
+                        run_index=run.run_index,
+                        prompt_version=run.prompt_version,
+                        tool_regime=run.tool_regime,
+                        prompt=run.prompt,
+                        raw_response=None,
+                        parsed_ok=False,
+                        error=str(exc),
                     )
-            except Exception as exc:
-                for run in batch_runs:
-                    records.append(
-                        RunResult(
-                            provider=provider,
-                            model_name=run.model_name,
-                            quantity_id=run.quantity_id,
-                            run_index=run.run_index,
-                            prompt_version=run.prompt_version,
-                            tool_regime=run.tool_regime,
-                            prompt=run.prompt,
-                            raw_response=None,
-                            parsed_ok=False,
-                            error=str(exc),
-                        )
-                    )
+                )
 
     _write_jsonl(output_dir / "runs.jsonl", records)
     _write_runs_csv(output_dir / "runs.csv", records)
@@ -411,10 +489,15 @@ def summarize_run_results(
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments for an experiment."""
     parser = argparse.ArgumentParser(description="Run an LLM economic-belief experiment.")
-    parser.add_argument("--provider", choices=["claude", "openai", "litellm"], default="claude")
+    parser.add_argument(
+        "--provider",
+        choices=["claude", "openai", "litellm", "anthropic"],
+        default="claude",
+    )
     parser.add_argument("--model", default="sonnet")
     parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--samples-per-request", type=int, default=1)
+    parser.add_argument("--max-workers", type=int, default=4)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--prompt-version", default="v2")
     parser.add_argument("--tool-regime", choices=["none", "full"], default="none")
@@ -472,6 +555,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             api_mode=args.openai_api,
             batch_size=args.samples_per_request,
             temperature=args.temperature,
+        )
+    elif args.provider == "anthropic":
+        _, summaries = run_anthropic_experiment(
+            quantity_ids=quantity_ids,
+            n_runs=args.runs,
+            output_dir=output_dir,
+            model_name=args.model,
+            prompt_version=args.prompt_version,
+            tool_regime=args.tool_regime,
+            max_workers=args.max_workers,
         )
     else:
         _, summaries = run_litellm_experiment(

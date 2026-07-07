@@ -65,14 +65,20 @@ from llm_econ_beliefs.registry import get_quantity  # noqa: E402
 
 
 MODEL_LABELS = {
+    "claude-fable-5": "Claude Fable 5",
+    "claude-opus-4.8": "Claude Opus 4.8",
+    "claude-sonnet-5": "Claude Sonnet 5",
     "claude-opus-4.7": "Claude Opus 4.7",
     "claude-sonnet-4.6": "Claude Sonnet 4.6",
     "claude-haiku-4.5": "Claude Haiku 4.5",
+    "grok-4.3": "Grok 4.3",
     "grok-4.20": "Grok 4.20",
     "grok-4.1-fast": "Grok 4.1 Fast",
+    "gpt-5.5": "GPT-5.5",
     "gpt-5.4": "GPT-5.4",
     "gpt-5.4-mini": "GPT-5.4 mini",
     "gpt-5.4-nano": "GPT-5.4 nano",
+    "gemini-3.5-flash": "Gemini 3.5 Flash",
     "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
     "gemini-3-flash-preview": "Gemini 3 Flash",
     "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash-Lite",

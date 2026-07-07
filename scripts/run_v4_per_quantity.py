@@ -46,6 +46,12 @@ PROVIDER_FOR_MODEL = {
     "gpt-5.4": "openai",
     "gpt-5.4-mini": "openai",
     "gpt-5.4-nano": "openai",
+    "gpt-5.5": "openai",
+    "claude-sonnet-5": "anthropic",
+    "claude-opus-4.8": "anthropic",
+    "claude-fable-5": "anthropic",
+    "gemini-3.5-flash": "litellm",
+    "grok-4.3": "litellm",
 }
 
 

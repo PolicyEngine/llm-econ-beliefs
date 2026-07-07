@@ -5,7 +5,9 @@ from llm_econ_beliefs import (
     build_litellm_belief_tool,
     build_openai_chat_payload,
     build_openai_response_payload,
+    resolve_anthropic_model_name,
     resolve_litellm_model_name,
+    run_anthropic_prompt_logged,
 )
 from llm_econ_beliefs.providers import (
     run_litellm_prompt_logged,
@@ -196,3 +198,167 @@ def test_run_litellm_prompt_logged_falls_back_to_cost_ticks(monkeypatch):
     result = run_litellm_prompt_logged("hello", model_name="gemini-3-flash-preview")
 
     assert result.usage["litellm_cost_usd"] == pytest.approx(0.0002164)
+
+
+class _FakeAnthropicUsage:
+    def __init__(self, input_tokens=700, output_tokens=350, cache_read=0):
+        self.input_tokens = input_tokens
+        self.output_tokens = output_tokens
+        self.cache_creation_input_tokens = 0
+        self.cache_read_input_tokens = cache_read
+
+
+class _FakeAnthropicBlock:
+    def __init__(self, type_, text=None):
+        self.type = type_
+        self.text = text
+
+
+class _FakeAnthropicStopDetails:
+    def __init__(self, explanation):
+        self.explanation = explanation
+
+
+class _FakeAnthropicMessage:
+    def __init__(
+        self,
+        *,
+        stop_reason="end_turn",
+        content=None,
+        stop_details=None,
+        usage=None,
+    ):
+        self.stop_reason = stop_reason
+        self.content = content if content is not None else [
+            _FakeAnthropicBlock("text", '{"point_estimate": 0.5}')
+        ]
+        self.stop_details = stop_details
+        self.usage = usage or _FakeAnthropicUsage()
+        self.id = "msg_1"
+
+
+class _FakeAnthropicStream:
+    def __init__(self, message):
+        self._message = message
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def get_final_message(self):
+        return self._message
+
+
+class _FakeAnthropicMessages:
+    def __init__(self, message):
+        self._message = message
+        self.kwargs = None
+
+    def stream(self, **kwargs):
+        self.kwargs = kwargs
+        return _FakeAnthropicStream(self._message)
+
+
+class _FakeAnthropicClient:
+    def __init__(self, message):
+        self.messages = _FakeAnthropicMessages(message)
+
+
+def test_resolve_anthropic_model_name_maps_panel_aliases():
+    assert resolve_anthropic_model_name("claude-opus-4.8") == "claude-opus-4-8"
+    assert resolve_anthropic_model_name("claude-fable-5") == "claude-fable-5"
+    assert resolve_anthropic_model_name("claude-sonnet-5") == "claude-sonnet-5"
+
+
+def test_resolve_litellm_model_name_supports_july_2026_additions():
+    assert resolve_litellm_model_name("grok-4.3") == "xai/grok-4.3"
+    assert resolve_litellm_model_name("gemini-3.5-flash") == "gemini/gemini-3.5-flash"
+
+
+def test_run_anthropic_prompt_logged_uses_structured_output_without_sampling_params():
+    client = _FakeAnthropicClient(_FakeAnthropicMessage())
+
+    result = run_anthropic_prompt_logged(
+        "hello",
+        model_name="claude-opus-4.8",
+        client=client,
+    )
+
+    kwargs = client.messages.kwargs
+    assert kwargs["model"] == "claude-opus-4-8"
+    assert "temperature" not in kwargs
+    assert "top_p" not in kwargs
+    assert "thinking" not in kwargs
+    assert kwargs["output_config"]["format"]["type"] == "json_schema"
+    assert kwargs["messages"] == [{"role": "user", "content": "hello"}]
+    assert result.outputs == ['{"point_estimate": 0.5}']
+    assert result.request_id == "msg_1"
+    assert result.usage["input_tokens"] == 700
+    assert result.usage["output_tokens"] == 350
+    assert result.usage["total_tokens"] == 1050
+
+
+def test_run_anthropic_prompt_logged_reads_text_after_thinking_blocks():
+    message = _FakeAnthropicMessage(
+        content=[
+            _FakeAnthropicBlock("thinking"),
+            _FakeAnthropicBlock("text", '{"point_estimate": 0.9}'),
+        ]
+    )
+    client = _FakeAnthropicClient(message)
+
+    result = run_anthropic_prompt_logged(
+        "hello",
+        model_name="claude-fable-5",
+        client=client,
+    )
+
+    assert result.outputs == ['{"point_estimate": 0.9}']
+
+
+def test_run_anthropic_prompt_logged_raises_on_refusal():
+    message = _FakeAnthropicMessage(
+        stop_reason="refusal",
+        stop_details=_FakeAnthropicStopDetails("declined by policy"),
+    )
+    client = _FakeAnthropicClient(message)
+
+    with pytest.raises(RuntimeError, match="declined by policy"):
+        run_anthropic_prompt_logged(
+            "hello",
+            model_name="claude-fable-5",
+            client=client,
+        )
+
+
+def test_run_anthropic_prompt_logged_raises_on_truncation():
+    message = _FakeAnthropicMessage(stop_reason="max_tokens")
+    client = _FakeAnthropicClient(message)
+
+    with pytest.raises(RuntimeError, match="truncated"):
+        run_anthropic_prompt_logged(
+            "hello",
+            model_name="claude-sonnet-5",
+            client=client,
+        )
+
+
+def test_run_litellm_prompt_logged_uses_model_specific_completion_cap(monkeypatch):
+    response = _FakeResponse(
+        message=_FakeMessage(
+            tool_calls=[_FakeToolCall('{"point_estimate": 0.5, "quantiles": {}}')]
+        ),
+        usage={"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+    )
+    fake_litellm = _FakeLiteLLM(response)
+    monkeypatch.setattr(
+        "llm_econ_beliefs.providers._import_litellm",
+        lambda: fake_litellm,
+    )
+
+    run_litellm_prompt_logged("hello", model_name="grok-4.3")
+
+    assert fake_litellm.kwargs["max_tokens"] == 4000
+    assert fake_litellm.kwargs["model"] == "xai/grok-4.3"

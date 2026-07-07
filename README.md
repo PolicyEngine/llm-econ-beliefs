@@ -82,8 +82,13 @@ The intended workflow is:
 ## Quick Start
 
 ```bash
-python3 -m pytest
+uv venv .venv
+uv pip install -p .venv/bin/python -e ".[dev,providers]"
+.venv/bin/python -m pytest
 ```
+
+The core package has no runtime dependencies; the `providers` extra pulls in
+`anthropic` (native Claude path) and `litellm` (Gemini/Grok paths).
 
 ```python
 from llm_econ_beliefs import aggregate_beliefs, create_belief_prompt, get_quantity
@@ -114,6 +119,25 @@ python3 -m llm_econ_beliefs \
 ```
 
 For OpenAI Chat Completions, `--samples-per-request` maps to the API's `n` parameter so repeated draws can share the prompt cost within a single request.
+
+```bash
+.venv/bin/python -m llm_econ_beliefs \
+  --provider anthropic \
+  --model claude-fable-5 \
+  --runs 5 \
+  --max-workers 4 \
+  --quantity labor_supply.frisch_elasticity.prime_age \
+  --output-dir results/claude-fable-5-frisch-batch5
+```
+
+The `anthropic` provider serves Claude Fable 5, Claude Opus 4.8, and Claude
+Sonnet 5 through the official Anthropic SDK with structured outputs
+(`output_config.format`). These models reject sampling parameters, so requests
+carry no temperature; each model keeps its default thinking behavior
+(always-on for Fable 5, adaptive for Sonnet 5, off for Opus 4.8), and
+`--max-workers` parallelizes repeated draws. Older Claude models
+(Opus 4.7 and earlier) continue to run through the LiteLLM path used for the
+April 2026 panel.
 
 ```bash
 python3 -m llm_econ_beliefs.compare \
@@ -195,6 +219,22 @@ python3 scripts/run_v4_per_quantity.py --model grok-4.20
 See `results/README.md` for the result-directory naming convention and
 a note on how the per-quantity fallback affects `summary.csv` cost
 aggregation.
+
+### (c) July 2026 model additions
+
+Six models released after the April rerun extend the panel under the
+same v4 prompts: `gpt-5.5`, `claude-fable-5`, `claude-opus-4.8`,
+`claude-sonnet-5`, `gemini-3.5-flash`, and `grok-4.3`. Re-elicit them
+with:
+
+```bash
+.venv/bin/python scripts/run_v4_new_models.py
+```
+
+The driver uses the per-quantity fallback path for every cell (results
+persist incrementally; completed cells are skipped on rerun). The three
+new Claude models run through the native Anthropic SDK provider rather
+than LiteLLM.
 
 ## Initial Quantity Set
 

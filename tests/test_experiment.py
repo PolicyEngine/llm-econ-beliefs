@@ -3,6 +3,7 @@ from pathlib import Path
 from llm_econ_beliefs import ProviderBatchResult
 from llm_econ_beliefs.experiment import (
     resolve_quantity_ids,
+    run_anthropic_experiment,
     run_claude_experiment,
     run_litellm_experiment,
     run_openai_experiment,
@@ -273,3 +274,93 @@ def test_run_litellm_experiment_uses_precomputed_cost(tmp_path: Path):
     assert summaries[0]["n_successful_runs"] == 2
     assert summaries[0]["usage_estimated_total_cost_usd_total"] == 0.246
     assert summaries[0]["usage_reasoning_tokens_total"] == 14
+
+
+def test_run_anthropic_experiment_parallel_workers_keep_deterministic_order(tmp_path: Path):
+    def fake_invoke_batch(prompt: str, model_name: str, n: int) -> ProviderBatchResult:
+        assert n == 1
+        return ProviderBatchResult(
+            outputs=[
+                """
+                {
+                  "interpretation": "test",
+                  "point_estimate": 0.5,
+                  "quantiles": {
+                    "p05": 0.3, "p25": 0.4, "p50": 0.5, "p75": 0.6, "p95": 0.7
+                  },
+                  "citations": [],
+                  "reasoning_summary": "test"
+                }
+                """
+            ],
+            request_id="msg_x",
+            usage={"input_tokens": 700, "output_tokens": 350, "total_tokens": 1050},
+        )
+
+    records, summaries = run_anthropic_experiment(
+        quantity_ids=[
+            "household.annual_discount_factor",
+            "labor_supply.frisch_elasticity.prime_age",
+        ],
+        n_runs=3,
+        output_dir=tmp_path,
+        model_name="claude-fable-5",
+        prompt_version="v4",
+        max_workers=5,
+        invoke_batch=fake_invoke_batch,
+    )
+
+    assert len(records) == 6
+    assert all(record.parsed_ok for record in records)
+    assert all(record.provider == "anthropic" for record in records)
+    observed_order = [(record.quantity_id, record.run_index) for record in records]
+    assert observed_order == sorted(observed_order)
+
+    by_quantity = {summary["quantity_id"]: summary for summary in summaries}
+    assert set(by_quantity) == {
+        "household.annual_discount_factor",
+        "labor_supply.frisch_elasticity.prime_age",
+    }
+    for summary in summaries:
+        assert summary["n_successful_runs"] == 3
+        expected_per_request = 700 * 10.00 / 1_000_000 + 350 * 50.00 / 1_000_000
+        assert abs(
+            summary["usage_estimated_total_cost_usd_total"] - 3 * expected_per_request
+        ) < 1e-12
+
+    assert (tmp_path / "runs.jsonl").exists()
+    assert (tmp_path / "requests.csv").exists()
+    assert (tmp_path / "summary.csv").exists()
+
+
+def test_run_anthropic_experiment_records_errors_per_batch(tmp_path: Path):
+    calls = {"n": 0}
+
+    def flaky_invoke_batch(prompt: str, model_name: str, n: int) -> ProviderBatchResult:
+        calls["n"] += 1
+        if calls["n"] % 2 == 0:
+            raise RuntimeError("provider blew up")
+        return ProviderBatchResult(
+            outputs=[
+                '{"interpretation": "t", "point_estimate": 0.5, '
+                '"quantiles": {"p05": 0.3, "p25": 0.4, "p50": 0.5, "p75": 0.6, "p95": 0.7}, '
+                '"citations": [], "reasoning_summary": "t"}'
+            ],
+            request_id="msg_x",
+            usage={"input_tokens": 10, "output_tokens": 10, "total_tokens": 20},
+        )
+
+    records, _ = run_anthropic_experiment(
+        quantity_ids=["household.annual_discount_factor"],
+        n_runs=4,
+        output_dir=tmp_path,
+        model_name="claude-sonnet-5",
+        prompt_version="v4",
+        max_workers=1,
+        invoke_batch=flaky_invoke_batch,
+    )
+
+    assert len(records) == 4
+    errors = [record for record in records if not record.parsed_ok]
+    assert len(errors) == 2
+    assert all("provider blew up" in (record.error or "") for record in errors)

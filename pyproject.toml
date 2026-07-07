@@ -9,6 +9,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0.0"]
+providers = ["anthropic>=0.90.0", "litellm>=1.70.0"]
 
 [build-system]
 requires = ["hatchling"]

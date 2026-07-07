@@ -25,6 +25,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from llm_econ_beliefs import (
     list_quantities,
+    run_anthropic_experiment,
     run_litellm_experiment,
     run_openai_experiment,
 )
@@ -33,14 +34,31 @@ MODELS = [
     ("openai", "gpt-5.4-nano"),
     ("openai", "gpt-5.4-mini"),
     ("openai", "gpt-5.4"),
+    ("openai", "gpt-5.5"),
     ("litellm", "claude-haiku-4.5"),
     ("litellm", "claude-sonnet-4.6"),
     ("litellm", "claude-opus-4.7"),
+    ("anthropic", "claude-sonnet-5"),
+    ("anthropic", "claude-opus-4.8"),
+    ("anthropic", "claude-fable-5"),
     ("litellm", "gemini-3.1-flash-lite-preview"),
     ("litellm", "gemini-3-flash-preview"),
     ("litellm", "gemini-3.1-pro-preview"),
+    ("litellm", "gemini-3.5-flash"),
     ("litellm", "grok-4.1-fast"),
     ("litellm", "grok-4.20"),
+    ("litellm", "grok-4.3"),
+]
+
+# Models added after the April 2026 v4 panel rerun. `run_v4_new_models.py`
+# drives exactly this subset through the per-quantity fallback path.
+NEW_MODELS_JULY_2026 = [
+    ("openai", "gpt-5.5"),
+    ("anthropic", "claude-sonnet-5"),
+    ("anthropic", "claude-opus-4.8"),
+    ("anthropic", "claude-fable-5"),
+    ("litellm", "gemini-3.5-flash"),
+    ("litellm", "grok-4.3"),
 ]
 
 BATCHES = {
@@ -78,7 +96,11 @@ def exec_cell(
     if provider == "openai":
         kwargs["batch_size"] = 5
         records, _ = run_openai_experiment(**kwargs)
+    elif provider == "anthropic":
+        kwargs["max_workers"] = int(os.environ.get("ANTHROPIC_MAX_WORKERS", "4"))
+        records, _ = run_anthropic_experiment(**kwargs)
     else:
+        kwargs["max_workers"] = int(os.environ.get("LITELLM_MAX_WORKERS", "1"))
         records, _ = run_litellm_experiment(**kwargs)
 
     n_ok = sum(1 for r in records if r.parsed_ok)
