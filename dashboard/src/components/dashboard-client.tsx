@@ -18,7 +18,6 @@ import {
   getModelLabel,
   getProviderForModel,
   isFlagshipModel,
-  isJuly2026Model,
   type ProviderKey,
 } from "@/lib/model-meta";
 import type {
@@ -534,13 +533,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
             className="mb-4 text-xs leading-relaxed"
             style={{ color: "var(--muted-foreground)" }}
           >
-            {selectedMethod.description} Rows with a{" "}
-            <span
-              aria-hidden="true"
-              className="mx-0.5 inline-block h-1.5 w-1.5 rounded-full align-middle"
-              style={{ background: "var(--chart-1)" }}
-            />{" "}
-            marker joined the panel in July 2026. Click a row to inspect its runs.
+            {selectedMethod.description} Click a row to inspect its runs.
           </p>
 
           {/* Interval plot */}
@@ -613,10 +606,6 @@ export function DashboardClient({ data }: DashboardClientProps) {
                         ? getModelLabel(inspectedModelSummary.modelName)
                         : "—"}
                     </h3>
-                    {inspectedModelSummary &&
-                      isJuly2026Model(inspectedModelSummary.modelName) && (
-                        <NewBadge />
-                      )}
                   </div>
                 </div>
                 <button
@@ -771,21 +760,6 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function NewBadge() {
-  return (
-    <span
-      className="rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-      style={{
-        background: "color-mix(in oklab, var(--chart-1) 12%, transparent)",
-        color: "var(--primary)",
-      }}
-      title="Added to the panel in July 2026"
-    >
-      Jul 2026
-    </span>
-  );
-}
-
 function ModelPanel({
   model,
   methods,
@@ -812,7 +786,6 @@ function ModelPanel({
             >
               {getModelLabel(model.modelName)}
             </h3>
-            {isJuly2026Model(model.modelName) && <NewBadge />}
           </div>
           <p
             className="mt-1 text-[11px]"

@@ -53,21 +53,6 @@ export const FLAGSHIP_MODEL_BY_PROVIDER: Record<ProviderKey, string> = {
   openai: "gpt-5.5",
   xai: "grok-4.3",
 };
-
-/** Models added in the July 2026 panel extension. */
-export const JULY_2026_MODELS = new Set([
-  "gpt-5.5",
-  "claude-fable-5",
-  "claude-opus-4.8",
-  "claude-sonnet-5",
-  "gemini-3.5-flash",
-  "grok-4.3",
-]);
-
-export function isJuly2026Model(model: string): boolean {
-  return JULY_2026_MODELS.has(model);
-}
-
 export function isFlagshipModel(model: string): boolean {
   const provider = getProviderForModel(model);
   return provider !== null && FLAGSHIP_MODEL_BY_PROVIDER[provider] === model;
