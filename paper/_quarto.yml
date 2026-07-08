@@ -13,6 +13,13 @@ format:
     toc-depth: 3
     number-sections: true
     df-print: paged
+  pdf:
+    toc: true
+    number-sections: true
+    header-includes:
+      - \usepackage{tgpagella}
+      - \usepackage[scaled=0.94]{helvet}
+      - \usepackage[scaled=0.9]{inconsolata}
 
 bibliography: references.bib
 link-citations: true
