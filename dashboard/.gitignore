@@ -45,3 +45,6 @@ next-env.d.ts
 
 # paper PDF staged from parent repo at deploy time
 /public/paper.pdf
+
+# paper tables staged from parent repo at deploy time
+/tables
