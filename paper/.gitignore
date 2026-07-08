@@ -2,3 +2,5 @@
 /.venv-quarto/
 /paper.html
 /paper_files/
+
+**/*.quarto_ipynb

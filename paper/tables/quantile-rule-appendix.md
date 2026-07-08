@@ -1,4 +1,4 @@
-Note: Canonical nine-quantity subpanel only. The alternative rule approximates each run as a transformed normal calibrated to p05, p50, and p95 instead of the headline piecewise-uniform quantile-bin reconstruction.
+Note: Canonical 13-quantity subpanel. The alternative rule approximates each run as a transformed normal calibrated to p05, p50, and p95 instead of the headline piecewise-uniform quantile-bin reconstruction.
 
 | Model | Avg piecewise-uniform rank | Avg transformed-normal rank | Rank shift |
 | --- | --- | --- | --- |

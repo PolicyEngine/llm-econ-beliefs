@@ -1,4 +1,4 @@
-Note: Canonical nine-quantity subpanel only. Average predictive-uncertainty ranks are computed under the headline pooled mixture interval, the REML predictive interval, and the Bayesian predictive interval.
+Note: Canonical 13-quantity subpanel. Average predictive-uncertainty ranks are computed under the headline pooled mixture interval, the REML predictive interval, and the Bayesian predictive interval.
 
 | Model | Avg pooled rank | Avg REML rank | Avg Bayes rank | Max rank spread |
 | --- | --- | --- | --- | --- |

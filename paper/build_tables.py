@@ -111,7 +111,7 @@ ROUGH_LITERATURE_BENCHMARKS = {
     "labor_supply.income_elasticity.prime_age": {
         "lower": -0.15,
         "upper": -0.05,
-        "source": "CBO 2012; Blundell and MaCurdy 1999; Imbens, Rubin, and Sacerdote 2001",
+        "source": "CBO 2012; Blundell and MaCurdy 1999; Imbens, Rubin, and Sacerdote 2001 (marginal propensity to earn, converted to an elasticity)",
     },
     "labor_supply.frisch_elasticity.prime_age": {
         "lower": 0.25,
@@ -126,17 +126,17 @@ ROUGH_LITERATURE_BENCHMARKS = {
     "labor_supply.extensive_margin.single_mothers": {
         "lower": 0.30,
         "upper": 1.00,
-        "source": "Eissa and Liebman 1996; extensive-margin labor-supply literature",
+        "source": "Chetty, Guren, Manoli, and Weber 2013 (elasticity implied by Eissa and Liebman 1996); Meyer and Rosenbaum 2001",
     },
     "tax.capital_gains_realizations.elasticity": {
         "lower": -1.00,
         "upper": -0.20,
-        "source": "Capital-gains realizations literature; medium-run tax-rate elasticity convention",
+        "source": "Dowd, McClelland, and Muthitacharoen 2015; Burman and Randolph 1994; CBO/JCT medium-run convention",
     },
     "tax.elasticity_of_taxable_income.top_earners": {
         "lower": 0.25,
         "upper": 0.50,
-        "source": "Saez, Slemrod, and Giertz 2012; optimal-tax sufficient-statistics literature",
+        "source": "Gruber and Saez 2002 (high-income estimates); Saez, Slemrod, and Giertz 2012 (survey range 0.12-0.40, upper half)",
     },
 }
 
@@ -205,11 +205,13 @@ def main() -> int:
     tool_use = build_tool_use_table()
     grok_failures = build_grok_failure_table()
 
+    canonical_quantity_count = len({row.quantity_id for row in canonical_rows})
+    panel_model_count = len({row.model_name for row in canonical_rows})
     write_table_bundle(
         stem="model-overview",
         rows=model_overview,
         note=(
-            "Canonical elasticity subpanel only: 9 quantities x 11 models x 15 runs. "
+            f"Canonical subpanel only: {canonical_quantity_count} quantities x {panel_model_count} models x 15 runs. "
             "This table excludes the 12 simulation-facing PolicyEngine substitution-response coefficients "
             "and the legacy deleted income-response row. The canonical income elasticity here is still the "
             "main-panel version; the later sign-clarified rerun is reported separately."
@@ -227,7 +229,7 @@ def main() -> int:
         stem="model-overview-labor-tax",
         rows=labor_tax_overview,
         note=(
-            "Canonical labor-and-tax subpanel only: 6 quantities x 11 models x 15 runs. "
+            f"Canonical labor-and-tax subpanel only: 6 quantities x {panel_model_count} models x 15 runs. "
             "Average ranks are computed within quantity using the absolute value of the pooled point estimate."
         ),
     )
@@ -235,7 +237,7 @@ def main() -> int:
         stem="model-overview-macro-trade",
         rows=macro_trade_overview,
         note=(
-            "Canonical macro-and-trade subpanel only: 3 quantities x 11 models x 15 runs. "
+            f"Canonical macro-and-trade subpanel only: 3 quantities x {panel_model_count} models x 15 runs. "
             "Average ranks are computed within quantity using the absolute value of the pooled point estimate."
         ),
     )
@@ -251,20 +253,28 @@ def main() -> int:
         top_rate_calibration["mean_above"]
     ):
         top_rate_note = (
-            "Toy public-finance mapping from each model's pooled ETI distribution to a utilitarian-log optimal top marginal tax rate "
-            "under the Saez-style formula tau* = (1 - g_bar) / (1 - g_bar + a e), using log utility (gamma = 1) and a Pareto parameter "
+            "Toy public-finance mapping from each model's pooled ETI distribution to an optimal top marginal tax rate "
+            "under the Saez top-bracket formula tau* = (1 - g_bar) / (1 - g_bar + a e), with a Pareto parameter "
             f"a = {top_rate_calibration['a']:.3f} estimated from the weighted top {100 * (1 - top_rate_calibration['percentile']):.0f}% "
-            f"tax-unit AGI tail in PolicyEngine's Enhanced CPS 2024 (threshold ${top_rate_calibration['threshold']:,.0f}, "
-            f"tail mean ${top_rate_calibration['mean_above']:,.0f}). Under those assumptions, "
-            f"g_bar = a / (a + gamma) = {top_rate_calibration['welfare_weight']:.3f}. "
+            f"tax-unit AGI tail in PolicyEngine's certified microdata (threshold ${top_rate_calibration['threshold']:,.0f}, "
+            f"tail mean ${top_rate_calibration['mean_above']:,.0f}). "
+            f"The welfare weight g_bar = a / (a + gamma) = {top_rate_calibration['welfare_weight']:.3f} is the average marginal "
+            "utility of top-bracket earners under CRRA (gamma = 1) utility and a Pareto(a) income tail, normalized to the marginal "
+            "utility of the earner at the top-bracket threshold. It is a threshold-normalized weight, not the population-normalized "
+            "utilitarian weight, which would drive g_bar toward zero; the Revenue-max column reports that g_bar -> 0 "
+            "(Diamond-Saez revenue-maximizing) benchmark tau* = 1 / (1 + a e) at the ETI median. "
             "ETI is truncated below at zero for this policy mapping."
         )
     else:
         top_rate_note = (
-            "Toy public-finance mapping from each model's pooled ETI distribution to a utilitarian-log optimal top marginal tax rate "
-            "under the Saez-style formula tau* = (1 - g_bar) / (1 - g_bar + a e), using log utility (gamma = 1) and fallback Pareto parameter "
-            f"a = {top_rate_calibration['a']:.3f}. Under those assumptions, "
-            f"g_bar = a / (a + gamma) = {top_rate_calibration['welfare_weight']:.3f}. "
+            "Toy public-finance mapping from each model's pooled ETI distribution to an optimal top marginal tax rate "
+            "under the Saez top-bracket formula tau* = (1 - g_bar) / (1 - g_bar + a e), using the FALLBACK Pareto parameter "
+            f"a = {top_rate_calibration['a']:.3f} because the PolicyEngine microdata calibration was unavailable at build time "
+            "(the build prints a warning when this path is used; the text of the paper assumes the microdata calibration). "
+            f"The welfare weight g_bar = a / (a + gamma) = {top_rate_calibration['welfare_weight']:.3f} is the average marginal "
+            "utility of top-bracket earners under CRRA (gamma = 1) utility and a Pareto(a) income tail, normalized to the marginal "
+            "utility of the earner at the top-bracket threshold; the Revenue-max column reports the g_bar -> 0 "
+            "(Diamond-Saez revenue-maximizing) benchmark tau* = 1 / (1 + a e) at the ETI median. "
             "ETI is truncated below at zero for this policy mapping."
         )
 
@@ -286,7 +296,7 @@ def main() -> int:
                 f"(a = {baseline_a_display:.3f}, gamma = 1) reproduces the median column in Table 4. The "
                 "a = 1.3 / 1.5 / 1.7 columns vary only the Pareto tail while keeping log utility (gamma = 1); "
                 f"the final column replaces log utility with CRRA at gamma = 2 while holding a at the "
-                f"microdata estimate. Under log utility the corresponding welfare weights g_bar are "
+                f"baseline value above. Under log utility the corresponding welfare weights g_bar are "
                 f"1.3/2.3 = 0.565, {baseline_a_display:.3f}/(1 + {baseline_a_display:.3f}) = "
                 f"{baseline_a_display / (1 + baseline_a_display):.3f}, 1.5/2.5 = 0.600, and 1.7/2.7 = 0.630; "
                 f"under gamma = 2 with a = {baseline_a_display:.3f}, g_bar = "
@@ -372,7 +382,7 @@ def main() -> int:
             stem="pooling-robustness-appendix",
             rows=pooling_robustness,
             note=(
-                "Canonical nine-quantity subpanel only. Average predictive-uncertainty ranks are computed under the headline pooled mixture interval, the REML predictive interval, and the Bayesian predictive interval."
+                f"Canonical {canonical_quantity_count}-quantity subpanel. Average predictive-uncertainty ranks are computed under the headline pooled mixture interval, the REML predictive interval, and the Bayesian predictive interval."
             ),
         )
     if leave_one_provider_out:
@@ -388,7 +398,62 @@ def main() -> int:
             stem="quantile-rule-appendix",
             rows=quantile_rule_robustness,
             note=(
-                "Canonical nine-quantity subpanel only. The alternative rule approximates each run as a transformed normal calibrated to p05, p50, and p95 instead of the headline piecewise-uniform quantile-bin reconstruction."
+                f"Canonical {canonical_quantity_count}-quantity subpanel. The alternative rule approximates each run as a transformed normal calibrated to p05, p50, and p95 instead of the headline piecewise-uniform quantile-bin reconstruction."
+            ),
+        )
+
+    write_table_bundle(
+        stem="harness-disclosure",
+        rows=build_harness_disclosure_table(),
+        note=(
+            "Per-model generation-harness configuration. The prompt text and repeated-run design are identical "
+            "across models; the structured-output mechanism, completion budget, sampling regime, and reasoning "
+            "configuration follow each provider's API surface and are therefore confounded with model identity. "
+            "Completion budgets are truncation guards: reasoning tokens count against them on models that reason, "
+            "so budgets were raised where required to avoid truncation. Identifiers marked alias float with "
+            "provider updates; dated snapshots are pinned."
+        ),
+    )
+    write_table_bundle(
+        stem="variance-decomposition",
+        rows=build_variance_decomposition_table(canonical_rows),
+        note=(
+            f"Split of the pooled predictive variance over the canonical {canonical_quantity_count}-quantity subpanel into the "
+            "within-run component (the model's own stated p05-p95 quantiles) and the between-run component "
+            "(variation of run means across the 15 repeated draws). The between-run share is the only component "
+            "affected by the sampling regime, which differs for the three no-sampling-parameter Claude models."
+        ),
+    )
+    write_table_bundle(
+        stem="resampling-stability",
+        rows=build_resampling_stability_table(canonical_rows),
+        note=(
+            f"Monte Carlo uncertainty in the pooled summaries from resampling the 15 runs within each canonical cell "
+            "(200 bootstrap resamples, fixed seed). Center MC SE is the standard error of the pooled center; relative "
+            "width MC SE is the standard error of the pooled 90% width divided by its mean. The final columns show the "
+            "distribution of each model's average width rank across resamples; narrow intervals indicate the "
+            "predictive-uncertainty ordering is stable to run-level resampling at R = 15."
+        ),
+    )
+    write_table_bundle(
+        stem="support-bounds",
+        rows=build_support_bounds_table(),
+        note=(
+            "Registry support bounds used for quantile-bin reconstruction, tail extrapolation, and the transforms "
+            "behind the REML and Bayesian estimators. Unbounded sides use a tail-extrapolation rule that extends "
+            "0.25 x the adjacent inter-quantile gap beyond the elicited p05/p95."
+        ),
+    )
+    mechanism_ablation = build_mechanism_ablation_table(canonical_rows)
+    if mechanism_ablation:
+        write_table_bundle(
+            stem="mechanism-ablation",
+            rows=mechanism_ablation,
+            note=(
+                "Same model (Claude Opus 4.7), same v4 prompts, same repeated-run design, two harness mechanisms: "
+                "the April LiteLLM forced-function-call path (temperature 1.0, 1200-token budget) versus the July "
+                "native Anthropic strict-JSON-schema path (no sampling parameters, 32000-token budget). Each cell "
+                "pools 15 fresh runs elicited in July 2026 under the native mechanism against the April panel cell."
             ),
         )
     if grok_failures:
@@ -626,6 +691,11 @@ def build_top_rate_table(
             eti_q05,
             pareto_parameter=pareto_parameter,
         )
+        revenue_max_median = optimal_top_rate_from_eti(
+            eti_q50,
+            pareto_parameter=pareto_parameter,
+            welfare_weight=0.0,
+        )
         table_rows.append(
             {
                 "Model": model_label(row.model_name),
@@ -633,10 +703,11 @@ def build_top_rate_table(
                     f"{eti_q50:.3f} "
                     f"[{eti_q05:.3f}, {eti_q95:.3f}]"
                 ),
-                "Utilitarian top rate median [90%]": (
+                "Top rate median [90%]": (
                     f"{100 * top_rate_median:.1f}% "
                     f"[{100 * top_rate_lower:.1f}%, {100 * top_rate_upper:.1f}%]"
                 ),
+                "Revenue-max median": f"{100 * revenue_max_median:.1f}%",
                 "Top-rate 90% width (pp)": round(
                     100 * (top_rate_upper - top_rate_lower),
                     1,
@@ -965,9 +1036,9 @@ def build_stability_table(
     comparison_rows: list[ComparisonRow],
 ) -> list[dict[str, object]]:
     source_dirs = sorted({row.source_dir for row in comparison_rows})
-    point_diffs: dict[int, list[float]] = {5: [], 10: []}
-    width_diffs: dict[int, list[float]] = {5: [], 10: []}
-    cell_counts: dict[int, int] = {5: 0, 10: 0}
+    point_diffs: dict[int, list[float]] = {5: [], 10: [], 15: []}
+    width_diffs: dict[int, list[float]] = {5: [], 10: [], 15: []}
+    cell_counts: dict[int, int] = {5: 0, 10: 0, 15: 0}
 
     for source_dir in source_dirs:
         rows = read_csv(Path(source_dir) / "runs.csv")
@@ -987,7 +1058,7 @@ def build_stability_table(
                 upper_support=quantity.upper_support,
             )
             full_width = (full.upper_bound or 0.0) - (full.lower_bound or 0.0)
-            for n in (5, 10):
+            for n in (5, 10, 15):
                 if len(estimates) < n:
                     continue
                 partial = aggregate_beliefs(
@@ -1002,20 +1073,6 @@ def build_stability_table(
 
     table_rows: list[dict[str, object]] = []
     for n in (5, 10, 15):
-        if n == 15:
-            table_rows.append(
-                {
-                    "Runs used": 15,
-                    "Cells compared": sum(
-                        1 for row in comparison_rows if row.quantity_id in LABOR_TAX_QUANTITY_IDS | MACRO_TRADE_QUANTITY_IDS
-                    ),
-                    "Median abs change in pooled center": 0.0,
-                    "90th pct abs change in pooled center": 0.0,
-                    "Median abs change in pooled width": 0.0,
-                    "90th pct abs change in pooled width": 0.0,
-                }
-            )
-            continue
         if not point_diffs[n]:
             continue
         table_rows.append(
@@ -1154,19 +1211,21 @@ def _bootstrap_implied_tau_quantiles(
     *,
     n_draws: int = CAP_GAINS_BOOTSTRAP_DRAWS,
     seed: int = CAP_GAINS_BOOTSTRAP_SEED,
-) -> tuple[float, float, float]:
-    """Return (p05, p50, p95) of bootstrapped implied-tau draws.
+) -> tuple[float, float, float, float]:
+    """Return (p05, p50, p95, share_in_unit_interval) of bootstrapped implied-tau draws.
 
     For each of ``n_draws`` iterations, sample one ``epsilon_taxrate`` and
     one ``epsilon_netoftax`` independently from the per-run lists, then
     invert ``epsilon_taxrate = -(tau / (1 - tau)) * epsilon_netoftax`` to
     ``tau = -rho / (1 - rho)`` where ``rho = epsilon_taxrate / epsilon_netoftax``.
     Pairs yielding a non-finite ``tau`` (``epsilon_netoftax == 0`` or
-    ``rho == 1``) are dropped. NaN triples are returned if fewer than two
-    finite draws survive.
+    ``rho == 1``) are dropped. NaN values are returned if fewer than two
+    finite draws survive. The final element is the share of surviving draws
+    that fall in the economically meaningful interval (0, 1); a low share
+    signals a pole-straddling, weakly identified implied-tau distribution.
     """
     if not tax_rate_points or not net_points:
-        return float("nan"), float("nan"), float("nan")
+        return float("nan"), float("nan"), float("nan"), float("nan")
     rng = random.Random(seed)
     taus: list[float] = []
     n_tax = len(tax_rate_points)
@@ -1184,12 +1243,14 @@ def _bootstrap_implied_tau_quantiles(
         if math.isfinite(tau):
             taus.append(tau)
     if len(taus) < 2:
-        return float("nan"), float("nan"), float("nan")
+        return float("nan"), float("nan"), float("nan"), float("nan")
     taus.sort()
+    share_in_unit = sum(1 for tau in taus if 0.0 < tau < 1.0) / len(taus)
     return (
         _bootstrap_quantile(taus, 0.05),
         _bootstrap_quantile(taus, 0.50),
         _bootstrap_quantile(taus, 0.95),
+        share_in_unit,
     )
 
 
@@ -1258,19 +1319,6 @@ def build_cap_gains_convention_audit_table(
         eps_tax_median = median(tax_rate_points)
         eps_net_median = median(net_points)
 
-        tau_p05, tau_p50, tau_p95 = _bootstrap_implied_tau_quantiles(
-            tax_rate_points, net_points
-        )
-
-        if math.isfinite(tau_p50) and ltcg_lo <= tau_p50 <= ltcg_hi:
-            band_flag = "LTCG-rate consistent"
-        elif math.isfinite(tau_p50) and ord_lo < tau_p50 <= ord_hi:
-            band_flag = "ordinary-income-rate consistent"
-        elif math.isfinite(tau_p50) and 0.0 < tau_p50 < 1.0:
-            band_flag = "plausible sign, outside bands"
-        else:
-            band_flag = "out of band"
-
         if eps_tax_median <= 0 and eps_net_median >= 0:
             coherence = "sign-consistent (tax<0, net>0)"
         elif eps_tax_median >= 0 and eps_net_median >= 0:
@@ -1279,13 +1327,43 @@ def build_cap_gains_convention_audit_table(
             coherence = "both negative"
         else:
             coherence = "reversed (tax>0, net<0)"
+        sign_consistent = coherence.startswith("sign-consistent")
 
-        if math.isfinite(tau_p50):
+        tau_p05, tau_p50, tau_p95, tau_share_unit = _bootstrap_implied_tau_quantiles(
+            tax_rate_points, net_points
+        )
+
+        # The identity's premise (opposite signs) fails for non-sign-consistent
+        # rows, so no implied tau is defined for them; and a bootstrap
+        # distribution with substantial mass outside (0, 1) straddles the
+        # rho = 1 pole, so its median is not a stable summary.
+        if not sign_consistent:
+            implied_tau_cell = "— (premise fails)"
+            share_cell = "—"
+            band_flag = "not identified"
+        elif not math.isfinite(tau_p50):
+            implied_tau_cell = "—"
+            share_cell = "—"
+            band_flag = "not identified"
+        elif tau_share_unit < 0.8:
             implied_tau_cell = (
                 f"{tau_p50:.3f} [{tau_p05:.3f}, {tau_p95:.3f}]"
             )
+            share_cell = f"{100 * tau_share_unit:.0f}%"
+            band_flag = "uninformative (pole-straddling)"
         else:
-            implied_tau_cell = "—"
+            implied_tau_cell = (
+                f"{tau_p50:.3f} [{tau_p05:.3f}, {tau_p95:.3f}]"
+            )
+            share_cell = f"{100 * tau_share_unit:.0f}%"
+            if ltcg_lo <= tau_p50 <= ltcg_hi:
+                band_flag = "LTCG-rate consistent"
+            elif ord_lo < tau_p50 <= ord_hi:
+                band_flag = "ordinary-income-rate consistent"
+            elif 0.0 < tau_p50 < 1.0:
+                band_flag = "plausible sign, outside bands"
+            else:
+                band_flag = "out of band"
 
         table_rows.append(
             {
@@ -1296,6 +1374,7 @@ def build_cap_gains_convention_audit_table(
                     eps_net_median, 3
                 ),
                 "Implied tau median [90%]": implied_tau_cell,
+                "Share of draws in (0, 1)": share_cell,
                 "Shared-tau coherence": coherence,
                 band_column: band_flag,
             }
@@ -1424,6 +1503,12 @@ def optimal_top_rate_from_eti(
 
 def estimate_policyengine_top_tail_pareto_parameter() -> dict[str, float]:
     if not POLICYENGINE_US_PYTHON.exists() or not POLICYENGINE_US_REPO.exists():
+        print(
+            "WARNING: PolicyEngine venv not found — Table 4/A13 will use the "
+            f"FALLBACK Pareto parameter a = {TOP_RATE_PARETO_A}, not the microdata "
+            "calibration described in the paper text.",
+            file=sys.stderr,
+        )
         welfare_weight = utilitarian_top_welfare_weight(
             pareto_parameter=TOP_RATE_PARETO_A,
             crra_gamma=TOP_RATE_CRRA_GAMMA,
@@ -1481,7 +1566,16 @@ print(json.dumps({{
             crra_gamma=TOP_RATE_CRRA_GAMMA,
         )
         return result
-    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as exc:
+        detail = ""
+        if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
+            detail = " Subprocess stderr tail: " + exc.stderr.strip()[-300:]
+        print(
+            "WARNING: PolicyEngine microdata Pareto calibration FAILED — Table 4/A13 "
+            f"will use the FALLBACK a = {TOP_RATE_PARETO_A}, not the microdata "
+            f"calibration described in the paper text. ({exc.__class__.__name__}){detail}",
+            file=sys.stderr,
+        )
         welfare_weight = utilitarian_top_welfare_weight(
             pareto_parameter=TOP_RATE_PARETO_A,
             crra_gamma=TOP_RATE_CRRA_GAMMA,
@@ -1838,6 +1932,264 @@ def format_markdown_cell(header: str, value: object) -> str:
             return str(int(value))
         return f"{float(value):.3f}".rstrip("0").rstrip(".")
     return str(value)
+
+
+
+
+
+# ---------------------------------------------------------------------------
+# Referee-round additions: harness disclosure, variance decomposition,
+# resampling stability, support bounds, and the cross-mechanism ablation.
+# ---------------------------------------------------------------------------
+
+HARNESS_DISCLOSURE_ROWS: list[dict[str, str]] = [
+    # model, provider path, output mechanism, completion budget, sampling, reasoning config, identifier, identifier type
+    {"model": "gpt-5.5", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "8000", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.5", "id_type": "alias"},
+    {"model": "gpt-5.4", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4", "id_type": "alias"},
+    {"model": "gpt-5.4-mini", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-mini", "id_type": "alias"},
+    {"model": "gpt-5.4-nano", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-nano", "id_type": "alias"},
+    {"model": "claude-fable-5", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "always-on reasoning", "identifier": "claude-fable-5", "id_type": "alias"},
+    {"model": "claude-opus-4.8", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "off (provider default)", "identifier": "claude-opus-4-8", "id_type": "alias"},
+    {"model": "claude-sonnet-5", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "adaptive (provider default)", "identifier": "claude-sonnet-5", "id_type": "alias"},
+    {"model": "claude-opus-4.7", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-opus-4-7", "id_type": "alias"},
+    {"model": "claude-sonnet-4.6", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-sonnet-4-6", "id_type": "alias"},
+    {"model": "claude-haiku-4.5", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-haiku-4-5-20251001", "id_type": "dated snapshot"},
+    {"model": "gemini-3.1-pro-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-pro-preview", "id_type": "preview alias"},
+    {"model": "gemini-3.5-flash", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.5-flash", "id_type": "alias"},
+    {"model": "gemini-3-flash-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3-flash-preview", "id_type": "preview alias"},
+    {"model": "gemini-3.1-flash-lite-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-flash-lite-preview", "id_type": "preview alias"},
+    {"model": "grok-4.20", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "reasoning variant", "identifier": "xai/grok-4.20-reasoning", "id_type": "alias"},
+    {"model": "grok-4.3", "path": "LiteLLM", "mechanism": "forced function call", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "xai/grok-4.3", "id_type": "alias"},
+    {"model": "grok-4.1-fast", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "non-reasoning variant", "identifier": "xai/grok-4-1-fast-non-reasoning", "id_type": "alias"},
+]
+
+
+def build_harness_disclosure_table() -> list[dict[str, object]]:
+    return [
+        {
+            "Model": model_label(row["model"]),
+            "Provider path": row["path"],
+            "Output mechanism": row["mechanism"],
+            "Completion budget": row["budget"],
+            "Sampling": row["sampling"],
+            "Reasoning config": row["reasoning"],
+            "API identifier": row["identifier"],
+            "Identifier type": row["id_type"],
+        }
+        for row in HARNESS_DISCLOSURE_ROWS
+    ]
+
+
+def build_variance_decomposition_table(
+    comparison_rows: list[ComparisonRow],
+) -> list[dict[str, object]]:
+    """Per-model split of pooled predictive variance into within-run (stated
+    quantile) and between-run (sampling) components over the canonical panel."""
+    by_model: dict[str, list[tuple[float, float]]] = {}
+    for row in comparison_rows:
+        summary_path = Path(row.source_dir) / "summary.csv"
+        if not summary_path.exists():
+            continue
+        for summary_row in read_csv(summary_path):
+            if summary_row["quantity_id"] != row.quantity_id:
+                continue
+            within = summary_row.get("within_run_sd") or ""
+            between = summary_row.get("between_run_sd") or ""
+            if not within or not between:
+                continue
+            by_model.setdefault(row.model_name, []).append(
+                (float(within), float(between))
+            )
+
+    table_rows: list[dict[str, object]] = []
+    for model_name in sorted(by_model, key=model_label):
+        pairs = by_model[model_name]
+        shares = [
+            (b * b) / (w * w + b * b)
+            for w, b in pairs
+            if (w * w + b * b) > 0
+        ]
+        if not shares:
+            continue
+        table_rows.append(
+            {
+                "Model": model_label(model_name),
+                "Cells": len(pairs),
+                "Median within-run SD": round(median(w for w, _ in pairs), 3),
+                "Median between-run SD": round(median(b for _, b in pairs), 3),
+                "Median between-run variance share": f"{100 * median(shares):.0f}%",
+                "Max between-run variance share": f"{100 * max(shares):.0f}%",
+            }
+        )
+    return table_rows
+
+
+def build_resampling_stability_table(
+    comparison_rows: list[ComparisonRow],
+    *,
+    n_resamples: int = 200,
+    seed: int = 20260707,
+) -> list[dict[str, object]]:
+    """Bootstrap the 15 runs within each canonical cell to attach Monte Carlo
+    standard errors to the pooled center and width and a stability interval to
+    each model's average width rank."""
+    cells: dict[tuple[str, str], list[BeliefEstimate]] = {}
+    supports: dict[str, tuple[float | None, float | None]] = {}
+    for row in comparison_rows:
+        quantity = get_quantity(row.quantity_id)
+        supports[row.quantity_id] = (quantity.lower_support, quantity.upper_support)
+        run_rows = read_csv(Path(row.source_dir) / "runs.csv")
+        estimates = [
+            _belief_estimate_from_row(run_row)
+            for run_row in run_rows
+            if run_row["parsed_ok"] == "True"
+            and run_row["quantity_id"] == row.quantity_id
+        ]
+        if estimates:
+            cells[(row.model_name, row.quantity_id)] = estimates
+
+    model_names = sorted({model for model, _ in cells}, key=model_label)
+    quantity_ids = sorted({quantity for _, quantity in cells})
+    rng = random.Random(seed)
+
+    center_ses: dict[str, list[float]] = {model: [] for model in model_names}
+    width_rel_ses: dict[str, list[float]] = {model: [] for model in model_names}
+    width_draws: dict[tuple[str, str], list[float]] = {}
+
+    for (model_name, quantity_id), estimates in sorted(cells.items()):
+        lower_support, upper_support = supports[quantity_id]
+        centers: list[float] = []
+        widths: list[float] = []
+        n = len(estimates)
+        for _ in range(n_resamples):
+            resample = [estimates[rng.randrange(n)] for _ in range(n)]
+            aggregated = aggregate_beliefs(
+                resample,
+                lower_support=lower_support,
+                upper_support=upper_support,
+            )
+            centers.append(aggregated.point_estimate)
+            widths.append(
+                (aggregated.upper_bound or 0.0) - (aggregated.lower_bound or 0.0)
+            )
+        width_draws[(model_name, quantity_id)] = widths
+        center_se = _stdev(centers)
+        width_se = _stdev(widths)
+        mean_width = sum(widths) / len(widths)
+        center_ses[model_name].append(center_se)
+        if mean_width > 0:
+            width_rel_ses[model_name].append(width_se / mean_width)
+
+    # Average width rank per resample draw, per model.
+    rank_draws: dict[str, list[float]] = {model: [] for model in model_names}
+    for draw_index in range(n_resamples):
+        per_model_ranks: dict[str, list[float]] = {model: [] for model in model_names}
+        for quantity_id in quantity_ids:
+            widths_here = [
+                (model, width_draws[(model, quantity_id)][draw_index])
+                for model in model_names
+                if (model, quantity_id) in width_draws
+            ]
+            widths_here.sort(key=lambda item: item[1])
+            for rank_position, (model, _) in enumerate(widths_here, start=1):
+                per_model_ranks[model].append(float(rank_position))
+        for model in model_names:
+            if per_model_ranks[model]:
+                rank_draws[model].append(
+                    sum(per_model_ranks[model]) / len(per_model_ranks[model])
+                )
+
+    table_rows: list[dict[str, object]] = []
+    for model in model_names:
+        ranks = sorted(rank_draws[model])
+        table_rows.append(
+            {
+                "Model": model_label(model),
+                "Median center MC SE": round(median(center_ses[model]), 4),
+                "Median relative width MC SE": f"{100 * median(width_rel_ses[model]):.0f}%",
+                "Avg width rank (mean)": round(sum(ranks) / len(ranks), 2),
+                "Avg width rank 90% interval": (
+                    f"[{_bootstrap_quantile(ranks, 0.05):.2f}, "
+                    f"{_bootstrap_quantile(ranks, 0.95):.2f}]"
+                ),
+            }
+        )
+    table_rows.sort(key=lambda row: row["Avg width rank (mean)"])
+    return table_rows
+
+
+def _stdev(values: list[float]) -> float:
+    if len(values) < 2:
+        return 0.0
+    mean_value = sum(values) / len(values)
+    return math.sqrt(sum((v - mean_value) ** 2 for v in values) / (len(values) - 1))
+
+
+def build_support_bounds_table() -> list[dict[str, object]]:
+    from llm_econ_beliefs.registry import list_quantities
+
+    rows = []
+    for quantity in list_quantities():
+        rows.append(
+            {
+                "Quantity": quantity.name,
+                "Quantity id": quantity.id,
+                "Lower support": (
+                    "unbounded" if quantity.lower_support is None else quantity.lower_support
+                ),
+                "Upper support": (
+                    "unbounded" if quantity.upper_support is None else quantity.upper_support
+                ),
+            }
+        )
+    rows.sort(key=lambda row: str(row["Quantity id"]))
+    return rows
+
+
+MECHANISM_ABLATION_STEM = "mechanism-ablation-batch15"
+
+
+def build_mechanism_ablation_table(
+    comparison_rows: list[ComparisonRow],
+) -> list[dict[str, object]]:
+    """Same model (Claude Opus 4.7), same prompts, two harness mechanisms:
+    the April LiteLLM forced-function-call path (1200-token budget) versus the
+    July native Anthropic strict-JSON-schema path (32000-token budget)."""
+    ablation_path = (
+        RESULTS_DIR / f"claude-opus-4.7-{MECHANISM_ABLATION_STEM}" / "summary.csv"
+    )
+    if not ablation_path.exists():
+        return []
+    native_rows = {row["quantity_id"]: row for row in read_csv(ablation_path)}
+    april_rows = {
+        row.quantity_id: row
+        for row in comparison_rows
+        if row.model_name == "claude-opus-4.7"
+    }
+    table_rows: list[dict[str, object]] = []
+    for quantity_id, native_row in sorted(native_rows.items()):
+        april_row = april_rows.get(quantity_id)
+        if april_row is None:
+            continue
+        native_center = float(native_row["pooled_point_estimate"])
+        native_width = float(native_row["pooled_upper_bound"]) - float(
+            native_row["pooled_lower_bound"]
+        )
+        april_width = april_row.pooled_upper - april_row.pooled_lower
+        table_rows.append(
+            {
+                "Quantity": quantity_label(quantity_id),
+                "LiteLLM center": round(april_row.pooled_point_estimate, 3),
+                "Native center": round(native_center, 3),
+                "Center change": round(
+                    native_center - april_row.pooled_point_estimate, 3
+                ),
+                "LiteLLM 90% width": round(april_width, 3),
+                "Native 90% width": round(native_width, 3),
+            }
+        )
+    table_rows.sort(key=lambda row: str(row["Quantity"]))
+    return table_rows
 
 
 if __name__ == "__main__":

@@ -72,3 +72,18 @@ their `summary.csv` cost columns are aggregated end to end (no
 `$0.0000` caveat). The Anthropic-path runs used four concurrent
 workers per quantity; draws remain independent single-request
 elicitations.
+
+## Failed-run re-elicitation manifest
+
+`failure-manifest.csv` records every July 2026 run slot whose first
+attempt failed on an infrastructure error and was re-elicited as a
+fresh draw: 58 runs across 15 (model, batch, quantity) cells, with the
+error class and the replacement request IDs (traceable in each
+directory's `requests.jsonl`). The two gpt-5.5 capital-gains cells were
+re-elicited in full at a raised completion cap (1200 -> 8000 tokens)
+after every first-attempt run returned empty text; all other cells
+replaced at most 5 of 15 runs under identical settings.
+`scripts/rerun_failed_runs.py` now also archives the failed records to
+`failed-runs-archive.jsonl` inside the affected directory before
+replacing them (the July round predates this and is reconstructed in
+the manifest from appended request logs).

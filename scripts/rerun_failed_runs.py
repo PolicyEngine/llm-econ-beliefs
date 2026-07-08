@@ -94,6 +94,16 @@ def main() -> int:
         return 0
     print(f"{args.model} / {args.batch}: re-eliciting {len(failed_positions)} failed runs")
 
+    # Archive the failed records before replacing them so the replacement
+    # policy stays auditable (see results/failure-manifest.csv).
+    archive_path = target_dir / "failed-runs-archive.jsonl"
+    with archive_path.open("a") as handle:
+        from dataclasses import asdict
+
+        for index in failed_positions:
+            handle.write(json.dumps(asdict(records[index])) + "\n")
+    print(f"archived {len(failed_positions)} failed records to {archive_path}")
+
     fixed = 0
     for index in failed_positions:
         failed = records[index]
