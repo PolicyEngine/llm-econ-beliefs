@@ -51,6 +51,9 @@ ANTHROPIC_MODEL_ALIASES: dict[str, str] = {
     "claude-fable-5": "claude-fable-5",
     "claude-opus-4.8": "claude-opus-4-8",
     "claude-sonnet-5": "claude-sonnet-5",
+    # April-panel model, exposed here for the cross-mechanism ablation
+    # (native structured outputs vs the LiteLLM forced-function-call path).
+    "claude-opus-4.7": "claude-opus-4-7",
 }
 
 # Cap, not a floor: billed output reflects actual generation. Sonnet 5's

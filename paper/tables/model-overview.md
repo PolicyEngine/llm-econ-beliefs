@@ -1,4 +1,4 @@
-Note: Canonical elasticity subpanel only: 9 quantities x 11 models x 15 runs. This table excludes the 12 simulation-facing PolicyEngine substitution-response coefficients and the legacy deleted income-response row. The canonical income elasticity here is still the main-panel version; the later sign-clarified rerun is reported separately.
+Note: Canonical subpanel only: 13 quantities x 17 models x 15 runs. This table excludes the 12 simulation-facing PolicyEngine substitution-response coefficients and the legacy deleted income-response row. The canonical income elasticity here is still the main-panel version; the later sign-clarified rerun is reported separately.
 
 | Model | Provider | Avg abs-elasticity rank (1=highest) | Avg predictive-uncertainty rank (1=narrowest) | Mean absolute pooled center | Mean pooled 90% width | Success rate | Cost / successful run |
 | --- | --- | --- | --- | --- | --- | --- | --- |

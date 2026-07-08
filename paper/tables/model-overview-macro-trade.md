@@ -1,4 +1,4 @@
-Note: Canonical macro-and-trade subpanel only: 3 quantities x 11 models x 15 runs. Average ranks are computed within quantity using the absolute value of the pooled point estimate.
+Note: Canonical macro-and-trade subpanel only: 3 quantities x 17 models x 15 runs. Average ranks are computed within quantity using the absolute value of the pooled point estimate.
 
 | Model | Provider | Avg abs-elasticity rank (1=highest) | Avg predictive-uncertainty rank (1=narrowest) | Mean absolute pooled center | Mean pooled 90% width | Success rate | Cost / successful run |
 | --- | --- | --- | --- | --- | --- | --- | --- |
