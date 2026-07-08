@@ -1,4 +1,9 @@
-"""Provider adapters for running prompts against locally available CLIs."""
+"""Provider adapters: OpenAI Chat Completions, LiteLLM, and native Anthropic APIs.
+
+Each adapter sends one elicitation prompt, enforces structured JSON output
+through the provider's schema mechanism, and returns raw text plus a request
+log (request ID, token usage, cost inputs) for the audit trail.
+"""
 
 from __future__ import annotations
 

@@ -192,13 +192,26 @@ python3 -m pytest
 cd paper && PYTHONPATH=$(pwd)/.. python3 build_tables.py
 ```
 
+Two tables (Table 4 and Appendix A13) calibrate a Pareto tail from
+PolicyEngine US microdata. Point `POLICYENGINE_US_REPO` at a
+policyengine-us checkout with an installed `.venv` (or set
+`POLICYENGINE_US_PYTHON` to its interpreter) to reproduce the
+committed `a = 1.621` build; without it, `build_tables.py` prints a
+loud warning and falls back to `a = 1.5` for those two tables only.
+
 ### (b) Re-elicit from scratch
 
-Run the full v4 panel from scratch. This calls out to every provider
-and takes roughly 1–2 hours of wall time. Total API cost is
-approximately $25–$30 across the 11 models × 26 quantities × 15 runs
-design (4,290 model runs). Set provider API keys in your environment
-first.
+Run the April v4 panel from scratch. This calls out to every provider
+and takes roughly 1–2 hours of wall time. The full committed panel is
+17 models × 26 quantities × 15 runs (6,630 main-panel runs) elicited
+in two waves: the 11-model April wave via this driver (~$23), and the
+6-model July wave via path (c) below (~$38 including its clarify
+probes; $60.89 all-in across both waves). Set provider API keys in
+your environment first. If any runs fail on infrastructure errors,
+`scripts/rerun_failed_runs.py` re-elicits the failed slots in place,
+archives the failed records, and appends to the audit trail
+(`results/failure-manifest.csv` records the committed panel's 58
+replaced slots).
 
 ```bash
 python3 scripts/run_v4_full_panel.py

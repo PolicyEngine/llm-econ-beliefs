@@ -173,7 +173,6 @@ def main() -> int:
         row for row in comparison_rows if quantity_panel(row.quantity_id) == "simulation"
     ]
 
-    model_overview = build_model_overview_table(canonical_rows)
     quantity_disagreement = build_quantity_disagreement_table(canonical_rows)
     labor_tax_overview = build_model_overview_table(labor_tax_rows)
     macro_trade_overview = build_model_overview_table(macro_trade_rows)
@@ -207,16 +206,6 @@ def main() -> int:
 
     canonical_quantity_count = len({row.quantity_id for row in canonical_rows})
     panel_model_count = len({row.model_name for row in canonical_rows})
-    write_table_bundle(
-        stem="model-overview",
-        rows=model_overview,
-        note=(
-            f"Canonical subpanel only: {canonical_quantity_count} quantities x {panel_model_count} models x 15 runs. "
-            "This table excludes the 12 simulation-facing PolicyEngine substitution-response coefficients "
-            "and the legacy deleted income-response row. The canonical income elasticity here is still the "
-            "main-panel version; the later sign-clarified rerun is reported separately."
-        ),
-    )
     write_table_bundle(
         stem="quantity-disagreement",
         rows=quantity_disagreement,
@@ -373,7 +362,7 @@ def main() -> int:
             stem="stability-appendix",
             rows=stability,
             note=(
-                "Prefix stability on the 9-quantity canonical subpanel. "
+                f"Prefix stability on the {canonical_quantity_count}-quantity canonical subpanel. "
                 "Rows compare pooled summaries from the first 5 or 10 runs in a cell to the full 15-run pooled summary."
             ),
         )
@@ -453,7 +442,9 @@ def main() -> int:
                 "Same model (Claude Opus 4.7), same v4 prompts, same repeated-run design, two harness mechanisms: "
                 "the April LiteLLM forced-function-call path (temperature 1.0, 1200-token budget) versus the July "
                 "native Anthropic strict-JSON-schema path (no sampling parameters, 32000-token budget). Each cell "
-                "pools 15 fresh runs elicited in July 2026 under the native mechanism against the April panel cell."
+                "pools 15 fresh runs elicited in July 2026 under the native mechanism against the April panel cell. "
+                "Centers are stable (max absolute change 0.03); widths move up to 15 percent in either direction. "
+                "Opus 4.7 runs without extended reasoning on both paths, so the reasoning-mode axis is not covered."
             ),
         )
     if grok_failures:
@@ -1944,7 +1935,7 @@ def format_markdown_cell(header: str, value: object) -> str:
 
 HARNESS_DISCLOSURE_ROWS: list[dict[str, str]] = [
     # model, provider path, output mechanism, completion budget, sampling, reasoning config, identifier, identifier type
-    {"model": "gpt-5.5", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "8000", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.5", "id_type": "alias"},
+    {"model": "gpt-5.5", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200 (8000 for the 40 re-elicited runs)", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.5", "id_type": "alias"},
     {"model": "gpt-5.4", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4", "id_type": "alias"},
     {"model": "gpt-5.4-mini", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-mini", "id_type": "alias"},
     {"model": "gpt-5.4-nano", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-nano", "id_type": "alias"},
