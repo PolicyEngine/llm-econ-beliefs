@@ -10,7 +10,6 @@ import {
 
 import { IntervalPlot } from "@/components/interval-plot";
 import { ProviderMark } from "@/components/provider-mark";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   FLAGSHIP_MODEL_BY_PROVIDER,
   PROVIDER_LABELS,
@@ -281,7 +280,6 @@ export function DashboardClient({ data }: DashboardClientProps) {
             >
               Read the paper
             </a>
-            <ThemeToggle />
           </div>
         </div>
       </div>
