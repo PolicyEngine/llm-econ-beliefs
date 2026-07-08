@@ -102,41 +102,45 @@ function RunList({ entry }: { entry: ModelRuns }) {
                 run {run.runIndex}
               </span>
               <svg
-                viewBox="0 0 100 12"
-                preserveAspectRatio="none"
-                className="h-3 w-full max-w-[420px]"
+                width="100%"
+                height={12}
+                className="min-w-0 max-w-[420px] flex-1"
                 aria-hidden="true"
+                style={{ display: "block" }}
               >
                 {run.p05 !== null && run.p95 !== null ? (
                   <line
-                    x1={x(run.p05)}
-                    x2={x(run.p95)}
+                    x1={`${x(run.p05)}%`}
+                    x2={`${x(run.p95)}%`}
                     y1={6}
                     y2={6}
                     stroke={color}
                     strokeOpacity={0.45}
                     strokeWidth={3}
-                    vectorEffect="non-scaling-stroke"
                   />
                 ) : null}
                 {run.p25 !== null && run.p75 !== null ? (
                   <line
-                    x1={x(run.p25)}
-                    x2={x(run.p75)}
+                    x1={`${x(run.p25)}%`}
+                    x2={`${x(run.p75)}%`}
                     y1={6}
                     y2={6}
                     stroke={color}
                     strokeWidth={5}
                     strokeOpacity={0.8}
-                    vectorEffect="non-scaling-stroke"
                   />
                 ) : null}
                 {run.pointEstimate !== null ? (
-                  <circle cx={x(run.pointEstimate)} cy={6} r={2.6} fill={color} />
+                  <circle
+                    cx={`${x(run.pointEstimate)}%`}
+                    cy={6}
+                    r={2.6}
+                    fill={color}
+                  />
                 ) : null}
               </svg>
               <span
-                className="w-40 shrink-0 text-right font-mono text-xs"
+                className="hidden w-40 shrink-0 text-right font-mono text-xs sm:block"
                 style={{ color: "var(--muted-foreground)" }}
               >
                 {run.pointEstimate !== null ? run.pointEstimate : "—"}
