@@ -339,7 +339,7 @@ Appendix Table A6 reports quantity-level disagreement on the canonical nine-quan
 
 ### Armington clarification follow-up
 
-Appendix Table A7 reports a second prompt-sensitivity probe. For the Armington elasticity, the follow-up prompt made explicit that the target was the top-level import-versus-domestic substitution elasticity, not source-country substitution or a sector-level import-demand elasticity. Across all 11 model reruns, that clarification generally shifts pooled centers downward or leaves them unchanged. The largest decreases appear for `Gemini 3.1 Flash-Lite` (`-0.767`), `Claude Sonnet 4.6` (`-0.433`), and `GPT-5.4` (`-0.433`). I interpret this as further evidence that even apparently standard macro parameters can hide meaningful object-definition ambiguity.
+Appendix Table A7 reports a second prompt-sensitivity probe. For the Armington elasticity, the follow-up prompt made explicit that the target was the top-level import-versus-domestic substitution elasticity, not source-country substitution or a sector-level import-demand elasticity. Across all 17 model reruns, that clarification shifts pooled centers downward or leaves them essentially unchanged (the only increase is `+0.013` for `Claude Fable 5`). The largest decreases appear for `Gemini 3.1 Flash-Lite` (`-0.767`), `Claude Sonnet 5` (`-0.647`), and `Claude Sonnet 4.6` and `GPT-5.4` (`-0.433` each). I interpret this as further evidence that even apparently standard macro parameters can hide meaningful object-definition ambiguity.
 
 **Appendix Table A7. Armington clarification follow-up.**
 
