@@ -270,6 +270,17 @@ export function DashboardClient({ data }: DashboardClientProps) {
           <div className="flex items-center gap-4">
             <Stat label="quantities" value={`${data.stats.quantityCount}`} />
             <Stat label="models" value={`${data.stats.modelCount}`} />
+            <a
+              href="/ai-beliefs/paper.pdf"
+              className="rounded-md border px-3 py-2 text-sm font-medium transition hover:opacity-80"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--foreground)",
+                background: "var(--card)",
+              }}
+            >
+              Read the paper
+            </a>
             <ThemeToggle />
           </div>
         </div>
