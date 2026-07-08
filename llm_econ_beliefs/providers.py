@@ -2,7 +2,9 @@
 
 Each adapter sends one elicitation prompt, enforces structured JSON output
 through the provider's schema mechanism, and returns raw text plus a request
-log (request ID, token usage, cost inputs) for the audit trail.
+log (request ID, token usage, cost inputs) for the audit trail. A legacy
+Claude-CLI helper (``run_claude_prompt``) remains for the original
+proof-of-concept path and is not used by the panel drivers.
 """
 
 from __future__ import annotations
