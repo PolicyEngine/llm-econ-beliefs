@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { getModelLabel, getProviderForModel } from "@/lib/model-meta";
 import type { BenchmarkBand, SlimRun } from "@/lib/site-data";
@@ -30,16 +31,12 @@ export interface StripRow {
 interface StripPlotProps {
   rows: StripRow[];
   band?: BenchmarkBand | null;
-  /** Compact mode drops row labels and shrinks geometry (home-page minis). */
+  /** Compact mode drops labels and shrinks geometry (home-page minis). */
   compact?: boolean;
   /** Show the 15 run-level intervals as faint underlays. */
   showRuns?: boolean;
   valueFormatter?: (value: number) => string;
 }
-
-const LABEL_WIDTH = 168;
-const VALUE_WIDTH = 118;
-const PLOT_WIDTH = 560;
 
 function formatValue(value: number): string {
   const abs = Math.abs(value);
@@ -48,30 +45,24 @@ function formatValue(value: number): string {
   return value.toFixed(2);
 }
 
-/** Static SVG interval plot: one row per model, dot = pooled center,
- *  bar = pooled 90% interval, faint ticks = run-level intervals,
- *  shaded band = literature review range. Server-rendered; no JS. */
-export function StripPlot({
-  rows,
-  band = null,
-  compact = false,
-  showRuns = false,
-  valueFormatter = formatValue,
-}: StripPlotProps): ReactNode {
-  const rowHeight = compact ? 12 : 30;
-  const topPad = compact ? 4 : 8;
-  const bottomPad = compact ? 4 : 22;
-  const labelWidth = compact ? 0 : LABEL_WIDTH;
-  const valueWidth = compact ? 0 : VALUE_WIDTH;
-  const plotWidth = compact ? 260 : PLOT_WIDTH;
-  const width = labelWidth + plotWidth + valueWidth;
-  const height = topPad + rows.length * rowHeight + bottomPad;
+interface Domain {
+  min: number;
+  max: number;
+}
 
+function computeDomain(
+  rows: StripRow[],
+  band: BenchmarkBand | null,
+  showRuns: boolean,
+): Domain | null {
   const values: number[] = [];
   for (const row of rows) {
     if (row.lower !== null) values.push(row.lower);
     if (row.upper !== null) values.push(row.upper);
     if (row.center !== null) values.push(row.center);
+    if (row.referenceValue !== null && row.referenceValue !== undefined) {
+      values.push(row.referenceValue);
+    }
     if (showRuns && row.runs) {
       for (const run of row.runs) {
         if (run.p05 !== null) values.push(run.p05);
@@ -79,9 +70,7 @@ export function StripPlot({
       }
     }
   }
-  if (band) {
-    values.push(band.lower, band.upper);
-  }
+  if (band) values.push(band.lower, band.upper);
   if (values.length === 0) return null;
 
   let min = Math.min(...values);
@@ -91,153 +80,142 @@ export function StripPlot({
     max += 0.5;
   }
   const pad = (max - min) * 0.05;
-  min -= pad;
-  max += pad;
+  return { min: min - pad, max: max + pad };
+}
 
-  const x = (value: number) =>
-    labelWidth + ((value - min) / (max - min)) * plotWidth;
+function percent(domain: Domain, value: number): string {
+  return `${(((value - domain.min) / (domain.max - domain.min)) * 100).toFixed(3)}%`;
+}
 
-  const zeroInDomain = min < 0 && max > 0;
-  const axisTicks = compact ? [] : niceTicks(min, max, 5);
+/** One model's strip: band, zero line, run underlays, interval, dot.
+ *  Percentage x-coordinates, so the strip stretches to any container
+ *  width without distorting text or markers. */
+function RowStrip({
+  row,
+  domain,
+  band,
+  showRuns,
+  height,
+  valueFormatter,
+}: {
+  row: StripRow;
+  domain: Domain;
+  band: BenchmarkBand | null;
+  showRuns: boolean;
+  height: number;
+  valueFormatter: (value: number) => string;
+}) {
+  const color = providerColor(row.modelName);
+  const mid = height / 2;
+  const zeroInDomain = domain.min < 0 && domain.max > 0;
+  const label = getModelLabel(row.modelName);
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
       width="100%"
+      height={height}
       role="img"
-      aria-label="Interval plot of model estimates"
-      style={{ maxWidth: width, display: "block" }}
+      aria-label={`${label}: ${
+        row.center !== null ? valueFormatter(row.center) : "no estimate"
+      }`}
+      style={{ display: "block" }}
     >
       {band ? (
         <rect
-          x={x(band.lower)}
-          y={topPad}
-          width={Math.max(x(band.upper) - x(band.lower), 1)}
-          height={rows.length * rowHeight}
+          x={percent(domain, band.lower)}
+          y={0}
+          width={`${(
+            ((band.upper - band.lower) / (domain.max - domain.min)) *
+            100
+          ).toFixed(3)}%`}
+          height={height}
           fill="var(--muted)"
-        >
-          <title>{`Review range ${band.lower} to ${band.upper}`}</title>
-        </rect>
+        />
       ) : null}
-
       {zeroInDomain ? (
         <line
-          x1={x(0)}
-          x2={x(0)}
-          y1={topPad}
-          y2={topPad + rows.length * rowHeight}
+          x1={percent(domain, 0)}
+          x2={percent(domain, 0)}
+          y1={0}
+          y2={height}
           stroke="var(--border)"
           strokeDasharray="3 3"
         />
       ) : null}
-
-      {rows.map((row, index) => {
-        const y = topPad + index * rowHeight + rowHeight / 2;
-        const color = providerColor(row.modelName);
-        const label = getModelLabel(row.modelName);
-        return (
-          <g key={row.modelName}>
-            {!compact ? (
-              <text
-                x={labelWidth - 10}
-                y={y + 4}
-                textAnchor="end"
-                fontSize={12.5}
-                fontFamily="var(--font-sans)"
-                fill="var(--foreground)"
-              >
-                {row.href ? <a href={row.href}>{label}</a> : label}
-              </text>
-            ) : null}
-
-            {showRuns && row.runs
-              ? row.runs.map((run) =>
-                  run.p05 !== null && run.p95 !== null ? (
-                    <line
-                      key={run.runIndex}
-                      x1={x(run.p05)}
-                      x2={x(run.p95)}
-                      y1={y}
-                      y2={y}
-                      stroke={color}
-                      strokeOpacity={0.16}
-                      strokeWidth={compact ? 4 : 9}
-                    />
-                  ) : null,
-                )
-              : null}
-
-            {row.lower !== null && row.upper !== null ? (
+      {showRuns && row.runs
+        ? row.runs.map((run) =>
+            run.p05 !== null && run.p95 !== null ? (
               <line
-                x1={x(row.lower)}
-                x2={x(row.upper)}
-                y1={y}
-                y2={y}
+                key={run.runIndex}
+                x1={percent(domain, run.p05)}
+                x2={percent(domain, run.p95)}
+                y1={mid}
+                y2={mid}
                 stroke={color}
-                strokeWidth={compact ? 1.5 : 2.5}
-                strokeLinecap="round"
+                strokeOpacity={0.14}
+                strokeWidth={Math.min(height - 4, 10)}
               />
-            ) : null}
+            ) : null,
+          )
+        : null}
+      {row.lower !== null && row.upper !== null ? (
+        <line
+          x1={percent(domain, row.lower)}
+          x2={percent(domain, row.upper)}
+          y1={mid}
+          y2={mid}
+          stroke={color}
+          strokeWidth={2.5}
+          strokeLinecap="round"
+        />
+      ) : null}
+      {row.referenceValue !== null && row.referenceValue !== undefined ? (
+        <line
+          x1={percent(domain, row.referenceValue)}
+          x2={percent(domain, row.referenceValue)}
+          y1={mid - 7}
+          y2={mid + 7}
+          stroke="var(--muted-foreground)"
+          strokeWidth={1.5}
+        >
+          <title>{`Panel median ${valueFormatter(row.referenceValue)}`}</title>
+        </line>
+      ) : null}
+      {row.center !== null ? (
+        <circle cx={percent(domain, row.center)} cy={mid} r={4.5} fill={color}>
+          <title>{`${label}: ${valueFormatter(row.center)}${
+            row.lower !== null && row.upper !== null
+              ? ` [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
+              : ""
+          }`}</title>
+        </circle>
+      ) : null}
+    </svg>
+  );
+}
 
-            {row.referenceValue !== null &&
-            row.referenceValue !== undefined ? (
-              <line
-                x1={x(row.referenceValue)}
-                x2={x(row.referenceValue)}
-                y1={y - (compact ? 3 : 8)}
-                y2={y + (compact ? 3 : 8)}
-                stroke="var(--muted-foreground)"
-                strokeWidth={1.5}
-              >
-                <title>{`Panel median ${valueFormatter(row.referenceValue)}`}</title>
-              </line>
-            ) : null}
-
-            {row.center !== null ? (
-              <circle
-                cx={x(row.center)}
-                cy={y}
-                r={compact ? 2.4 : 4.5}
-                fill={color}
-              >
-                <title>{`${label}: ${valueFormatter(row.center)}${
-                  row.lower !== null && row.upper !== null
-                    ? ` [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
-                    : ""
-                }`}</title>
-              </circle>
-            ) : null}
-
-            {!compact && row.center !== null ? (
-              <text
-                x={labelWidth + plotWidth + 10}
-                y={y + 4}
-                fontSize={12}
-                fontFamily="var(--font-mono)"
-                fill="var(--muted-foreground)"
-              >
-                {valueFormatter(row.center)}
-                {row.lower !== null && row.upper !== null
-                  ? `  [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
-                  : ""}
-              </text>
-            ) : null}
-          </g>
-        );
-      })}
-
-      {axisTicks.map((tick) => (
+function AxisStrip({
+  domain,
+  valueFormatter,
+}: {
+  domain: Domain;
+  valueFormatter: (value: number) => string;
+}) {
+  const ticks = niceTicks(domain.min, domain.max, 5);
+  return (
+    <svg width="100%" height={20} aria-hidden="true" style={{ display: "block" }}>
+      {ticks.map((tick) => (
         <g key={tick}>
           <line
-            x1={x(tick)}
-            x2={x(tick)}
-            y1={topPad + rows.length * rowHeight}
-            y2={topPad + rows.length * rowHeight + 4}
+            x1={percent(domain, tick)}
+            x2={percent(domain, tick)}
+            y1={0}
+            y2={4}
             stroke="var(--border)"
           />
           <text
-            x={x(tick)}
-            y={topPad + rows.length * rowHeight + 16}
+            x={percent(domain, tick)}
+            y={16}
             textAnchor="middle"
             fontSize={11}
             fontFamily="var(--font-sans)"
@@ -248,6 +226,92 @@ export function StripPlot({
         </g>
       ))}
     </svg>
+  );
+}
+
+/** Interval plot: one row per model, dot = pooled center, bar = pooled
+ *  90% interval, faint ticks = run-level intervals, shaded band =
+ *  literature review range. Labels and values are HTML, so the plot
+ *  works at any viewport width; the strips share one domain scale. */
+export function StripPlot({
+  rows,
+  band = null,
+  compact = false,
+  showRuns = false,
+  valueFormatter = formatValue,
+}: StripPlotProps): ReactNode {
+  const domain = computeDomain(rows, band, showRuns);
+  if (!domain) return null;
+
+  if (compact) {
+    return (
+      <div>
+        {rows.map((row) => (
+          <RowStrip
+            key={row.modelName}
+            row={row}
+            domain={domain}
+            band={band}
+            showRuns={showRuns}
+            height={12}
+            valueFormatter={valueFormatter}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {rows.map((row) => {
+        const label = getModelLabel(row.modelName);
+        return (
+          <div key={row.modelName} className="flex items-center gap-3 py-0.5">
+            <span
+              className="w-28 shrink-0 truncate text-right text-xs sm:w-40 sm:text-[12.5px]"
+              style={{ color: "var(--foreground)" }}
+              title={label}
+            >
+              {row.href ? (
+                <Link href={row.href} className="hover:underline">
+                  {label}
+                </Link>
+              ) : (
+                label
+              )}
+            </span>
+            <div className="min-w-0 flex-1">
+              <RowStrip
+                row={row}
+                domain={domain}
+                band={band}
+                showRuns={showRuns}
+                height={26}
+                valueFormatter={valueFormatter}
+              />
+            </div>
+            {row.center !== null ? (
+              <span
+                className="hidden w-44 shrink-0 font-mono text-xs md:block"
+                style={{ color: "var(--muted-foreground)" }}
+              >
+                {valueFormatter(row.center)}
+                {row.lower !== null && row.upper !== null
+                  ? ` [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
+                  : ""}
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
+      <div className="flex items-center gap-3">
+        <span className="w-28 shrink-0 sm:w-40" />
+        <div className="min-w-0 flex-1">
+          <AxisStrip domain={domain} valueFormatter={valueFormatter} />
+        </div>
+        <span className="hidden w-44 shrink-0 md:block" />
+      </div>
+    </div>
   );
 }
 
