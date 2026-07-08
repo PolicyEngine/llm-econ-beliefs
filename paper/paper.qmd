@@ -225,7 +225,7 @@ This benchmark table is useful because it distinguishes two kinds of disagreemen
 The labor-and-tax subpanel also permits one concrete policy translation. For the elasticity of taxable income, I map each model’s pooled ETI distribution into a simple utilitarian optimal top marginal tax rate using the standard sufficient-statistics formula in the top bracket [@saez-2001-top-tax]:
 
 $$
-\tau^\* = \frac{1 - \bar g}{1 - \bar g + a e},
+\tau^{*} = \frac{1 - \bar g}{1 - \bar g + a e},
 $$
 
 with a Pareto parameter estimated from the weighted top 1 percent tail of tax-unit adjusted gross income in PolicyEngine's Enhanced CPS 2024 microdata [@policyengine-enhanced-cps-2024].^[The weighted top-1-percent AGI threshold is `$659,618` in the current build (with a tail mean of `$2,062,980`). This is the top-1-percent tax-unit cutoff in Enhanced CPS 2024, not the statutory top-bracket edge, which is roughly `$626k` for married-filing-jointly under TCJA-extended / OBBBA parameters in 2026. Robustness to threshold choice maps onto robustness to the Pareto parameter $a$; see Appendix Table A13. The exercise is not tied to any particular statutory bracket — the ETI-based top-rate formula is a common public-finance object that can be compared across models regardless of where the "top" is drawn.] In the current build, that estimate is $a = 1.470$. To make the exercise utilitarian rather than revenue-maximizing, I assume log utility over consumption, $u(c) = \log c$, and normalize top-bracket social marginal welfare weights using the same Pareto tail. Under those assumptions, the average normalized top social welfare weight is
@@ -237,7 +237,7 @@ $$
 so the mapping becomes
 
 $$
-\tau^\* = \frac{0.405}{0.405 + 1.470 e}.
+\tau^{*} = \frac{0.405}{0.405 + 1.470 e}.
 $$
 
 This is still intentionally stylized. It uses only the ETI and therefore does not absorb the rest of the labor-supply block, but it provides a common public-finance object that can be compared across models. The microdata enter only through the top-tail calibration, not through a full reform simulation. For this policy mapping, I truncate ETI below at zero so the standard sufficient-statistics interpretation remains well defined. Every model's pooled ETI p05 exceeds `0.10` in Table 4, so the truncation affects negligible mass in practice.
