@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite it as below."
+title: "LLM-elicited beliefs about economic elasticities"
+authors:
+  - family-names: Ghenis
+    given-names: Max
+    affiliation: PolicyEngine
+repository-code: "https://github.com/PolicyEngine/llm-econ-beliefs"
+url: "https://policyengine.org/ai-beliefs"
+license: MIT
+date-released: "2026-07-07"
+keywords:
+  - large language models
+  - economic elasticities
+  - belief elicitation
+  - taxable income elasticity
+  - optimal taxation
+abstract: >-
+  Elicitation harness, 6,630-run dataset, and paper studying the
+  prompt-conditioned response distributions that 17 frontier large
+  language models produce when asked about 26 economic elasticities
+  under a fixed structured-output protocol with 15 repeated runs per
+  model-quantity cell.

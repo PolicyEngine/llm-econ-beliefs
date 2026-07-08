@@ -1,9 +1,12 @@
 """Re-elicit failed runs in a merged batch directory, in place.
 
 Failed runs are infrastructure artifacts (empty responses from exhausted
-completion budgets, missing forced tool calls, transient 4xx errors), not
-content, so replacing them with fresh independent draws does not select on
-elicited values. Each failed run slot gets up to ``--attempts`` fresh draws;
+completion budgets, missing forced tool calls, transient 4xx errors). The
+replacement policy conditions only on failure status, but truncation-type
+failures correlate with response length, so replacement is not provably
+independent of elicited values; see results/failure-manifest.csv and the
+paper's harness-disclosure appendix. Each failed run slot gets up to
+``--attempts`` fresh draws;
 slots that still fail keep an error record. Request logs from reruns are
 appended and the summary artifacts are rewritten.
 

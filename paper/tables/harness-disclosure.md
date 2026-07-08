@@ -2,7 +2,7 @@ Note: Per-model generation-harness configuration. The prompt text and repeated-r
 
 | Model | Provider path | Output mechanism | Completion budget | Sampling | Reasoning config | API identifier | Identifier type |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GPT-5.5 | OpenAI Chat Completions | strict JSON schema | 8000 | temperature 1.0, batched n <= 8 | provider default effort | gpt-5.5 | alias |
+| GPT-5.5 | OpenAI Chat Completions | strict JSON schema | 1200 (8000 for the 40 re-elicited runs) | temperature 1.0, batched n <= 8 | provider default effort | gpt-5.5 | alias |
 | GPT-5.4 | OpenAI Chat Completions | strict JSON schema | 1200 | temperature 1.0, batched n <= 8 | provider default effort | gpt-5.4 | alias |
 | GPT-5.4 mini | OpenAI Chat Completions | strict JSON schema | 1200 | temperature 1.0, batched n <= 8 | provider default effort | gpt-5.4-mini | alias |
 | GPT-5.4 nano | OpenAI Chat Completions | strict JSON schema | 1200 | temperature 1.0, batched n <= 8 | provider default effort | gpt-5.4-nano | alias |
