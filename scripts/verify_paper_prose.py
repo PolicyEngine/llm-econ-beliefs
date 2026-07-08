@@ -48,10 +48,30 @@ def sentence_with(fragment: str) -> str:
     return ""
 
 
-def names_in_order(sentence: str, names: list[str]) -> bool:
+def _name_position(sentence: str, name: str, roster: list[str]) -> int:
+    """First occurrence of name that is not a prefix of a longer roster name.
+
+    Model names nest ("GPT-5.4" is a prefix of "GPT-5.4 mini"), so a bare
+    substring search could accept the wrong model. Skip any match where a
+    longer roster name starts at the same position.
+    """
+    longer = [m for m in roster if m != name and m.startswith(name)]
+    start = 0
+    while True:
+        pos = sentence.find(name, start)
+        if pos == -1 or not any(sentence.startswith(m, pos) for m in longer):
+            return pos
+        start = pos + 1
+
+
+def names_in_order(sentence: str, names: list[str], roster: list[str]) -> bool:
     """All names present in the sentence, in the given order."""
-    positions = [sentence.find(name) for name in names]
+    positions = [_name_position(sentence, name, roster) for name in names]
     return all(p != -1 for p in positions) and positions == sorted(positions)
+
+
+def names_present(sentence: str, names: list[str], roster: list[str]) -> bool:
+    return all(_name_position(sentence, name, roster) != -1 for name in names)
 
 
 ABS_RANK = "Avg abs-elasticity rank (1=highest)"
@@ -61,6 +81,7 @@ WIDTH_RANK = "Avg predictive-uncertainty rank (1=narrowest)"
 def verify_superlatives() -> None:
     labor = read_rows("model-overview-labor-tax")
     macro = read_rows("model-overview-macro-trade")
+    roster = sorted({r["Model"] for r in labor} | {r["Model"] for r in macro})
 
     labor_high = [r["Model"] for r in ranked(labor, ABS_RANK)[:3]]
     labor_low = [r["Model"] for r in ranked(labor, ABS_RANK, reverse=True)[:3]]
@@ -74,50 +95,51 @@ def verify_superlatives() -> None:
     sentence = sentence_with("highest-elasticity models by average within-quantity")
     check(
         "Table 1 highest-elasticity trio",
-        names_in_order(sentence, labor_high),
+        names_in_order(sentence, labor_high, roster),
         f"expected {labor_high}",
     )
     sentence = sentence_with("The lowest-elasticity models are")
     check(
         "Table 1 lowest-elasticity trio",
-        names_in_order(sentence, labor_low),
+        names_in_order(sentence, labor_low, roster),
         f"expected {labor_low}",
     )
     sentence = sentence_with("sit on the low-response side")
     check(
         "low-response-side naming",
-        all(name in sentence for name in labor_low),
+        names_present(sentence, labor_low, roster),
         f"expected {labor_low}",
     )
     sentence = sentence_with("move to the top of the ranking")
     check(
         "Table 2 top trio",
-        names_in_order(sentence, macro_high)
-        and all(name in sentence for name in macro_low),
+        names_in_order(sentence, macro_high, roster)
+        and names_present(sentence, macro_low, roster),
         f"expected top {macro_high}, bottom {macro_low}",
     )
     sentence = sentence_with("are the tightest models")
     check(
         "labor-tax tightest trio",
-        names_in_order(sentence, labor_tight)
-        and names_in_order(sentence, labor_wide),
+        names_in_order(sentence, labor_tight, roster)
+        and names_in_order(sentence, labor_wide, roster),
         f"expected tight {labor_tight}, wide {labor_wide}",
     )
     sentence = sentence_with("becomes the tightest model")
     check(
         "macro-trade tightest + widest",
-        macro_tight in sentence and names_in_order(sentence, macro_wide),
+        _name_position(sentence, macro_tight, roster) != -1
+        and names_in_order(sentence, macro_wide, roster),
         f"expected tightest {macro_tight}, widest {macro_wide}",
     )
     abstract_high = sentence_with("most elastic models by average within-quantity")
     check(
         "abstract labor-tax top pair",
-        all(name in abstract_high for name in labor_high[:2]),
+        names_in_order(abstract_high, labor_high[:2], roster),
         f"expected {labor_high[:2]}",
     )
     check(
         "abstract macro-trade top pair",
-        all(name in abstract_high for name in macro_high[:2]),
+        names_in_order(abstract_high, macro_high[:2], roster),
         f"expected {macro_high[:2]}",
     )
 

@@ -81,6 +81,9 @@ def main() -> int:
     args = parser.parse_args()
 
     provider = PROVIDER_FOR_MODEL[args.model]
+    # Tag records with the same provider label the main experiment driver
+    # writes, so log filters see one consistent value per path.
+    log_provider = "openai_chat_completions" if provider == "openai" else provider
     target_dir = REPO_ROOT / "results" / f"{args.model}-{args.batch}"
     runs_path = target_dir / "runs.jsonl"
     records = load_jsonl(runs_path, RunResult)
@@ -122,7 +125,7 @@ def main() -> int:
                 if batch_result.request_id is not None or batch_result.usage:
                     request_logs.append(
                         _request_log_from_batch_result(
-                            provider=provider,
+                            provider=log_provider,
                             model_name=failed.model_name,
                             quantity_id=failed.quantity_id,
                             prompt_version=failed.prompt_version,
@@ -146,7 +149,7 @@ def main() -> int:
                     },
                 )()
                 replacement = _record_from_parsed(
-                    run_like, parsed, raw_response, provider=provider
+                    run_like, parsed, raw_response, provider=log_provider
                 )
                 break
             except Exception as exc:
@@ -160,7 +163,7 @@ def main() -> int:
             fixed += 1
         else:
             records[index] = RunResult(
-                provider=provider,
+                provider=log_provider,
                 model_name=failed.model_name,
                 quantity_id=failed.quantity_id,
                 run_index=failed.run_index,

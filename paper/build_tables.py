@@ -218,7 +218,7 @@ def main() -> int:
         stem="model-overview-labor-tax",
         rows=labor_tax_overview,
         note=(
-            f"Canonical labor-and-tax subpanel only: 6 quantities x {panel_model_count} models x 15 runs. "
+            f"Canonical labor-and-tax subpanel only: {len(LABOR_TAX_QUANTITY_IDS)} quantities x {panel_model_count} models x 15 runs. "
             "Average ranks are computed within quantity using the absolute value of the pooled point estimate."
         ),
     )
@@ -226,7 +226,7 @@ def main() -> int:
         stem="model-overview-macro-trade",
         rows=macro_trade_overview,
         note=(
-            f"Canonical macro-and-trade subpanel only: 3 quantities x {panel_model_count} models x 15 runs. "
+            f"Canonical macro-and-trade subpanel only: {len(MACRO_TRADE_QUANTITY_IDS)} quantities x {panel_model_count} models x 15 runs. "
             "Average ranks are computed within quantity using the absolute value of the pooled point estimate."
         ),
     )
@@ -443,7 +443,7 @@ def main() -> int:
                 "the April LiteLLM forced-function-call path (temperature 1.0, 1200-token budget) versus the July "
                 "native Anthropic strict-JSON-schema path (no sampling parameters, 32000-token budget). Each cell "
                 "pools 15 fresh runs elicited in July 2026 under the native mechanism against the April panel cell. "
-                "Centers are stable (max absolute change 0.03); widths move up to 15 percent in either direction. "
+                "Centers are stable (max absolute change 0.03); widths move from -15 to +7 percent across quantities with no consistent direction. "
                 "Opus 4.7 runs without extended reasoning on both paths, so the reasoning-mode axis is not covered."
             ),
         )
