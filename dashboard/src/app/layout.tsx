@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { PolicyEngineShell } from "@policyengine/ui-kit";
-import { ThemeInit } from "@/components/theme-init";
 import "./globals.css";
 
 // Matches the GA4 property used by policyengine-app-v2/website so
@@ -41,12 +40,6 @@ export const metadata: Metadata = {
   icons: { icon: `${basePath}/favicon.svg` },
 };
 
-// Applies the stored/system theme before first paint. Rendered as a raw
-// inline script (App Router drops inline beforeInteractive next/script
-// tags); the resulting React dev-mode warning is StrictMode double-render
-// noise and does not occur in production.
-const themeInitScript = `(function(){try{var t=localStorage.getItem("eba-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;if(d)document.documentElement.classList.add("dark");}catch(e){}})();`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,11 +67,6 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="min-h-full flex flex-col">
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
-        <ThemeInit />
         <PolicyEngineShell country="us" showFooter mainClassName="flex-1">
           <div className="flex-1">{children}</div>
           <div
