@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { PolicyEngineShell } from "@policyengine/ui-kit";
+import { SubNav } from "@/components/site-chrome";
 import "./globals.css";
 
 // Matches the GA4 property used by policyengine-app-v2/website so
@@ -68,6 +69,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <PolicyEngineShell country="us" showFooter mainClassName="flex-1">
+          <SubNav />
           <div className="flex-1">{children}</div>
           <div
             className="border-t px-5 py-3 text-xs"

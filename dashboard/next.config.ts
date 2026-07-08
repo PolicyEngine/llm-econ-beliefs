@@ -11,11 +11,9 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
-  // Runtime fs reads of the results artifacts are invisible to Next's
-  // static tracer, so include them in the serverless bundle explicitly.
-  outputFileTracingIncludes: {
-    "/*": ["./results/**/*"],
-  },
+  // Every page is statically generated at build time; results/ and
+  // tables/ are read only during the build, so nothing needs runtime
+  // file tracing.
   ...(process.env.VERCEL
     ? {}
     : { outputFileTracingRoot: path.join(__dirname, "..") }),
