@@ -109,9 +109,12 @@ const METHOD_DEFINITIONS: IntervalMethodDefinition[] = [
 const runCache = new Map<string, StoredRunRecord[]>();
 
 export function loadDashboardSummaryData(
-  resultsDir: string = resolveResultsDir(),
+  resultsDir: string,
+  includedModelNames: ReadonlySet<string>,
 ): DashboardSummaryData {
-  const summaries = selectPreferredSummaries(loadSummaryRows(resultsDir));
+  const summaries = selectPreferredSummaries(
+    loadSummaryRows(resultsDir).filter((row) => includedModelNames.has(row.modelName)),
+  );
   const grouped = new Map<string, SummaryRecord[]>();
 
   for (const summary of summaries) {
@@ -130,7 +133,7 @@ export function loadDashboardSummaryData(
     ),
   ).sort(compareModelNames);
 
-  const totalCostUsd = sumNullable(
+  const totalCostUsd = sumCompleteOrNull(
     quantities.flatMap((quantity) =>
       quantity.modelSummaries.map((summary) => summary.totalCostUsd),
     ),
@@ -156,8 +159,12 @@ export function loadDashboardSummaryData(
 export function loadRunPayload(
   quantityId: string,
   modelName: string,
-  resultsDir: string = resolveResultsDir(),
+  resultsDir: string,
+  includedModelNames: ReadonlySet<string>,
 ): ModelRunPayload | null {
+  if (!includedModelNames.has(modelName)) {
+    return null;
+  }
   const summaries = selectPreferredSummaries(loadSummaryRows(resultsDir));
   const match = summaries.find(
     (summary) =>
@@ -433,12 +440,18 @@ function parseInteger(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function sumNullable(values: Array<number | null>): number | null {
-  const observed = values.filter((value): value is number => value !== null);
-  if (!observed.length) {
+export function sumCompleteOrNull(
+  values: readonly (number | null)[],
+): number | null {
+  if (!values.length) {
     return null;
   }
-  return observed.reduce((sum, value) => sum + value, 0);
+  let total = 0;
+  for (const value of values) {
+    if (value === null) return null;
+    total += value;
+  }
+  return total;
 }
 
 export function getMethodDefinition(

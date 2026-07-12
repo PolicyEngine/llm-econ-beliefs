@@ -1,0 +1,23 @@
+#!/bin/bash
+# Detached Codex pass 2 (judgment-lane code findings 5,6,7,8,11,12).
+# Restart-proof: run via nohup; output lands in reviews/.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+PROMPT_FILE=$(mktemp)
+cat > "$PROMPT_FILE" <<'__CODEX_PROMPT__'
+Second implementation pass on this repo, following your review at reviews/codex-openweights-hardening.md (findings 2,4,9,13-18 are already implemented and verified; a previous attempt at THIS pass was interrupted — llm_econ_beliefs/model_registry.py may already exist in partial form; inspect current state and continue rather than duplicating). Implement the CODE portions of findings 5, 6, 7, 8, 11, and 12, with these design decisions fixed (do not relitigate):
+
+- (11 first) llm_econ_beliefs/model_registry.py = single source of truth for all 25 panel models: model_id, display_label, organization (anthropic/openai/google/xai/deepseek/alibaba/moonshot/zhipu/minimax), serving_provider_path (openai_chat_completions/litellm_completion/anthropic_native/openrouter_via_litellm), model_family, wave (april_2026/july_2026_frontier/july_2026_independent/july_2026_gpt56). Emit results/model-registry.csv. Make scripts/build_correlates.py and paper/build_tables.py consume the registry (replace PROVIDER_PREFIXES/PROVIDER_DISPLAY duplication and prefix guessing). dashboard/src/lib/site-data.ts reads results/model-registry.csv at build for org/wave. In build_tables, relabel leave-one-provider-out as leave-one-ORGANIZATION-out with the five independent orgs as their own groups (never merged "Other").
+- (12) build_correlates: crosswalk validation vs results/policybench-scores.csv — assert one source_release/condition/country; anti-join both directions printing unmatched; assert panel-side exclusions exactly {gpt-5.4, grok-4.20, grok-4.1-fast} and policybench-side exactly {grok-build-0.1}; fail loudly on duplicates/unexpected mismatches.
+- (5) Complete-grid gating: build_correlates and scripts/build_comparison_artifacts.py call check_panel_grid for the registry model set and EXCLUDE (printed machine-readable exclusion list) any incomplete model; --allow-partial overrides for dev. Dashboard only includes models present in the gated comparison artifacts.
+- (6) Kill the paper->correlates->paper cycle: build_correlates computes ETI pooled MEDIANS and pooled centers directly from results/<model>-elasticities-batch15/runs.jsonl using the same pooling construction build_tables uses (read build_tables.py and replicate the identical piecewise-uniform mixture median). tau* = (1-gbar)/(1-gbar+a*e) and revenue-max = 1/(1+a*e) from results/top-rate-calibration.json {a, gbar, threshold, tail_mean}; add the code path in build_tables.py that WRITES that JSON whenever it computes the microdata calibration (do NOT run the slow microdata build; unit-test the writer with a stubbed calibration dict). build_correlates refuses with a clear error if the JSON is missing or carries fallback a=1.5. No reading of paper/tables/*.csv anywhere in build_correlates.
+- (7) In Spearman output: ETI-median and tau* = ONE hypothesis (tau* row labeled "derived, monotone transform of ETI — not an additional test"); add raw p, Holm-adjusted p, BH-adjusted p columns (family = all non-derived tests across BOTH predictors) and family_size.
+- (8) Sensitivity outputs to results/correlates-sensitivity.csv: (a) leave-one-organization-out Spearman for overall-within-$1 x ETI, (b) within-wave Spearman (april-only, july-only), (c) organization-cluster permutation p (permute PolicyBench scores as org blocks).
+
+CONSTRAINTS: never write under results/ except model-registry.csv and correlates-*.csv (top-rate-calibration.json is written by build_tables' new code path, exercised only via unit test); never launch provider/network elicitations; do not touch paper/paper.qmd prose, reviews/, referee-reports/, or canonical results dirs; a locked supervisor is running — do not interfere or run resume/supervise scripts; do NOT run the full build_tables. Verify: .venv/bin/python -m pytest -q green (add tests: registry, crosswalk assertions, gating, Holm math, runs.jsonl median matching build_tables construction on a fixture); cd dashboard && bun run build green; .venv/bin/python scripts/build_correlates.py either runs end-to-end or fails with the clear calibration-missing error (acceptable). Leave everything uncommitted. Finish with a numbered summary mapping each finding to changes (file:line) + verification results.
+__CODEX_PROMPT__
+
+mkdir -p reviews
+codex exec --skip-git-repo-check --color never -m gpt-5.6-sol -c model_reasoning_effort=ultra \
+  -C "$PWD" -o reviews/codex-pass2-summary.md "$(cat "$PROMPT_FILE")" </dev/null

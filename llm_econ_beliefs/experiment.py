@@ -19,6 +19,13 @@ from .aggregate import (
 from .models import BeliefEstimate, ProviderBatchResult, RequestLog, RunResult
 from .parse import parse_belief_response
 from .pricing import estimate_request_cost
+from .provider_tags import (
+    ANTHROPIC_PROVIDER,
+    CLAUDE_CLI_PROVIDER,
+    LITELLM_COMPLETION_PROVIDER,
+    OPENAI_CHAT_COMPLETIONS_PROVIDER,
+    OPENAI_RESPONSES_PROVIDER,
+)
 from .providers import (
     OPENAI_CHAT_COMPLETIONS_MAX_N,
     run_anthropic_prompt_logged,
@@ -54,7 +61,7 @@ def run_claude_experiment(
         return [invoke(prompt, current_model_name) for _ in range(n)]
 
     return _run_batched_experiment(
-        provider="claude_cli",
+        provider=CLAUDE_CLI_PROVIDER,
         quantity_ids=quantity_ids,
         n_runs=n_runs,
         output_dir=output_dir,
@@ -111,9 +118,9 @@ def run_openai_experiment(
 
     return _run_batched_experiment(
         provider=(
-            "openai_chat_completions"
+            OPENAI_CHAT_COMPLETIONS_PROVIDER
             if api_mode == "chat"
-            else "openai_responses"
+            else OPENAI_RESPONSES_PROVIDER
         ),
         quantity_ids=quantity_ids,
         n_runs=n_runs,
@@ -161,7 +168,7 @@ def run_litellm_experiment(
             )
 
     return _run_batched_experiment(
-        provider="litellm_completion",
+        provider=LITELLM_COMPLETION_PROVIDER,
         quantity_ids=quantity_ids,
         n_runs=n_runs,
         output_dir=output_dir,
@@ -203,7 +210,7 @@ def run_anthropic_experiment(
             )
 
     return _run_batched_experiment(
-        provider="anthropic",
+        provider=ANTHROPIC_PROVIDER,
         quantity_ids=quantity_ids,
         n_runs=n_runs,
         output_dir=output_dir,
@@ -407,6 +414,21 @@ def summarize_run_results(
             lower_support=quantity.lower_support,
             upper_support=quantity.upper_support,
         )
+        estimated_input_cost = _sum_complete_or_none(
+            log.estimated_input_cost_usd for log in logs
+        )
+        estimated_cached_input_cost = _sum_complete_or_none(
+            log.estimated_cached_input_cost_usd for log in logs
+        )
+        estimated_output_cost = _sum_complete_or_none(
+            log.estimated_output_cost_usd for log in logs
+        )
+        estimated_tool_cost = _sum_complete_or_none(
+            log.estimated_tool_cost_usd for log in logs
+        )
+        estimated_total_cost = _sum_complete_or_none(
+            log.estimated_total_cost_usd for log in logs
+        )
         summaries.append(
             {
                 "model_name": model_name,
@@ -432,30 +454,19 @@ def summarize_run_results(
                     log.cached_prompt_tokens for log in logs
                 ),
                 "usage_reasoning_tokens_total": _sum_or_none(log.reasoning_tokens for log in logs),
-                "usage_estimated_input_cost_usd_total": _sum_or_none(
-                    log.estimated_input_cost_usd for log in logs
-                ),
-                "usage_estimated_cached_input_cost_usd_total": _sum_or_none(
-                    log.estimated_cached_input_cost_usd for log in logs
-                ),
-                "usage_estimated_output_cost_usd_total": _sum_or_none(
-                    log.estimated_output_cost_usd for log in logs
-                ),
-                "usage_estimated_tool_cost_usd_total": _sum_or_none(
-                    log.estimated_tool_cost_usd for log in logs
-                ),
-                "usage_estimated_total_cost_usd_total": _sum_or_none(
-                    log.estimated_total_cost_usd for log in logs
-                ),
+                "usage_estimated_input_cost_usd_total": estimated_input_cost,
+                "usage_estimated_cached_input_cost_usd_total": estimated_cached_input_cost,
+                "usage_estimated_output_cost_usd_total": estimated_output_cost,
+                "usage_estimated_tool_cost_usd_total": estimated_tool_cost,
+                "usage_estimated_total_cost_usd_total": estimated_total_cost,
                 "usage_total_tokens_per_successful_run": (
                     _sum_or_none(log.total_tokens for log in logs) / len(estimates)
                     if logs and _sum_or_none(log.total_tokens for log in logs) is not None
                     else None
                 ),
                 "usage_estimated_total_cost_usd_per_successful_run": (
-                    _sum_or_none(log.estimated_total_cost_usd for log in logs) / len(estimates)
-                    if logs
-                    and _sum_or_none(log.estimated_total_cost_usd for log in logs) is not None
+                    estimated_total_cost / len(estimates)
+                    if estimated_total_cost is not None
                     else None
                 ),
                 "tool_call_count_total": _sum_or_none(log.tool_call_count for log in logs),
@@ -598,7 +609,7 @@ def _record_from_parsed(
     parsed: BeliefEstimate,
     raw_response: str,
     *,
-    provider: str = "claude_cli",
+    provider: str = CLAUDE_CLI_PROVIDER,
 ) -> RunResult:
     return RunResult(
         provider=provider,
@@ -689,6 +700,16 @@ def _request_log_from_batch_result(
 def _sum_or_none(values: Iterable[int | float | None]) -> int | float | None:
     filtered = [value for value in values if value is not None]
     return sum(filtered) if filtered else None
+
+
+def _sum_complete_or_none(
+    values: Iterable[int | float | None],
+) -> int | float | None:
+    """Sum only when every component is tracked; otherwise preserve unknown."""
+    materialized = list(values)
+    if not materialized or any(value is None for value in materialized):
+        return None
+    return sum(value for value in materialized if value is not None)
 
 
 def _mean_or_none(values: Sequence[int | float]) -> float | None:

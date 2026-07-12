@@ -7,6 +7,7 @@ import {
   loadDashboardSummaryData,
   loadRunPayload,
   resolveResultsDir,
+  sumCompleteOrNull,
 } from "@/lib/dashboard-data";
 import type {
   DashboardSummaryData,
@@ -14,6 +15,168 @@ import type {
   QuantitySummary,
 } from "@/lib/dashboard-types";
 import { compareModelNames } from "@/lib/model-meta";
+
+const MODEL_REGISTRY_FIELDS = [
+  "model_id",
+  "display_label",
+  "organization",
+  "serving_provider_path",
+  "model_family",
+  "wave",
+] as const;
+
+const ORGANIZATION_LABELS: Record<string, string> = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  google: "Google",
+  xai: "xAI",
+  deepseek: "DeepSeek",
+  alibaba: "Alibaba",
+  moonshot: "Moonshot AI",
+  zhipu: "Zhipu AI",
+  minimax: "MiniMax",
+};
+
+const WAVE_LABELS: Record<string, string> = {
+  april_2026: "April 2026",
+  july_2026_frontier: "July 2026 frontier",
+  july_2026_independent: "July 2026 independent labs",
+  july_2026_gpt56: "July 2026 GPT-5.6",
+};
+
+export interface ModelRegistryRow {
+  modelId: string;
+  displayLabel: string;
+  organization: string;
+  servingProviderPath: string;
+  modelFamily: string;
+  wave: string;
+}
+
+function readRequiredCsv(csvPath: string, artifactName: string): Record<string, string>[] {
+  if (!fs.existsSync(csvPath)) {
+    throw new Error(`Missing required dashboard artifact: ${csvPath}`);
+  }
+  const rows = parseCsv(fs.readFileSync(csvPath, "utf-8"), {
+    columns: true,
+    skip_empty_lines: true,
+  }) as Record<string, string>[];
+  if (rows.length === 0) {
+    throw new Error(`${artifactName} must contain at least one data row`);
+  }
+  return rows;
+}
+
+/** Canonical model metadata emitted from llm_econ_beliefs/model_registry.py. */
+export function loadModelRegistry(
+  resultsDir: string = resolveResultsDir(),
+): Map<string, ModelRegistryRow> {
+  const csvPath = path.join(resultsDir, "model-registry.csv");
+  const rows = readRequiredCsv(csvPath, "model-registry.csv");
+  const headers = new Set(Object.keys(rows[0]));
+  const missingHeaders = MODEL_REGISTRY_FIELDS.filter((field) => !headers.has(field));
+  const extraHeaders = [...headers].filter(
+    (field) => !(MODEL_REGISTRY_FIELDS as readonly string[]).includes(field),
+  );
+  if (missingHeaders.length > 0 || extraHeaders.length > 0) {
+    throw new Error(
+      `model-registry.csv has invalid columns; missing=${missingHeaders.join(",") || "none"}, extra=${extraHeaders.join(",") || "none"}`,
+    );
+  }
+
+  const registry = new Map<string, ModelRegistryRow>();
+  for (const [index, row] of rows.entries()) {
+    const blankFields = MODEL_REGISTRY_FIELDS.filter((field) => !row[field]?.trim());
+    if (blankFields.length > 0) {
+      throw new Error(
+        `model-registry.csv row ${index + 2} has blank fields: ${blankFields.join(", ")}`,
+      );
+    }
+    const modelId = row.model_id.trim();
+    if (registry.has(modelId)) {
+      throw new Error(`model-registry.csv has duplicate model_id: ${modelId}`);
+    }
+    if (!ORGANIZATION_LABELS[row.organization] || !WAVE_LABELS[row.wave]) {
+      throw new Error(
+        `model-registry.csv has unknown organization/wave for ${modelId}: ${row.organization}/${row.wave}`,
+      );
+    }
+    registry.set(modelId, {
+      modelId,
+      displayLabel: row.display_label.trim(),
+      organization: row.organization.trim(),
+      servingProviderPath: row.serving_provider_path.trim(),
+      modelFamily: row.model_family.trim(),
+      wave: row.wave.trim(),
+    });
+  }
+  return registry;
+}
+
+/** Models admitted by both artifacts from the complete-grid comparison build. */
+export function loadGatedComparisonModelIds(
+  resultsDir: string = resolveResultsDir(),
+  registry: ReadonlyMap<string, ModelRegistryRow> = loadModelRegistry(resultsDir),
+): Set<string> {
+  const comparisonRows = readRequiredCsv(
+    path.join(resultsDir, "elasticity-all-model-comparison.csv"),
+    "elasticity-all-model-comparison.csv",
+  );
+  const rollupRows = readRequiredCsv(
+    path.join(resultsDir, "elasticity-model-rollup.csv"),
+    "elasticity-model-rollup.csv",
+  );
+
+  const modelSet = (rows: Record<string, string>[], artifactName: string) => {
+    const ids = new Set<string>();
+    for (const [index, row] of rows.entries()) {
+      const modelId = row.model_name?.trim();
+      if (!modelId) {
+        throw new Error(`${artifactName} row ${index + 2} has a blank model_name`);
+      }
+      if (!registry.has(modelId)) {
+        throw new Error(`${artifactName} contains unregistered model: ${modelId}`);
+      }
+      ids.add(modelId);
+    }
+    return ids;
+  };
+
+  const comparisonModels = modelSet(
+    comparisonRows,
+    "elasticity-all-model-comparison.csv",
+  );
+  const rollupModels = modelSet(rollupRows, "elasticity-model-rollup.csv");
+  const comparisonOnly = [...comparisonModels].filter((id) => !rollupModels.has(id));
+  const rollupOnly = [...rollupModels].filter((id) => !comparisonModels.has(id));
+  if (comparisonOnly.length > 0 || rollupOnly.length > 0) {
+    throw new Error(
+      `Gated comparison artifacts disagree; comparison_only=${comparisonOnly.sort().join(",") || "none"}, rollup_only=${rollupOnly.sort().join(",") || "none"}`,
+    );
+  }
+  return comparisonModels;
+}
+
+let cachedInputs:
+  | {
+      resultsDir: string;
+      registry: Map<string, ModelRegistryRow>;
+      gatedModelIds: Set<string>;
+    }
+  | undefined;
+
+function getSiteInputs() {
+  const resultsDir = resolveResultsDir();
+  if (!cachedInputs || cachedInputs.resultsDir !== resultsDir) {
+    const registry = loadModelRegistry(resultsDir);
+    cachedInputs = {
+      resultsDir,
+      registry,
+      gatedModelIds: loadGatedComparisonModelIds(resultsDir, registry),
+    };
+  }
+  return cachedInputs;
+}
 
 /* ------------------------------------------------------------------ */
 /* Panel structure                                                     */
@@ -180,7 +343,8 @@ export interface SlimRun {
 let cachedSummaryData: DashboardSummaryData | null = null;
 
 export function getSummaryData(): DashboardSummaryData {
-  cachedSummaryData ??= loadDashboardSummaryData();
+  const { resultsDir, gatedModelIds } = getSiteInputs();
+  cachedSummaryData ??= loadDashboardSummaryData(resultsDir, gatedModelIds);
   return cachedSummaryData;
 }
 
@@ -204,7 +368,13 @@ export function loadSlimRuns(
   quantityId: string,
   modelName: string,
 ): SlimRun[] {
-  const payload = loadRunPayload(quantityId, modelName);
+  const { resultsDir, gatedModelIds } = getSiteInputs();
+  const payload = loadRunPayload(
+    quantityId,
+    modelName,
+    resultsDir,
+    gatedModelIds,
+  );
   if (!payload) return [];
   return payload.runs
     .filter((run) => run.parsedOk)
@@ -242,6 +412,36 @@ export function panelMedianCenter(quantity: QuantitySummary): number | null {
     : (centers[mid - 1] + centers[mid]) / 2;
 }
 
+/** Exact tie-averaged ranks (1 is smallest unless `reverse` is true). */
+export function tieAveragedRanks(
+  values: ReadonlyMap<string, number>,
+  reverse = false,
+): Map<string, number> {
+  const ordered = [...values.entries()].sort(([leftKey, left], [rightKey, right]) => {
+    const valueOrder = reverse ? right - left : left - right;
+    return valueOrder || leftKey.localeCompare(rightKey);
+  });
+  const ranks = new Map<string, number>();
+  let index = 0;
+
+  while (index < ordered.length) {
+    let tieEnd = index;
+    while (
+      tieEnd + 1 < ordered.length &&
+      ordered[tieEnd + 1][1] === ordered[index][1]
+    ) {
+      tieEnd += 1;
+    }
+    const averageRank = (index + 1 + tieEnd + 1) / 2;
+    for (let tiedIndex = index; tiedIndex <= tieEnd; tiedIndex += 1) {
+      ranks.set(ordered[tiedIndex][0], averageRank);
+    }
+    index = tieEnd + 1;
+  }
+
+  return ranks;
+}
+
 export interface ModelProfileRow {
   quantity: QuantitySummary;
   summary: ModelSummary;
@@ -253,13 +453,18 @@ export interface ModelProfileRow {
 export function buildModelProfile(modelName: string): {
   rows: ModelProfileRow[];
   avgWidthRank: number | null;
-  totalCostUsd: number;
-  julyWave: boolean;
+  totalCostUsd: number | null;
+  metadata: ModelRegistryRow;
+  organizationLabel: string;
+  waveLabel: string;
 } {
+  const metadata = getSiteInputs().registry.get(modelName);
+  if (!metadata) {
+    throw new Error(`Dashboard model is absent from model-registry.csv: ${modelName}`);
+  }
   const data = getSummaryData();
   const rows: ModelProfileRow[] = [];
   const widthRanks: number[] = [];
-  let totalCostUsd = 0;
 
   for (const quantityId of CANONICAL_QUANTITY_IDS) {
     const quantity = data.quantities.find((q) => q.quantityId === quantityId);
@@ -269,17 +474,15 @@ export function buildModelProfile(modelName: string): {
     );
     if (!summary) continue;
 
-    const widths = quantity.modelSummaries
-      .map((s) => {
+    const widths = new Map(
+      quantity.modelSummaries.flatMap((s) => {
         const { lower, upper } = s.intervals.pooled;
         return lower !== null && upper !== null
-          ? { model: s.modelName, width: upper - lower }
-          : null;
-      })
-      .filter((entry): entry is { model: string; width: number } => !!entry)
-      .sort((a, b) => a.width - b.width);
-    const rankIndex = widths.findIndex((entry) => entry.model === modelName);
-    const widthRank = rankIndex === -1 ? null : rankIndex + 1;
+          ? [[s.modelName, upper - lower] as const]
+          : [];
+      }),
+    );
+    const widthRank = tieAveragedRanks(widths).get(modelName) ?? null;
     if (widthRank !== null) widthRanks.push(widthRank);
 
     rows.push({
@@ -290,28 +493,25 @@ export function buildModelProfile(modelName: string): {
     });
   }
 
-  for (const quantity of data.quantities) {
-    const summary = quantity.modelSummaries.find(
-      (s) => s.modelName === modelName,
-    );
-    if (summary?.totalCostUsd) totalCostUsd += summary.totalCostUsd;
-  }
+  const modelCosts = data.quantities.flatMap((quantity) => {
+    const summary = quantity.modelSummaries.find((s) => s.modelName === modelName);
+    return summary ? [summary.totalCostUsd] : [];
+  });
+  const totalCostUsd = sumCompleteOrNull(modelCosts);
 
   const avgWidthRank =
     widthRanks.length > 0
       ? widthRanks.reduce((sum, rank) => sum + rank, 0) / widthRanks.length
       : null;
 
-  const julyWave = [
-    "gpt-5.5",
-    "claude-fable-5",
-    "claude-opus-4.8",
-    "claude-sonnet-5",
-    "gemini-3.5-flash",
-    "grok-4.3",
-  ].includes(modelName);
-
-  return { rows, avgWidthRank, totalCostUsd, julyWave };
+  return {
+    rows,
+    avgWidthRank,
+    totalCostUsd,
+    metadata,
+    organizationLabel: ORGANIZATION_LABELS[metadata.organization],
+    waveLabel: WAVE_LABELS[metadata.wave],
+  };
 }
 
 /** Total successful runs across every result directory in the summary. */

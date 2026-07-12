@@ -1,10 +1,12 @@
 """Provider adapters: OpenAI Chat Completions, LiteLLM, and native Anthropic APIs.
 
-Each adapter sends one elicitation prompt, enforces structured JSON output
-through the provider's schema mechanism, and returns raw text plus a request
-log (request ID, token usage, cost inputs) for the audit trail. A legacy
-Claude-CLI helper (``run_claude_prompt``) remains for the original
-proof-of-concept path and is not used by the panel drivers.
+Each adapter sends one elicitation prompt and returns raw text plus a request
+log (request ID, token usage, cost inputs) for the audit trail. OpenAI, native
+Anthropic, and LiteLLM function-call paths enforce the belief schema through
+the provider. OpenRouter paths request JSON mode, then rely on the shared
+experiment parser to validate the belief schema locally. A legacy Claude-CLI
+helper (``run_claude_prompt``) remains for the original proof-of-concept path
+and is not used by the panel drivers.
 """
 
 from __future__ import annotations
@@ -33,6 +35,14 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
     "gemini-3-flash-preview": "gemini/gemini-3-flash-preview",
     "gemini-3.1-flash-lite-preview": "gemini/gemini-3.1-flash-lite-preview",
     "gemini-3.5-flash": "gemini/gemini-3.5-flash",
+    # July 2026 open-weights / independent-lab wave, served through
+    # OpenRouter. Panel names match PolicyBench model ids exactly so the
+    # two datasets join on name.
+    "deepseek-v4-pro": "openrouter/deepseek/deepseek-v4-pro",
+    "qwen-3.7-max": "openrouter/qwen/qwen3.7-max",
+    "kimi-k2.6": "openrouter/moonshotai/kimi-k2.6",
+    "glm-5.2": "openrouter/z-ai/glm-5.2",
+    "minimax-m3": "openrouter/minimax/minimax-m3",
 }
 
 # Reasoning tokens count against the completion cap for these models, so give
@@ -41,12 +51,25 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
 LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "gemini-3.5-flash": 4000,
     "grok-4.3": 4000,
+    # Reasoning-heavy open-weights models: reasoning tokens count against
+    # the completion budget, so give the same headroom gpt-5.5 needed.
+    "deepseek-v4-pro": 8000,
+    "qwen-3.7-max": 8000,
+    "kimi-k2.6": 8000,
+    # GLM-5.2 exhausted an 8000-token budget on reasoning in 109 of its
+    # first 390 runs (empty JSON content), so it gets double headroom.
+    "glm-5.2": 16000,
+    "minimax-m3": 8000,
 }
 
 # GPT-5.5 reasons far more than the 5.4 family on sign-convention prompts and
 # can exhaust a 1200-token completion budget before emitting any visible text.
 OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "gpt-5.5": 8000,
+    # GPT-5.6 family: same reasoning-headroom treatment as gpt-5.5.
+    "gpt-5.6-sol": 8000,
+    "gpt-5.6-luna": 8000,
+    "gpt-5.6-terra": 8000,
 }
 
 # Panel-facing names for models served through the native Anthropic SDK path.
@@ -242,6 +265,8 @@ def _litellm_output_mode(model_name: str) -> str:
     resolved = resolve_litellm_model_name(model_name)
     if resolved.startswith("gemini/"):
         return "json_object"
+    if resolved.startswith("openrouter/"):
+        return "json_object"
     if resolved.startswith("claude") or resolved.startswith("xai/grok"):
         return "function_call"
     raise ValueError(f"Unsupported LiteLLM model: {model_name}")
@@ -256,7 +281,12 @@ def run_litellm_prompt_logged(
     max_completion_tokens: int | None = None,
     timeout_seconds: int = 180,
 ) -> ProviderBatchResult:
-    """Run one prompt through LiteLLM and return one structured output."""
+    """Run one prompt through LiteLLM and return one structured output.
+
+    OpenRouter aliases use JSON mode, which guarantees a JSON object but does
+    not enforce ``json_schema`` provider-side. The experiment parser performs
+    that schema validation locally after this function returns.
+    """
     litellm = _import_litellm()
     resolved_model_name = resolve_litellm_model_name(model_name)
     output_mode = _litellm_output_mode(model_name)

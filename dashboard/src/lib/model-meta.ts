@@ -1,78 +1,74 @@
-export type ProviderKey = "anthropic" | "google" | "openai" | "xai";
+export type ProviderKey =
+  | "anthropic"
+  | "google"
+  | "openai"
+  | "xai"
+  | "independent";
 
-export const MODEL_ORDER = [
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.4-mini",
-  "gpt-5.4-nano",
-  "claude-fable-5",
-  "claude-opus-4.8",
-  "claude-sonnet-5",
-  "claude-opus-4.7",
-  "claude-sonnet-4.6",
-  "claude-haiku-4.5",
-  "gemini-3.1-pro-preview",
-  "gemini-3.5-flash",
-  "gemini-3-flash-preview",
-  "gemini-3.1-flash-lite-preview",
-  "grok-4.3",
-  "grok-4.20",
-  "grok-4.1-fast",
-] as const;
+interface ClientModelMetadata {
+  modelId: string;
+  displayLabel: string;
+  organization: string;
+}
 
-export const MODEL_LABELS: Record<string, string> = {
-  "claude-fable-5": "Claude Fable 5",
-  "claude-opus-4.8": "Claude Opus 4.8",
-  "claude-sonnet-5": "Claude Sonnet 5",
-  "claude-opus-4.7": "Claude Opus 4.7",
-  "claude-sonnet-4.6": "Claude Sonnet 4.6",
-  "claude-haiku-4.5": "Claude Haiku 4.5",
-  "grok-4.3": "Grok 4.3",
-  "grok-4.20": "Grok 4.20",
-  "grok-4.1-fast": "Grok 4.1 Fast",
-  "gpt-5.5": "GPT-5.5",
-  "gpt-5.4": "GPT-5.4",
-  "gpt-5.4-mini": "GPT-5.4 mini",
-  "gpt-5.4-nano": "GPT-5.4 nano",
-  "gemini-3.5-flash": "Gemini 3.5 Flash",
-  "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
-  "gemini-3-flash-preview": "Gemini 3 Flash",
-  "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash-Lite",
-};
+const CLIENT_MODEL_REGISTRY = parseClientModelRegistry(
+  process.env.NEXT_PUBLIC_MODEL_REGISTRY_JSON,
+);
+const CLIENT_MODEL_BY_ID = new Map(
+  CLIENT_MODEL_REGISTRY.map((model) => [model.modelId, model]),
+);
+const MODEL_ORDER_INDEX = new Map(
+  CLIENT_MODEL_REGISTRY.map((model, index) => [model.modelId, index]),
+);
 
-export const PROVIDER_LABELS: Record<ProviderKey, string> = {
-  anthropic: "Anthropic",
-  google: "Google",
-  openai: "OpenAI",
-  xai: "xAI",
-};
-
-export const FLAGSHIP_MODEL_BY_PROVIDER: Record<ProviderKey, string> = {
-  anthropic: "claude-fable-5",
-  google: "gemini-3.1-pro-preview",
-  openai: "gpt-5.5",
-  xai: "grok-4.3",
-};
-export function isFlagshipModel(model: string): boolean {
-  const provider = getProviderForModel(model);
-  return provider !== null && FLAGSHIP_MODEL_BY_PROVIDER[provider] === model;
+function parseClientModelRegistry(raw: string | undefined): ClientModelMetadata[] {
+  if (!raw) return [];
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) {
+    throw new Error("NEXT_PUBLIC_MODEL_REGISTRY_JSON must be an array");
+  }
+  return parsed.map((value) => {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      !("modelId" in value) ||
+      !("displayLabel" in value) ||
+      !("organization" in value) ||
+      typeof value.modelId !== "string" ||
+      typeof value.displayLabel !== "string" ||
+      typeof value.organization !== "string"
+    ) {
+      throw new Error("NEXT_PUBLIC_MODEL_REGISTRY_JSON has an invalid row");
+    }
+    return {
+      modelId: value.modelId,
+      displayLabel: value.displayLabel,
+      organization: value.organization,
+    };
+  });
 }
 
 export function getProviderForModel(model: string): ProviderKey | null {
-  if (model.startsWith("claude-")) return "anthropic";
-  if (model.startsWith("gemini-")) return "google";
-  if (model.startsWith("gpt-")) return "openai";
-  if (model.startsWith("grok-")) return "xai";
-  return null;
+  const organization = CLIENT_MODEL_BY_ID.get(model)?.organization;
+  if (!organization) return null;
+  if (
+    organization === "anthropic" ||
+    organization === "google" ||
+    organization === "openai" ||
+    organization === "xai"
+  ) {
+    return organization;
+  }
+  return "independent";
 }
 
 export function getModelLabel(model: string): string {
-  return MODEL_LABELS[model] ?? model;
+  return CLIENT_MODEL_BY_ID.get(model)?.displayLabel ?? model;
 }
 
 export function compareModelNames(left: string, right: string): number {
-  const leftIndex = MODEL_ORDER.indexOf(left as (typeof MODEL_ORDER)[number]);
-  const rightIndex = MODEL_ORDER.indexOf(right as (typeof MODEL_ORDER)[number]);
+  const leftIndex = MODEL_ORDER_INDEX.get(left) ?? -1;
+  const rightIndex = MODEL_ORDER_INDEX.get(right) ?? -1;
 
   if (leftIndex >= 0 || rightIndex >= 0) {
     if (leftIndex === -1) return 1;

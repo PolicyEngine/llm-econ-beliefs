@@ -10,6 +10,7 @@ const PROVIDER_CHART_VAR: Record<string, string> = {
   openai: "var(--chart-2)",
   google: "var(--chart-3)",
   xai: "var(--chart-4)",
+  independent: "var(--chart-5)",
 };
 
 export function providerColor(modelName: string): string {

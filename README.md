@@ -203,15 +203,19 @@ loud warning and falls back to `a = 1.5` for those two tables only.
 
 Run the April v4 panel from scratch. This calls out to every provider
 and takes roughly 1–2 hours of wall time. The full committed panel is
-17 models × 26 quantities × 15 runs (6,630 main-panel runs) elicited
-in two waves: the 11-model April wave via this driver (~$23), and the
-6-model July wave via path (c) below (~$38 including its clarify
-probes; $60.89 all-in across both waves). Set provider API keys in
-your environment first. If any runs fail on infrastructure errors,
-`scripts/rerun_failed_runs.py` re-elicits the failed slots in place,
-archives the failed records, and appends to the audit trail
-(`results/failure-manifest.csv` records the committed panel's 58
-replaced slots).
+25 models × 26 quantities × 15 runs (9,750 main-panel runs) elicited
+in four waves: the 11-model April wave via this driver (~$23), the
+6-model July frontier wave (~$38 including clarify probes), the
+5-model Chinese-lab wave through OpenRouter (~$29 at the account
+level, including recovered failures), and the 3-model GPT-5.6 wave
+(request-level costs untracked). Set provider API keys in your
+environment first (`OPENROUTER_API_KEY` for the Chinese-lab models).
+If any runs fail on infrastructure errors,
+`scripts/rerun_failed_runs.py` re-elicits the failed slots in place
+and archives the failed records; `scripts/check_panel_grid.py` is the
+authoritative completeness check, and
+`scripts/supervise_openweights.sh` loops recovery passes to a full
+grid under a single-instance lock.
 
 ```bash
 python3 scripts/run_v4_full_panel.py
@@ -235,19 +239,25 @@ aggregation.
 
 ### (c) July 2026 model additions
 
-Six models released after the April rerun extend the panel under the
-same v4 prompts: `gpt-5.5`, `claude-fable-5`, `claude-opus-4.8`,
-`claude-sonnet-5`, `gemini-3.5-flash`, and `grok-4.3`. Re-elicit them
+Fourteen models released after the April rerun extend the panel under
+the same v4 prompts, in three waves: the frontier updates (`gpt-5.5`,
+`claude-fable-5`, `claude-opus-4.8`, `claude-sonnet-5`,
+`gemini-3.5-flash`, `grok-4.3`), the Chinese-lab wave
+(`deepseek-v4-pro`, `qwen-3.7-max`, `kimi-k2.6`, `glm-5.2`,
+`minimax-m3`, served through OpenRouter), and the GPT-5.6 family
+(`gpt-5.6-sol`, `gpt-5.6-luna`, `gpt-5.6-terra`). Re-elicit any subset
 with:
 
 ```bash
-.venv/bin/python scripts/run_v4_new_models.py
+.venv/bin/python scripts/run_v4_new_models.py --models <comma-separated-ids>
 ```
 
 The driver uses the per-quantity fallback path for every cell (results
-persist incrementally; completed cells are skipped on rerun). The three
-new Claude models run through the native Anthropic SDK provider rather
-than LiteLLM.
+persist incrementally; completed cells are skipped on rerun) and
+validates model ids against the registry
+(`llm_econ_beliefs/model_registry.py`). The July Claude models run
+through the native Anthropic SDK provider; the Chinese-lab models run
+through OpenRouter in JSON mode with local schema validation.
 
 ## Initial Quantity Set
 

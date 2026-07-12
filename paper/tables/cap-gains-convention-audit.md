@@ -1,6 +1,6 @@
 Note: Both capital-gains-realizations conventions elicited independently under prompt v4. Under the identity epsilon_taxrate = -(tau / (1 - tau)) * epsilon_netoftax, any model whose two answers are jointly consistent with a single tau prior implies one specific tau. The implied-tau column reports the median and 90 percent interval of 1000 bootstrap draws that independently sample one tax-rate run and one net-of-tax-rate run from the 15 runs of each; this is not the plug-in ratio of medians, which differs from the bootstrap median because tau = -rho / (1 - rho) is nonlinear in rho (Jensen's inequality). The band flag is computed against the bootstrap median. 'LTCG-rate consistent' marks an implied median tau in [0.15, 0.37] (U.S. top-bracket long-term-capital-gains envelope, federal LTCG plus NIIT plus high state); 'ordinary-income-rate consistent' marks (0.37, 0.55] (federal ordinary-income top plus high state); 'plausible sign, outside bands' marks (0, 1) outside both windows; and 'out of band' marks a non-positive or > 1 median tau. The shared-tau coherence column flags the joint sign pattern of the two pooled medians: a model with (tax < 0, net > 0) is sign-consistent with the identity, whereas (both positive, both negative, or reversed) indicates that the two answers are not jointly consistent with a single tau prior — either because the model holds two independent literature anchors, or because one convention was answered with the opposite sign.
 
-| Model | Provider | epsilon w.r.t. tax rate (median) | epsilon w.r.t. net-of-tax rate (median) | Implied tau median [90%] | Share of draws in (0, 1) | Shared-tau coherence | Band (LTCG [0.15, 0.37], ordinary-income [0.37, 0.55]) |
+| Model | Organization | epsilon w.r.t. tax rate (median) | epsilon w.r.t. net-of-tax rate (median) | Implied tau median [90%] | Share of draws in (0, 1) | Shared-tau coherence | Band (LTCG [0.15, 0.37], ordinary-income [0.37, 0.55]) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GPT-5.4 nano | OpenAI | -0.35 | -0.2 | — (premise fails) | — | both negative | not identified |
 | Claude Fable 5 | Anthropic | -0.7 | 1.8 | 0.280 [0.250, 0.318] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
@@ -9,9 +9,14 @@ Note: Both capital-gains-realizations conventions elicited independently under p
 | Claude Opus 4.8 | Anthropic | -0.7 | 0.7 | 0.500 [0.500, 0.538] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | Claude Sonnet 4.6 | Anthropic | -0.7 | 3.5 | 0.167 [0.167, 0.189] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
 | Claude Sonnet 5 | Anthropic | -0.6 | 0.6 | 0.500 [0.500, 0.538] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| DeepSeek V4 Pro | DeepSeek | -0.45 | 0.7 | 0.310 [0.067, 0.500] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
+| GLM-5.2 | Zhipu AI | -0.5 | 1.2 | 0.294 [0.091, 0.611] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
 | GPT-5.4 | OpenAI | -0.7 | 0.9 | 0.450 [0.389, 0.571] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | GPT-5.4 mini | OpenAI | -0.8 | 1.2 | 0.500 [0.333, 0.636] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | GPT-5.5 | OpenAI | -0.65 | 0.9 | 0.400 [0.207, 0.519] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| GPT-5.6 Luna | OpenAI | -0.5 | 0.7 | 0.417 [0.222, 0.682] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| GPT-5.6 Sol | OpenAI | -0.6 | 0.8 | 0.389 [0.250, 0.520] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| GPT-5.6 Terra | OpenAI | -0.35 | 0.7 | 0.364 [0.263, 0.545] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
 | Gemini 3 Flash | Google | -0.8 | 0.8 | 0.500 [0.467, 0.515] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | Gemini 3.1 Flash-Lite | Google | -0.75 | 0.8 | 0.484 [0.318, 0.538] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | Gemini 3.1 Pro | Google | -0.7 | 2 | 0.259 [0.200, 0.483] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
@@ -19,3 +24,6 @@ Note: Both capital-gains-realizations conventions elicited independently under p
 | Grok 4.1 Fast | xAI | -0.7 | 1.2 | 0.368 [0.149, 0.500] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
 | Grok 4.20 | xAI | -0.5 | 0.65 | 0.417 [0.348, 0.478] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
 | Grok 4.3 | xAI | -0.7 | 0.8 | 0.484 [0.411, 0.556] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| Kimi K2.6 | Moonshot AI | -0.5 | 0.65 | 0.400 [0.185, 0.560] | 94% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
+| MiniMax M3 | MiniMax | -0.35 | 0.7 | 0.333 [0.059, 0.588] | 100% | sign-consistent (tax<0, net>0) | LTCG-rate consistent |
+| Qwen 3.7 Max | Alibaba | -0.7 | 0.7 | 0.500 [0.412, 0.588] | 100% | sign-consistent (tax<0, net>0) | ordinary-income-rate consistent |
