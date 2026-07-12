@@ -22,6 +22,7 @@ TABLES_DIR = REPO_ROOT / "paper" / "tables"
 
 MAIN_COMPARISON_PATH = RESULTS_DIR / "elasticity-all-model-comparison.csv"
 INCOME_DELTA_PATH = RESULTS_DIR / "income-elasticity-signfix-delta.csv"
+TOP_RATE_CALIBRATION_PATH = RESULTS_DIR / "top-rate-calibration.json"
 FULLTOOLS_ARCHIVE_COMMIT = "791b8e392be5c010a74c22b29b731fc2969aaf28"
 FULLTOOLS_MODELS = [
     "gpt-5.4",
@@ -61,28 +62,13 @@ from llm_econ_beliefs.distributions import (  # noqa: E402
     mixture_distribution,
 )
 from llm_econ_beliefs.models import BeliefEstimate  # noqa: E402
+from llm_econ_beliefs.model_registry import (  # noqa: E402
+    WAVE_DISPLAY_LABELS,
+    get_panel_model,
+    organization_display_label,
+    serving_provider_display_label,
+)
 from llm_econ_beliefs.registry import get_quantity  # noqa: E402
-
-
-MODEL_LABELS = {
-    "claude-fable-5": "Claude Fable 5",
-    "claude-opus-4.8": "Claude Opus 4.8",
-    "claude-sonnet-5": "Claude Sonnet 5",
-    "claude-opus-4.7": "Claude Opus 4.7",
-    "claude-sonnet-4.6": "Claude Sonnet 4.6",
-    "claude-haiku-4.5": "Claude Haiku 4.5",
-    "grok-4.3": "Grok 4.3",
-    "grok-4.20": "Grok 4.20",
-    "grok-4.1-fast": "Grok 4.1 Fast",
-    "gpt-5.5": "GPT-5.5",
-    "gpt-5.4": "GPT-5.4",
-    "gpt-5.4-mini": "GPT-5.4 mini",
-    "gpt-5.4-nano": "GPT-5.4 nano",
-    "gemini-3.5-flash": "Gemini 3.5 Flash",
-    "gemini-3.1-pro-preview": "Gemini 3.1 Pro",
-    "gemini-3-flash-preview": "Gemini 3 Flash",
-    "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash-Lite",
-}
 
 LEGACY_QUANTITY_LABELS = {
     "labor_supply.policy_response.income_elasticity": (
@@ -178,6 +164,7 @@ def main() -> int:
     macro_trade_overview = build_model_overview_table(macro_trade_rows)
     labor_tax_benchmarks = build_benchmark_table(labor_tax_rows)
     top_rate_calibration = estimate_policyengine_top_tail_pareto_parameter()
+    write_top_rate_calibration(top_rate_calibration)
     top_rate_mapping = build_top_rate_table(
         labor_tax_rows,
         pareto_parameter=top_rate_calibration["a"],
@@ -190,7 +177,7 @@ def main() -> int:
         estimate_policyengine_flat_tax_demogrant_frontier()
     )
     pooling_robustness = build_pooling_robustness_table()
-    leave_one_provider_out = build_leave_one_provider_out_table(
+    leave_one_organization_out = build_leave_one_organization_out_table(
         labor_tax_rows=labor_tax_rows,
         macro_trade_rows=macro_trade_rows,
     )
@@ -374,12 +361,21 @@ def main() -> int:
                 f"Canonical {canonical_quantity_count}-quantity subpanel. Average predictive-uncertainty ranks are computed under the headline pooled mixture interval, the REML predictive interval, and the Bayesian predictive interval."
             ),
         )
-    if leave_one_provider_out:
+    if leave_one_organization_out:
+        write_table_bundle(
+            stem="leave-one-organization-out-appendix",
+            rows=leave_one_organization_out,
+            note=(
+                "Leave-one-organization-out sensitivity of the average absolute-elasticity ranking on the labor-and-tax and macro-and-trade canonical subpanels."
+            ),
+        )
+        # Keep the existing include path populated until the separate prose pass
+        # changes paper.qmd; its table contents and labels are organization-based.
         write_table_bundle(
             stem="leave-one-provider-out-appendix",
-            rows=leave_one_provider_out,
+            rows=leave_one_organization_out,
             note=(
-                "Leave-one-provider-out sensitivity of the average absolute-elasticity ranking on the labor-and-tax and macro-and-trade canonical subpanels."
+                "Leave-one-organization-out sensitivity of the average absolute-elasticity ranking on the labor-and-tax and macro-and-trade canonical subpanels."
             ),
         )
     if quantile_rule_robustness:
@@ -457,6 +453,53 @@ def main() -> int:
             ),
         )
 
+    correlates_summary, correlates_spearman, policybench_release = (
+        build_correlates_tables()
+    )
+    if correlates_summary:
+        write_table_bundle(
+            stem="correlates-model-summary",
+            rows=correlates_summary,
+            note=(
+                "Per-model summary joining the elicitation panel to the published PolicyBench "
+                f"leaderboard ({policybench_release}, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages "
+                "tie-averaged 90 percent interval-width ranks across the canonical panel "
+                "(1 = tightest). Implied top rates come from Table 4's threshold-normalized "
+                "log-utility mapping. Dashes mark models outside the PolicyBench panel."
+            ),
+        )
+    if correlates_spearman:
+        write_table_bundle(
+            stem="policybench-correlates",
+            rows=correlates_spearman,
+            note=(
+                "Spearman rank correlations between the PolicyBench within-$1 rate "
+                f"({policybench_release}, US, no-tools) and per-model elicitation outcomes, "
+                "with raw two-sided permutation p-values (20,000 draws, fixed seed; exact when "
+                "n <= 8) plus Holm and Benjamini-Hochberg adjustments across the eight "
+                "non-derived tests spanning both predictors. The top-rate row is the same "
+                "ETI hypothesis under a monotone transformation, not an additional test. "
+                "Descriptive: models differ across every axis at once, so these are "
+                "cross-family associations, not causal effects."
+            ),
+        )
+
+    country_rows = build_country_table()
+    if country_rows:
+        write_table_bundle(
+            stem="correlates-country",
+            rows=country_rows,
+            note=(
+                "US-lab versus Chinese-lab medians with exact group-label "
+                "permutation p-values on the difference in medians. "
+                "Exploratory: lab country is perfectly confounded with the "
+                "serving path (every Chinese-lab model ran through OpenRouter "
+                "JSON mode) and with elicitation wave, prompts are "
+                "English-language, and the group sizes (5 versus 20) put a "
+                "floor near 0.02-0.05 on attainable p-values."
+            ),
+        )
+
     cap_gains_convention = build_cap_gains_convention_audit_table(comparison_rows)
     if cap_gains_convention:
         write_table_bundle(
@@ -513,13 +556,23 @@ def build_model_overview_table(
     for model_name, model_rows in rows_by_model.items():
         total_successful_runs = sum(row.n_successful_runs for row in model_rows)
         total_attempted_runs = len(model_rows) * 15
-        total_estimated_cost = sum(
-            (row.cost_per_run_usd or 0.0) * row.n_successful_runs for row in model_rows
+        costs_are_tracked = all(
+            row.cost_per_run_usd is not None for row in model_rows
         )
+        cost_per_successful_run: float | str = "—"
+        if costs_are_tracked and total_successful_runs:
+            total_estimated_cost = sum(
+                row.cost_per_run_usd * row.n_successful_runs
+                for row in model_rows
+                if row.cost_per_run_usd is not None
+            )
+            cost_per_successful_run = round(
+                total_estimated_cost / total_successful_runs, 4
+            )
         table_rows.append(
             {
                 "Model": model_label(model_name),
-                "Provider": provider_label(model_name),
+                "Organization": organization_label(model_name),
                 "Avg abs-elasticity rank (1=highest)": round(
                     mean(
                         responsiveness_ranks[(model_name, row.quantity_id)]
@@ -543,9 +596,7 @@ def build_model_overview_table(
                 "Success rate": round(
                     100 * total_successful_runs / total_attempted_runs, 1
                 ),
-                "Cost / successful run": round(
-                    total_estimated_cost / total_successful_runs, 4
-                ),
+                "Cost / successful run": cost_per_successful_run,
             }
         )
 
@@ -637,7 +688,6 @@ def build_top_rate_table(
     *,
     pareto_parameter: float = TOP_RATE_PARETO_A,
 ) -> list[dict[str, object]]:
-    eti_quantity = get_quantity("tax.elasticity_of_taxable_income.top_earners")
     eti_rows = [
         row
         for row in comparison_rows
@@ -646,30 +696,10 @@ def build_top_rate_table(
     table_rows = []
     for row in sorted(eti_rows, key=lambda candidate: candidate.pooled_point_estimate):
         run_rows = read_csv(Path(row.source_dir) / "runs.csv")
-        estimates = [
-            _belief_estimate_from_row(run_row)
-            for run_row in run_rows
-            if run_row["parsed_ok"] == "True"
-            and run_row["quantity_id"] == "tax.elasticity_of_taxable_income.top_earners"
-        ]
-        run_distributions = [
-            distribution
-            for estimate in estimates
-            if (
-                distribution := distribution_from_belief_estimate(
-                    estimate,
-                    lower_support=0.0,
-                    upper_support=eti_quantity.upper_support,
-                )
-            )
-            is not None
-        ]
-        if not run_distributions:
+        eti_quantiles = pooled_eti_quantiles_from_csv_rows(run_rows)
+        if eti_quantiles is None:
             continue
-        eti_mixture = mixture_distribution(run_distributions)
-        eti_q05 = eti_mixture.quantile(0.05)
-        eti_q50 = eti_mixture.quantile(0.50)
-        eti_q95 = eti_mixture.quantile(0.95)
+        eti_q05, eti_q50, eti_q95 = eti_quantiles
         top_rate_median = optimal_top_rate_from_eti(
             eti_q50,
             pareto_parameter=pareto_parameter,
@@ -720,7 +750,6 @@ def build_top_rate_robustness_table(
     ETI median feeding each row is the same pooled-mixture median used in Table 4,
     so cross-column differences reflect only the formula's (a, gamma) pair.
     """
-    eti_quantity = get_quantity("tax.elasticity_of_taxable_income.top_earners")
     eti_rows = [
         row
         for row in comparison_rows
@@ -738,28 +767,10 @@ def build_top_rate_robustness_table(
     table_rows: list[dict[str, object]] = []
     for row in eti_rows:
         run_rows = read_csv(Path(row.source_dir) / "runs.csv")
-        estimates = [
-            _belief_estimate_from_row(run_row)
-            for run_row in run_rows
-            if run_row["parsed_ok"] == "True"
-            and run_row["quantity_id"] == "tax.elasticity_of_taxable_income.top_earners"
-        ]
-        run_distributions = [
-            distribution
-            for estimate in estimates
-            if (
-                distribution := distribution_from_belief_estimate(
-                    estimate,
-                    lower_support=0.0,
-                    upper_support=eti_quantity.upper_support,
-                )
-            )
-            is not None
-        ]
-        if not run_distributions:
+        eti_quantiles = pooled_eti_quantiles_from_csv_rows(run_rows)
+        if eti_quantiles is None:
             continue
-        eti_mixture = mixture_distribution(run_distributions)
-        eti_q50 = eti_mixture.quantile(0.50)
+        _, eti_q50, _ = eti_quantiles
 
         out_row: dict[str, object] = {
             "Model": model_label(row.model_name),
@@ -819,7 +830,11 @@ def build_income_delta_table(
             "Sign-fixed center": round(float(row["new_pooled_point_estimate"]), 3),
             "Change": round(float(row["point_estimate_change"]), 3),
             "New pooled 90% interval": row["new_pooled_90_interval"],
-            "Cost / successful run": round(float(row["new_cost_per_run_usd"]), 4),
+            "Cost / successful run": (
+                round(float(row["new_cost_per_run_usd"]), 4)
+                if row.get("new_cost_per_run_usd") not in (None, "")
+                else "—"
+            ),
         }
         for row in rows
     ]
@@ -934,7 +949,7 @@ def build_pooling_robustness_table() -> list[dict[str, object]]:
     return table_rows
 
 
-def build_leave_one_provider_out_table(
+def build_leave_one_organization_out_table(
     *,
     labor_tax_rows: list[ComparisonRow],
     macro_trade_rows: list[ComparisonRow],
@@ -947,10 +962,12 @@ def build_leave_one_provider_out_table(
         if not rows:
             continue
         full_ranks = _average_abs_rank_by_model(rows)
-        providers = sorted({provider_label(row.model_name) for row in rows})
-        for omitted_provider in providers:
+        organizations = sorted({organization_label(row.model_name) for row in rows})
+        for omitted_organization in organizations:
             retained_rows = [
-                row for row in rows if provider_label(row.model_name) != omitted_provider
+                row
+                for row in rows
+                if organization_label(row.model_name) != omitted_organization
             ]
             if not retained_rows:
                 continue
@@ -966,7 +983,7 @@ def build_leave_one_provider_out_table(
             table_rows.append(
                 {
                     "Subpanel": panel_name,
-                    "Omitted provider": omitted_provider,
+                    "Omitted organization": omitted_organization,
                     "Spearman rho": round(
                         spearman_rank_correlation(full_subset, leave_ranks),
                         3,
@@ -1359,7 +1376,7 @@ def build_cap_gains_convention_audit_table(
         table_rows.append(
             {
                 "Model": model_label(model_name),
-                "Provider": provider_label(model_name),
+                "Organization": organization_label(model_name),
                 "epsilon w.r.t. tax rate (median)": round(eps_tax_median, 3),
                 "epsilon w.r.t. net-of-tax rate (median)": round(
                     eps_net_median, 3
@@ -1375,6 +1392,128 @@ def build_cap_gains_convention_audit_table(
         key=lambda row: (row["Shared-tau coherence"], str(row["Model"]))
     )
     return table_rows
+
+
+def build_country_table() -> list[dict[str, object]]:
+    """Display rows for the US-versus-China comparison table."""
+    path = RESULTS_DIR / "correlates-country.csv"
+    if not path.exists():
+        return []
+    rows: list[dict[str, object]] = []
+    with path.open() as handle:
+        for row in csv.DictReader(handle):
+            rows.append(
+                {
+                    "Outcome": row["outcome"],
+                    "US median (n)": f"{float(row['us_median']):.3f} ({row['us_n']})",
+                    "China median (n)": (
+                        f"{float(row['china_median']):.3f} ({row['china_n']})"
+                    ),
+                    "China - US": f"{float(row['china_minus_us']):+.3f}",
+                    "Permutation p": f"{float(row['permutation_p']):.3f}",
+                }
+            )
+    return rows
+
+
+def build_correlates_tables() -> tuple[
+    list[dict[str, object]], list[dict[str, object]], str
+]:
+    """Display rows for the PolicyBench-correlates tables.
+
+    Reads the artifacts scripts/build_correlates.py writes; returns
+    ([], [], "") when they are absent so the build degrades cleanly.
+    """
+    summary_path = RESULTS_DIR / "correlates-model-summary.csv"
+    spearman_path = RESULTS_DIR / "correlates-spearman.csv"
+    scores_path = RESULTS_DIR / "policybench-scores.csv"
+    if not summary_path.exists() or not spearman_path.exists():
+        return [], [], ""
+
+    required_spearman_columns = {
+        "predictor",
+        "outcome",
+        "n_models",
+        "spearman_rho",
+        "raw_p",
+        "holm_adjusted_p",
+        "bh_adjusted_p",
+        "family_size",
+        "is_derived",
+    }
+    with spearman_path.open(newline="") as handle:
+        fieldnames = set(csv.DictReader(handle).fieldnames or ())
+    missing_columns = sorted(required_spearman_columns - fieldnames)
+    if missing_columns:
+        print(
+            "warning: ignoring stale correlates-spearman.csv; rerun "
+            "scripts/build_correlates.py after calibration (missing columns: "
+            + ", ".join(missing_columns)
+            + ")",
+            file=sys.stderr,
+        )
+        return [], [], ""
+
+    release = ""
+    if scores_path.exists():
+        with scores_path.open() as handle:
+            first = next(csv.DictReader(handle), None)
+            if first:
+                release = first.get("source_release", "")
+
+    def fmt(value: str, digits: int = 2) -> str:
+        if value in ("", None):
+            return "—"
+        return f"{float(value):.{digits}f}"
+
+    summary_rows: list[dict[str, object]] = []
+    with summary_path.open() as handle:
+        for row in csv.DictReader(handle):
+            metadata = get_panel_model(row["model"])
+            summary_rows.append(
+                {
+                    "Model": metadata.display_label,
+                    "Organization": organization_display_label(
+                        metadata.organization
+                    ),
+                    "Wave": WAVE_DISPLAY_LABELS[metadata.wave],
+                    "PolicyBench within-$1": fmt(row["policybench_within_dollar"], 1),
+                    "ETI median": fmt(row["eti_median"], 3),
+                    "Implied top rate": (
+                        f"{fmt(row['tau_star_pct'], 1)}%"
+                        if row["tau_star_pct"]
+                        else "—"
+                    ),
+                    "Avg width rank": fmt(row["avg_width_rank"], 1),
+                }
+            )
+    summary_rows.sort(
+        key=lambda r: (
+            r["Implied top rate"] == "—",
+            -float(str(r["Implied top rate"]).rstrip("%"))
+            if r["Implied top rate"] != "—"
+            else 0,
+        )
+    )
+
+    spearman_rows: list[dict[str, object]] = []
+    with spearman_path.open() as handle:
+        for row in csv.DictReader(handle):
+            spearman_rows.append(
+                {
+                    "Predictor": row["predictor"],
+                    "Outcome": row["outcome"],
+                    "Models": row["n_models"],
+                    "Spearman rho": fmt(row["spearman_rho"], 3),
+                    "Raw permutation p": fmt(row["raw_p"], 3),
+                    "Holm-adjusted p": fmt(row["holm_adjusted_p"], 3),
+                    "BH-adjusted p": fmt(row["bh_adjusted_p"], 3),
+                    "Family size": row["family_size"],
+                    "Derived": "yes" if row["is_derived"] == "True" else "no",
+                }
+            )
+
+    return summary_rows, spearman_rows, release
 
 
 def build_grok_failure_table() -> list[dict[str, object]]:
@@ -1466,6 +1605,40 @@ def _belief_estimate_from_row(row: dict[str, str]) -> BeliefEstimate:
     )
 
 
+def pooled_eti_quantiles_from_csv_rows(
+    run_rows: list[dict[str, str]],
+) -> tuple[float, float, float] | None:
+    """Apply the paper's equal-weight piecewise-uniform ETI construction."""
+    eti_quantity_id = "tax.elasticity_of_taxable_income.top_earners"
+    eti_quantity = get_quantity(eti_quantity_id)
+    estimates = [
+        _belief_estimate_from_row(run_row)
+        for run_row in run_rows
+        if run_row.get("parsed_ok") == "True"
+        and run_row.get("quantity_id") == eti_quantity_id
+    ]
+    run_distributions = [
+        distribution
+        for estimate in estimates
+        if (
+            distribution := distribution_from_belief_estimate(
+                estimate,
+                lower_support=0.0,
+                upper_support=eti_quantity.upper_support,
+            )
+        )
+        is not None
+    ]
+    if not run_distributions:
+        return None
+    eti_mixture = mixture_distribution(run_distributions)
+    return (
+        eti_mixture.quantile(0.05),
+        eti_mixture.quantile(0.50),
+        eti_mixture.quantile(0.95),
+    )
+
+
 def parse_interval(text: str) -> tuple[float, float]:
     match = re.fullmatch(r"\[\s*([^,]+),\s*([^\]]+)\s*\]", text.strip())
     if not match:
@@ -1490,6 +1663,31 @@ def optimal_top_rate_from_eti(
     if denominator <= 0:
         return 1.0
     return numerator / denominator
+
+
+def write_top_rate_calibration(
+    calibration: dict[str, float],
+    path: Path = TOP_RATE_CALIBRATION_PATH,
+) -> dict[str, float | None]:
+    """Write the microdata calibration used by downstream correlates."""
+
+    def finite_or_none(value: float) -> float | None:
+        numeric = float(value)
+        return numeric if math.isfinite(numeric) else None
+
+    payload: dict[str, float | None] = {
+        "a": finite_or_none(calibration["a"]),
+        "gbar": finite_or_none(calibration["welfare_weight"]),
+        "threshold": finite_or_none(calibration["threshold"]),
+        "tail_mean": finite_or_none(calibration["mean_above"]),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    with temporary.open("w") as handle:
+        json.dump(payload, handle, indent=2, sort_keys=True, allow_nan=False)
+        handle.write("\n")
+    os.replace(temporary, path)
+    return payload
 
 
 def estimate_policyengine_top_tail_pareto_parameter() -> dict[str, float]:
@@ -1843,19 +2041,12 @@ def bisect_quantile(
 
 
 def model_label(model_name: str) -> str:
-    return MODEL_LABELS.get(model_name, model_name)
+    return get_panel_model(model_name).display_label
 
 
-def provider_label(model_name: str) -> str:
-    if model_name.startswith("claude-"):
-        return "Anthropic"
-    if model_name.startswith("gemini-"):
-        return "Google"
-    if model_name.startswith("gpt-"):
-        return "OpenAI"
-    if model_name.startswith("grok-"):
-        return "xAI"
-    return "Other"
+def organization_label(model_name: str) -> str:
+    model = get_panel_model(model_name)
+    return organization_display_label(model.organization)
 
 
 def quantity_label(quantity_id: str) -> str:
@@ -1934,24 +2125,32 @@ def format_markdown_cell(header: str, value: object) -> str:
 # ---------------------------------------------------------------------------
 
 HARNESS_DISCLOSURE_ROWS: list[dict[str, str]] = [
-    # model, provider path, output mechanism, completion budget, sampling, reasoning config, identifier, identifier type
-    {"model": "gpt-5.5", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200 (8000 for the 40 re-elicited runs)", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.5", "id_type": "alias"},
-    {"model": "gpt-5.4", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4", "id_type": "alias"},
-    {"model": "gpt-5.4-mini", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-mini", "id_type": "alias"},
-    {"model": "gpt-5.4-nano", "path": "OpenAI Chat Completions", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-nano", "id_type": "alias"},
-    {"model": "claude-fable-5", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "always-on reasoning", "identifier": "claude-fable-5", "id_type": "alias"},
-    {"model": "claude-opus-4.8", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "off (provider default)", "identifier": "claude-opus-4-8", "id_type": "alias"},
-    {"model": "claude-sonnet-5", "path": "native Anthropic API", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "adaptive (provider default)", "identifier": "claude-sonnet-5", "id_type": "alias"},
-    {"model": "claude-opus-4.7", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-opus-4-7", "id_type": "alias"},
-    {"model": "claude-sonnet-4.6", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-sonnet-4-6", "id_type": "alias"},
-    {"model": "claude-haiku-4.5", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-haiku-4-5-20251001", "id_type": "dated snapshot"},
-    {"model": "gemini-3.1-pro-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-pro-preview", "id_type": "preview alias"},
-    {"model": "gemini-3.5-flash", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.5-flash", "id_type": "alias"},
-    {"model": "gemini-3-flash-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3-flash-preview", "id_type": "preview alias"},
-    {"model": "gemini-3.1-flash-lite-preview", "path": "LiteLLM", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-flash-lite-preview", "id_type": "preview alias"},
-    {"model": "grok-4.20", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "reasoning variant", "identifier": "xai/grok-4.20-reasoning", "id_type": "alias"},
-    {"model": "grok-4.3", "path": "LiteLLM", "mechanism": "forced function call", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "xai/grok-4.3", "id_type": "alias"},
-    {"model": "grok-4.1-fast", "path": "LiteLLM", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "non-reasoning variant", "identifier": "xai/grok-4-1-fast-non-reasoning", "id_type": "alias"},
+    # Serving-provider path is registry-derived; rows hold the remaining harness fields.
+    {"model": "gpt-5.5", "mechanism": "strict JSON schema", "budget": "1200 (8000 for the 40 re-elicited runs)", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.5", "id_type": "alias"},
+    {"model": "gpt-5.6-sol", "mechanism": "strict JSON schema", "budget": "8000", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.6-sol", "id_type": "alias"},
+    {"model": "gpt-5.6-luna", "mechanism": "strict JSON schema", "budget": "8000", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.6-luna", "id_type": "alias"},
+    {"model": "gpt-5.6-terra", "mechanism": "strict JSON schema", "budget": "8000", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.6-terra", "id_type": "alias"},
+    {"model": "gpt-5.4", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4", "id_type": "alias"},
+    {"model": "gpt-5.4-mini", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-mini", "id_type": "alias"},
+    {"model": "gpt-5.4-nano", "mechanism": "strict JSON schema", "budget": "1200", "sampling": "temperature 1.0, batched n <= 8", "reasoning": "provider default effort", "identifier": "gpt-5.4-nano", "id_type": "alias"},
+    {"model": "claude-fable-5", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "always-on reasoning", "identifier": "claude-fable-5", "id_type": "alias"},
+    {"model": "claude-opus-4.8", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "off (provider default)", "identifier": "claude-opus-4-8", "id_type": "alias"},
+    {"model": "claude-sonnet-5", "mechanism": "strict JSON schema", "budget": "32000", "sampling": "none accepted (provider default)", "reasoning": "adaptive (provider default)", "identifier": "claude-sonnet-5", "id_type": "alias"},
+    {"model": "claude-opus-4.7", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-opus-4-7", "id_type": "alias"},
+    {"model": "claude-sonnet-4.6", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-sonnet-4-6", "id_type": "alias"},
+    {"model": "claude-haiku-4.5", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-haiku-4-5-20251001", "id_type": "dated snapshot"},
+    {"model": "gemini-3.1-pro-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-pro-preview", "id_type": "preview alias"},
+    {"model": "gemini-3.5-flash", "mechanism": "forced JSON object", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.5-flash", "id_type": "alias"},
+    {"model": "gemini-3-flash-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3-flash-preview", "id_type": "preview alias"},
+    {"model": "gemini-3.1-flash-lite-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-flash-lite-preview", "id_type": "preview alias"},
+    {"model": "grok-4.20", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "reasoning variant", "identifier": "xai/grok-4.20-reasoning", "id_type": "alias"},
+    {"model": "grok-4.3", "mechanism": "forced function call", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "xai/grok-4.3", "id_type": "alias"},
+    {"model": "deepseek-v4-pro", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/deepseek/deepseek-v4-pro", "id_type": "alias"},
+    {"model": "qwen-3.7-max", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/qwen/qwen3.7-max", "id_type": "alias"},
+    {"model": "kimi-k2.6", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/moonshotai/kimi-k2.6", "id_type": "alias"},
+    {"model": "glm-5.2", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/z-ai/glm-5.2", "id_type": "alias"},
+    {"model": "minimax-m3", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/minimax/minimax-m3", "id_type": "alias"},
+    {"model": "grok-4.1-fast", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "non-reasoning variant", "identifier": "xai/grok-4-1-fast-non-reasoning", "id_type": "alias"},
 ]
 
 
@@ -1959,7 +2158,9 @@ def build_harness_disclosure_table() -> list[dict[str, object]]:
     return [
         {
             "Model": model_label(row["model"]),
-            "Provider path": row["path"],
+            "Provider path": serving_provider_display_label(
+                get_panel_model(row["model"]).serving_provider_path
+            ),
             "Output mechanism": row["mechanism"],
             "Completion budget": row["budget"],
             "Sampling": row["sampling"],

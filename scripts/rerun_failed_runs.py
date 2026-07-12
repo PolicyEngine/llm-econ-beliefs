@@ -26,6 +26,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from run_v4_per_quantity import PROVIDER_FOR_MODEL
+from check_panel_grid import check_batch_directory
 
 from llm_econ_beliefs.experiment import (
     _record_from_parsed,
@@ -38,6 +39,7 @@ from llm_econ_beliefs.experiment import (
 )
 from llm_econ_beliefs.models import RequestLog, RunResult
 from llm_econ_beliefs.parse import parse_belief_response
+from llm_econ_beliefs.provider_tags import provider_tag_for_runner
 from llm_econ_beliefs.providers import (
     run_anthropic_prompt_logged,
     run_litellm_prompt_logged,
@@ -65,6 +67,12 @@ def invoke_once(provider: str, model_name: str, prompt: str):
     return run_litellm_prompt_logged(prompt, model_name=model_name)
 
 
+def report_grid_errors(model_name: str, batch: str, errors: tuple[str, ...]) -> None:
+    print(f"{model_name} / {batch}: unresolved panel grid:")
+    for error in errors:
+        print(f"  {error}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
@@ -80,25 +88,41 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=3)
     args = parser.parse_args()
 
+    if args.model not in PROVIDER_FOR_MODEL:
+        print(f"Unknown model: {args.model}", file=sys.stderr)
+        return 2
+    if args.attempts <= 0:
+        print("--attempts must be positive", file=sys.stderr)
+        return 2
+
     provider = PROVIDER_FOR_MODEL[args.model]
     # Tag records with the same provider label the main experiment driver
     # writes, so log filters see one consistent value per path.
-    log_provider = "openai_chat_completions" if provider == "openai" else provider
+    log_provider = provider_tag_for_runner(provider)
     target_dir = REPO_ROOT / "results" / f"{args.model}-{args.batch}"
     runs_path = target_dir / "runs.jsonl"
     records = load_jsonl(runs_path, RunResult)
     request_logs = load_jsonl(target_dir / "requests.jsonl", RequestLog)
-    next_request_index = max(
-        (log.request_index for log in request_logs), default=0
-    ) + 1
+    next_request_index = max((log.request_index for log in request_logs), default=0) + 1
 
     failed_positions = [
         index for index, record in enumerate(records) if not record.parsed_ok
     ]
     if not failed_positions:
-        print(f"{args.model} / {args.batch}: no failed runs.")
-        return 0
-    print(f"{args.model} / {args.batch}: re-eliciting {len(failed_positions)} failed runs")
+        grid_result = check_batch_directory(
+            REPO_ROOT / "results",
+            model_name=args.model,
+            batch=args.batch,
+            require_parsed=True,
+        )
+        if grid_result.ok:
+            print(f"{args.model} / {args.batch}: no failed runs; grid complete.")
+            return 0
+        report_grid_errors(args.model, args.batch, grid_result.errors)
+        return 1
+    print(
+        f"{args.model} / {args.batch}: re-eliciting {len(failed_positions)} failed runs"
+    )
 
     # Archive the failed records before replacing them so the replacement
     # policy stays auditable (see results/failure-manifest.csv).
@@ -118,24 +142,26 @@ def main() -> int:
         for attempt in range(1, args.attempts + 1):
             try:
                 batch_result = invoke_once(provider, failed.model_name, failed.prompt)
+                # Record every completed provider request before inspecting or
+                # parsing its output.  Invalid response content must not erase
+                # the request id, usage, or cost of a paid request.
+                request_logs.append(
+                    _request_log_from_batch_result(
+                        provider=log_provider,
+                        model_name=failed.model_name,
+                        quantity_id=failed.quantity_id,
+                        prompt_version=failed.prompt_version,
+                        tool_regime=failed.tool_regime,
+                        batch_size=1,
+                        request_index=next_request_index,
+                        batch_result=batch_result,
+                    )
+                )
+                next_request_index += 1
                 raw_response = batch_result.outputs[0]
                 parsed = parse_belief_response(
                     raw_response, quantity_id=failed.quantity_id
                 )
-                if batch_result.request_id is not None or batch_result.usage:
-                    request_logs.append(
-                        _request_log_from_batch_result(
-                            provider=log_provider,
-                            model_name=failed.model_name,
-                            quantity_id=failed.quantity_id,
-                            prompt_version=failed.prompt_version,
-                            tool_regime=failed.tool_regime,
-                            batch_size=1,
-                            request_index=next_request_index,
-                            batch_result=batch_result,
-                        )
-                    )
-                    next_request_index += 1
                 run_like = type(
                     "RunLike",
                     (),
@@ -187,6 +213,15 @@ def main() -> int:
     print(
         f"Fixed {fixed}/{len(failed_positions)}; directory now {ok}/{len(records)} parsed"
     )
+    grid_result = check_batch_directory(
+        REPO_ROOT / "results",
+        model_name=args.model,
+        batch=args.batch,
+        require_parsed=True,
+    )
+    if not grid_result.ok:
+        report_grid_errors(args.model, args.batch, grid_result.errors)
+        return 1
     return 0
 
 

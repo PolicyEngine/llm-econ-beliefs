@@ -2,11 +2,7 @@ import Link from "next/link";
 
 import { PageBand, ProvenanceFooter } from "@/components/site-chrome";
 import { providerColor } from "@/components/strip-plot";
-import {
-  getModelLabel,
-  getProviderForModel,
-  PROVIDER_LABELS,
-} from "@/lib/model-meta";
+import { getModelLabel } from "@/lib/model-meta";
 import {
   buildModelProfile,
   orderedModelNames,
@@ -14,26 +10,28 @@ import {
   totalRunCount,
 } from "@/lib/site-data";
 
-export const metadata = {
-  title: "Models · AI beliefs · PolicyEngine",
-  description:
-    "All 17 frontier models in the panel: provider, elicitation wave, predictive tightness, and cost, with per-model belief profiles.",
-};
+export function generateMetadata() {
+  const modelCount = orderedModelNames().length;
+  return {
+    title: "Models · AI beliefs · PolicyEngine",
+    description: `All ${modelCount} frontier models in the gated panel: organization, elicitation wave, predictive tightness, and cost, with per-model belief profiles.`,
+  };
+}
 
 export default function ModelsIndex() {
   const modelNames = orderedModelNames();
+  const modelCount = modelNames.length;
 
   return (
     <div>
       <PageBand
         title="Models"
-        lede="Each provider appears at its frontier tier as of its elicitation date, and superseded models stay in the panel — so generation-to-generation shifts are directly observable. Tightness is the model's average 90 percent interval-width rank across the 13 canonical quantities (1 = narrowest of 17)."
+        lede={`Each organization appears at its frontier tier as of its elicitation date, and superseded models stay in the panel — so generation-to-generation shifts are directly observable. Tightness is the model's average 90 percent interval-width rank across the 13 canonical quantities (1 = narrowest of ${modelCount}).`}
       />
       <div className="mx-auto max-w-[1100px] px-5 py-8">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {modelNames.map((modelName) => {
             const profile = buildModelProfile(modelName);
-            const provider = getProviderForModel(modelName);
             return (
               <Link
                 key={modelName}
@@ -61,15 +59,15 @@ export default function ModelsIndex() {
                   style={{ color: "var(--muted-foreground)" }}
                 >
                   <div>
-                    <dt>Provider</dt>
+                    <dt>Organization</dt>
                     <dd style={{ color: "var(--foreground)" }}>
-                      {provider ? PROVIDER_LABELS[provider] : "—"}
+                      {profile.organizationLabel}
                     </dd>
                   </div>
                   <div>
                     <dt>Wave</dt>
                     <dd style={{ color: "var(--foreground)" }}>
-                      {profile.julyWave ? "July 2026" : "April 2026"}
+                      {profile.waveLabel}
                     </dd>
                   </div>
                   <div>

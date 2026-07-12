@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { PolicyEngineShell } from "@policyengine/ui-kit";
 import { SubNav } from "@/components/site-chrome";
+import { getSummaryData } from "@/lib/site-data";
 import "./globals.css";
 
 // Matches the GA4 property used by policyengine-app-v2/website so
@@ -25,27 +26,29 @@ const jetbrains = JetBrains_Mono({
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://policyengine.org"),
-  title: "AI beliefs · PolicyEngine",
-  description:
-    "How 17 frontier language models answer when asked for their beliefs about economic elasticities: point estimates, uncertainty bands, and run-level responses.",
-  alternates: { canonical: basePath || "/" },
-  openGraph: {
-    title: "AI beliefs about economic parameters",
-    description:
-      "Elicited beliefs from 17 frontier models on 26 economic quantities, with pooled, REML, and Bayesian uncertainty bands.",
-    url: basePath || "/",
-    siteName: "PolicyEngine",
-  },
-  icons: { icon: `${basePath}/favicon.svg` },
-};
+export function generateMetadata(): Metadata {
+  const modelCount = getSummaryData().stats.modelCount;
+  return {
+    metadataBase: new URL("https://policyengine.org"),
+    title: "AI beliefs · PolicyEngine",
+    description: `How ${modelCount} frontier language models answer when asked for their beliefs about economic elasticities: point estimates, uncertainty bands, and run-level responses.`,
+    alternates: { canonical: basePath || "/" },
+    openGraph: {
+      title: "AI beliefs about economic parameters",
+      description: `Elicited beliefs from ${modelCount} frontier models on 26 economic quantities, with pooled, REML, and Bayesian uncertainty bands.`,
+      url: basePath || "/",
+      siteName: "PolicyEngine",
+    },
+    icons: { icon: `${basePath}/favicon.svg` },
+  };
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const modelCount = getSummaryData().stats.modelCount;
   return (
     <html
       lang="en"
@@ -85,7 +88,9 @@ export default function RootLayout({
               >
                 Code and data
               </a>
-              <span>Elicited April and July 2026 · 17 models · v4 prompts</span>
+              <span>
+                Elicited April and July 2026 · {modelCount} models · v4 prompts
+              </span>
             </div>
           </div>
         </PolicyEngineShell>

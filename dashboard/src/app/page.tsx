@@ -12,15 +12,18 @@ import {
   loadSlimRuns,
   modelsByCenter,
   slugForQuantity,
+  tieAveragedRanks,
   totalRunCount,
 } from "@/lib/site-data";
 import type { QuantitySummary } from "@/lib/dashboard-types";
 
-export const metadata = {
-  title: "AI beliefs · PolicyEngine",
-  description:
-    "What 17 frontier language models answer when asked for economic elasticities: interval charts, run-level responses, and a peer-review-hardened paper.",
-};
+export function generateMetadata() {
+  const modelCount = getSummaryData().stats.modelCount;
+  return {
+    title: "AI beliefs · PolicyEngine",
+    description: `What ${modelCount} frontier language models answer when asked for economic elasticities: interval charts, run-level responses, and a peer-review-hardened paper.`,
+  };
+}
 
 /** Average within-quantity |center| rank (1 = most elastic), mirroring the
  *  paper's Table 1-2 construction — tie-averaged ranks, exactly as
@@ -34,30 +37,19 @@ function topByAbsRank(
   for (const quantityId of quantityIds) {
     const quantity = quantities.find((q) => q.quantityId === quantityId);
     if (!quantity) continue;
-    const ordered = quantity.modelSummaries
-      .filter((s) => s.intervals.pooled.center !== null)
-      .map((s) => ({
-        modelName: s.modelName,
-        value: Math.abs(s.intervals.pooled.center ?? 0),
-      }))
-      .sort((a, b) => b.value - a.value);
-    let index = 0;
-    while (index < ordered.length) {
-      let tieEnd = index;
-      while (
-        tieEnd + 1 < ordered.length &&
-        ordered[tieEnd + 1].value === ordered[index].value
-      ) {
-        tieEnd += 1;
-      }
-      const averageRank = (index + 1 + tieEnd + 1) / 2;
-      for (let i = index; i <= tieEnd; i += 1) {
-        const entry = rankSums.get(ordered[i].modelName) ?? { total: 0, n: 0 };
-        entry.total += averageRank;
-        entry.n += 1;
-        rankSums.set(ordered[i].modelName, entry);
-      }
-      index = tieEnd + 1;
+    const absoluteCenters = new Map(
+      quantity.modelSummaries.flatMap((summary) => {
+        const center = summary.intervals.pooled.center;
+        return center !== null
+          ? [[summary.modelName, Math.abs(center)] as const]
+          : [];
+      }),
+    );
+    for (const [modelName, rank] of tieAveragedRanks(absoluteCenters, true)) {
+      const entry = rankSums.get(modelName) ?? { total: 0, n: 0 };
+      entry.total += rank;
+      entry.n += 1;
+      rankSums.set(modelName, entry);
     }
   }
   return Array.from(rankSums.entries())
@@ -122,10 +114,10 @@ export default function Home() {
           <>
             When you ask a frontier language model for the elasticity of
             taxable income, it answers with a number and an uncertainty band.
-            This project elicits those answers systematically — 17 models, 26
-            quantities, 15 independent runs each — and maps where the models
-            agree, where they diverge, and what their answers imply for
-            policy.
+            This project elicits those answers systematically —{" "}
+            {data.stats.modelCount} models, 26 quantities, 15 independent runs
+            each — and maps where the models agree, where they diverge, and
+            what their answers imply for policy.
           </>
         }
         aside={
@@ -179,18 +171,18 @@ export default function Home() {
             </ul>
           </FindingCard>
 
-          <FindingCard
-            title="A near-zero mean can hide two camps"
-            href={
-              capGains
-                ? `/quantities/${slugForQuantity(capGains.quantityId)}`
-                : "/quantities"
-            }
-            body={`Gemini 3.5 Flash's capital-gains runs split ${geminiNegative} negative to ${
-              geminiRuns.length - geminiNegative
-            } positive — a bimodal answer that averages to nearly zero without any run saying zero.`}
-          >
-            {geminiRuns.length > 0 ? (
+          {geminiRuns.length > 0 ? (
+            <FindingCard
+              title="A near-zero mean can hide two camps"
+              href={
+                capGains
+                  ? `/quantities/${slugForQuantity(capGains.quantityId)}`
+                  : "/quantities"
+              }
+              body={`Gemini 3.5 Flash's capital-gains runs split ${geminiNegative} negative to ${
+                geminiRuns.length - geminiNegative
+              } positive — a bimodal answer that averages to nearly zero without any run saying zero.`}
+            >
               <svg
                 viewBox="0 0 100 16"
                 className="mt-3 h-4 w-full"
@@ -215,8 +207,8 @@ export default function Home() {
                   ));
                 })()}
               </svg>
-            ) : null}
-          </FindingCard>
+            </FindingCard>
+          ) : null}
         </div>
 
         {/* Headline panel */}
@@ -230,9 +222,10 @@ export default function Home() {
           className="mt-1 max-w-2xl text-sm"
           style={{ color: "var(--muted-foreground)" }}
         >
-          Every panel: 17 models sorted by pooled center, dot at the center,
-          bar spanning the pooled 90 percent interval. Shaded regions are
-          review-based literature ranges. Click through for run-level detail.
+          Every panel: {data.stats.modelCount} models sorted by pooled center,
+          dot at the center, bar spanning the pooled 90 percent interval. Shaded
+          regions are review-based literature ranges. Click through for
+          run-level detail.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {headline.map((quantity) => {
@@ -291,7 +284,7 @@ export default function Home() {
               background: "var(--card)",
             }}
           >
-            All 17 models
+            All {data.stats.modelCount} models
           </Link>
         </div>
 

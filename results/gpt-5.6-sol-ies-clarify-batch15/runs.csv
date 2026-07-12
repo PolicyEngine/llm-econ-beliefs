@@ -1,0 +1,601 @@
+provider,model_name,quantity_id,run_index,prompt_version,tool_regime,parsed_ok,point_estimate,interpretation,lower_bound,upper_bound,confidence_level,quantiles,quantiles_repaired,citations,reasoning_summary,error,raw_response,prompt
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,1,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization? | Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution","My median reflects evidence that aggregate nondurable-consumption growth responds only moderately to intertemporal prices, while allowing substantial uncertainty from identification, aggregation, and household heterogeneity. Values near 0.5 seem more plausible for annual macro calibration than either near-zero substitution or an elasticity well above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.5},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization?"",""Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution""],""reasoning_summary"":""My median reflects evidence that aggregate nondurable-consumption growth responds only moderately to intertemporal prices, while allowing substantial uncertainty from identification, aggregation, and household heterogeneity. Values near 0.5 seem more plausible for annual macro calibration than either near-zero substitution or an elasticity well above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,2,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth to a 1 percent change in the intertemporal price of consumption for a representative U.S. household, distinct from risk aversion.",0.1,1.25,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.25}",False,"Hall (1988), Journal of Political Economy, intertemporal substitution in consumption | Attanasio and Weber (1993), consumption growth and the elasticity of intertemporal substitution | Guvenen (2006), reconciling macro and micro estimates of intertemporal substitution","My median reflects the common annual macro-calibration view that nondurable-consumption growth responds positively but modestly to intertemporal prices. I place substantial uncertainty around 0.5 because empirical estimates are sensitive to aggregation, instruments, household heterogeneity, and consumption measurement.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth to a 1 percent change in the intertemporal price of consumption for a representative U.S. household, distinct from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.75,""p95"":1.25},""citations"":[""Hall (1988), Journal of Political Economy, intertemporal substitution in consumption"",""Attanasio and Weber (1993), consumption growth and the elasticity of intertemporal substitution"",""Guvenen (2006), reconciling macro and micro estimates of intertemporal substitution""],""reasoning_summary"":""My median reflects the common annual macro-calibration view that nondurable-consumption growth responds positively but modestly to intertemporal prices. I place substantial uncertainty around 0.5 because empirical estimates are sensitive to aggregation, instruments, household heterogeneity, and consumption measurement.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,3,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), ""Intertemporal Substitution in Consumption"" | Attanasio and Weber (1995), ""Is Consumption Growth Consistent with Intertemporal Optimization?"" | Guvenen (2006), ""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution: A Macroeconomic Perspective""","My central calibration belief is a moderate IES around 0.5. Aggregate estimates often suggest weak substitution, while alternative specifications and household-level evidence permit appreciably larger responses, motivating substantial uncertainty above and below the median.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), \""Intertemporal Substitution in Consumption\"""",""Attanasio and Weber (1995), \""Is Consumption Growth Consistent with Intertemporal Optimization?\"""",""Guvenen (2006), \""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution: A Macroeconomic Perspective\""""],""reasoning_summary"":""My central calibration belief is a moderate IES around 0.5. Aggregate estimates often suggest weak substitution, while alternative specifications and household-level evidence permit appreciably larger responses, motivating substantial uncertainty above and below the median.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,4,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in macro calibration, distinct from risk aversion.",0.1,1.4,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.4}",False,"Hall (1988), “Intertemporal Substitution in Consumption” | Attanasio and Weber (1995), “Is Consumption Growth Consistent with Intertemporal Optimization?” | Havránek et al. (2015), “Measuring Intertemporal Substitution: The Importance of Method Choices and Selective Reporting”","My central calibration belief is an IES near 0.5: nondurable consumption growth responds positively but moderately to intertemporal-price changes. I place substantial uncertainty on both near-zero estimates and values around or somewhat above one because estimates are sensitive to aggregation, instruments, and household heterogeneity.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in macro calibration, distinct from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.4},""citations"":[""Hall (1988), “Intertemporal Substitution in Consumption”"",""Attanasio and Weber (1995), “Is Consumption Growth Consistent with Intertemporal Optimization?”"",""Havránek et al. (2015), “Measuring Intertemporal Substitution: The Importance of Method Choices and Selective Reporting”""],""reasoning_summary"":""My central calibration belief is an IES near 0.5: nondurable consumption growth responds positively but moderately to intertemporal-price changes. I place substantial uncertainty on both near-zero estimates and values around or somewhat above one because estimates are sensitive to aggregation, instruments, and household heterogeneity.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,5,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.25,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.25}",False,"Hall (1988), Intertemporal Substitution in Consumption | Campbell and Mankiw (1989), Consumption, Income, and Interest Rates | Ogaki and Reinhart (1998), Measuring Intertemporal Substitution: The Role of Durable Goods","My belief centers on a moderate IES around 0.5: nondurable-consumption growth appears only modestly responsive to real interest-rate variation, while aggregation, weak instruments, and specification differences leave substantial uncertainty, including some probability of values near or above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.75,""p95"":1.25},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Campbell and Mankiw (1989), Consumption, Income, and Interest Rates"",""Ogaki and Reinhart (1998), Measuring Intertemporal Substitution: The Role of Durable Goods""],""reasoning_summary"":""My belief centers on a moderate IES around 0.5: nondurable-consumption growth appears only modestly responsive to real interest-rate variation, while aggregation, weak instruments, and specification differences leave substantial uncertainty, including some probability of values near or above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,6,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation | Havranek et al. (2015), Cross-Country Heterogeneity in Intertemporal Substitution","My median reflects weak but positive responsiveness of nondurable-consumption growth to real interest-rate variation. Estimates near zero remain plausible, while aggregation, measurement, and specification choices leave meaningful probability on values around or above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation"",""Havranek et al. (2015), Cross-Country Heterogeneity in Intertemporal Substitution""],""reasoning_summary"":""My median reflects weak but positive responsiveness of nondurable-consumption growth to real interest-rate variation. Estimates near zero remain plausible, while aggregation, measurement, and specification choices leave meaningful probability on values around or above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,7,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), ""Intertemporal Substitution in Consumption"" | Attanasio and Weber (1993), ""Consumption Growth, the Interest Rate and Aggregation"" | Havranek et al. (2015), meta-analysis of intertemporal substitution estimates","My median calibration is 0.5: nondurable-consumption growth likely responds meaningfully but less than proportionally to intertemporal prices. The wide range reflects sensitivity to aggregation, instruments, household heterogeneity, and specification.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), \""Intertemporal Substitution in Consumption\"""",""Attanasio and Weber (1993), \""Consumption Growth, the Interest Rate and Aggregation\"""",""Havranek et al. (2015), meta-analysis of intertemporal substitution estimates""],""reasoning_summary"":""My median calibration is 0.5: nondurable-consumption growth likely responds meaningfully but less than proportionally to intertemporal prices. The wide range reflects sensitivity to aggregation, instruments, household heterogeneity, and specification.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,8,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in a macro-calibration setting, distinct from risk aversion.",0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation | Vissing-Jorgensen (2002), Limited Asset Market Participation and the Elasticity of Intertemporal Substitution","My median reflects evidence that aggregate nondurable-consumption growth responds only modestly to intertemporal prices. I allow substantial uncertainty because estimates vary with aggregation, household heterogeneity, asset-market participation, and specification; values near or above one remain plausible but are not my central calibration.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in a macro-calibration setting, distinct from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.5},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation"",""Vissing-Jorgensen (2002), Limited Asset Market Participation and the Elasticity of Intertemporal Substitution""],""reasoning_summary"":""My median reflects evidence that aggregate nondurable-consumption growth responds only modestly to intertemporal prices. I allow substantial uncertainty because estimates vary with aggregation, household heterogeneity, asset-market participation, and specification; values near or above one remain plausible but are not my central calibration.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,9,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in a macro-calibration setting, distinct from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation | Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution","My median calibration belief is 0.5: nondurable-consumption growth responds positively but modestly to intertemporal prices. The wide interval reflects sensitivity to aggregation, household heterogeneity, instruments, and specification.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household in a macro-calibration setting, distinct from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation"",""Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution""],""reasoning_summary"":""My median calibration belief is 0.5: nondurable-consumption growth responds positively but modestly to intertemporal prices. The wide interval reflects sensitivity to aggregation, household heterogeneity, instruments, and specification.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,10,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization? | Havránek et al. (2015), Cross-Country Heterogeneity in Intertemporal Substitution","My median is 0.5: nondurable-consumption evidence generally suggests a positive but modest annual response, while specification, aggregation, and measurement differences justify substantial uncertainty from near zero to above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization?"",""Havránek et al. (2015), Cross-Country Heterogeneity in Intertemporal Substitution""],""reasoning_summary"":""My median is 0.5: nondurable-consumption evidence generally suggests a positive but modest annual response, while specification, aggregation, and measurement differences justify substantial uncertainty from near zero to above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,11,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}",False,"Hall (1988), ""Intertemporal Substitution in Consumption"" | Attanasio and Weber (1995), ""Is Consumption Growth Consistent with Intertemporal Optimization?"" | Guvenen (2006), ""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution""","My median reflects the low-to-moderate consumption-growth responsiveness typically associated with U.S. nondurables. I allow substantial uncertainty because aggregation, measurement, horizon, and household heterogeneity can move estimates from near zero to above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.5},""citations"":[""Hall (1988), \""Intertemporal Substitution in Consumption\"""",""Attanasio and Weber (1995), \""Is Consumption Growth Consistent with Intertemporal Optimization?\"""",""Guvenen (2006), \""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution\""""],""reasoning_summary"":""My median reflects the low-to-moderate consumption-growth responsiveness typically associated with U.S. nondurables. I allow substantial uncertainty because aggregation, measurement, horizon, and household heterogeneity can move estimates from near zero to above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,12,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth to a 1 percent change in the intertemporal price of consumption for a representative U.S. household, distinct from risk aversion.",0.1,1.25,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.25}",False,"Hall (1988), Journal of Political Economy, ""Intertemporal Substitution in Consumption"" | Attanasio and Weber (1995), Journal of Political Economy, ""Is Consumption Growth Consistent with Intertemporal Optimization?"" | Guvenen (2006), Journal of Monetary Economics, ""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution""","My central calibration belief is a positive but subunitary response. Aggregate nondurable-consumption estimates often suggest weak intertemporal substitution, while studies addressing aggregation, heterogeneity, or measurement support somewhat larger values; this makes 0.5 a reasonable annual representative-household midpoint with substantial uncertainty.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth to a 1 percent change in the intertemporal price of consumption for a representative U.S. household, distinct from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.25},""citations"":[""Hall (1988), Journal of Political Economy, \""Intertemporal Substitution in Consumption\"""",""Attanasio and Weber (1995), Journal of Political Economy, \""Is Consumption Growth Consistent with Intertemporal Optimization?\"""",""Guvenen (2006), Journal of Monetary Economics, \""Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution\""""],""reasoning_summary"":""My central calibration belief is a positive but subunitary response. Aggregate nondurable-consumption estimates often suggest weak intertemporal substitution, while studies addressing aggregation, heterogeneity, or measurement support somewhat larger values; this makes 0.5 a reasonable annual representative-household midpoint with substantial uncertainty.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,13,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.15,1.2,0.9,"{""p05"": 0.15, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.2}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization? | Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution","My median reflects the view that annual nondurable consumption growth responds positively but modestly to intertemporal-price movements. Aggregate estimates often suggest low responsiveness, while household-level evidence and macro calibrations support values around one-half or somewhat higher; substantial uncertainty remains from aggregation, measurement, and instrument choice.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.15,""p25"":0.3,""p50"":0.5,""p75"":0.75,""p95"":1.2},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1995), Is Consumption Growth Consistent with Intertemporal Optimization?"",""Guvenen (2006), Reconciling Conflicting Evidence on the Elasticity of Intertemporal Substitution""],""reasoning_summary"":""My median reflects the view that annual nondurable consumption growth responds positively but modestly to intertemporal-price movements. Aggregate estimates often suggest low responsiveness, while household-level evidence and macro calibrations support values around one-half or somewhat higher; substantial uncertainty remains from aggregation, measurement, and instrument choice.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,14,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), Journal of Political Economy, ""Intertemporal Substitution in Consumption"" | Attanasio and Weber (1995), Journal of Political Economy, ""Is Consumption Growth Consistent with Intertemporal Optimization?"" | Havranek et al. (2015), Journal of the European Economic Association, ""Cross-Country Heterogeneity in Intertemporal Substitution""","My median calibration belief is 0.5: nondurable consumption growth appears only moderately responsive to intertemporal prices. I place substantial probability below one, while allowing for higher estimates arising from specification, aggregation, and measurement differences.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), Journal of Political Economy, \""Intertemporal Substitution in Consumption\"""",""Attanasio and Weber (1995), Journal of Political Economy, \""Is Consumption Growth Consistent with Intertemporal Optimization?\"""",""Havranek et al. (2015), Journal of the European Economic Association, \""Cross-Country Heterogeneity in Intertemporal Substitution\""""],""reasoning_summary"":""My median calibration belief is 0.5: nondurable consumption growth appears only moderately responsive to intertemporal prices. I place substantial probability below one, while allowing for higher estimates arising from specification, aggregation, and measurement differences.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"
+openai_chat_completions,gpt-5.6-sol,household.intertemporal_elasticity_of_substitution,15,ies-clarify,none,True,0.5,"Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion.",0.1,1.3,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.3}",False,"Hall (1988), Intertemporal Substitution in Consumption | Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation | Vissing-Jorgensen (2002), Limited Asset Market Participation and the Elasticity of Intertemporal Substitution","Annual aggregate nondurable-consumption responses are generally believed to be modest, supporting a central value below one. Uncertainty is substantial because aggregation, measurement, participation, and specification choices can produce estimates ranging from near zero to above one.",,"{""interpretation"":""Elasticity of annual nondurable-consumption growth with respect to the intertemporal price of consumption for a representative U.S. household, treated separately from risk aversion."",""point_estimate"":0.5,""quantiles"":{""p05"":0.1,""p25"":0.3,""p50"":0.5,""p75"":0.8,""p95"":1.3},""citations"":[""Hall (1988), Intertemporal Substitution in Consumption"",""Attanasio and Weber (1993), Consumption Growth, the Interest Rate and Aggregation"",""Vissing-Jorgensen (2002), Limited Asset Market Participation and the Elasticity of Intertemporal Substitution""],""reasoning_summary"":""Annual aggregate nondurable-consumption responses are generally believed to be modest, supporting a central value below one. Uncertainty is substantial because aggregation, measurement, participation, and specification choices can produce estimates ranging from near zero to above one.""}","Answer from your current memory and background knowledge only.
+Do not use tools, files, the web, code, or external resources.
+Do not try to reconstruct a literature review or search for a consensus estimate.
+Report the belief you currently endorse.
+
+Quantity of interest:
+- Name: Intertemporal elasticity of substitution
+- Definition: Percent change in the growth rate of nondurable consumption from a 1 percent change in the intertemporal price of consumption.
+- Target interpretation: IES for nondurable consumption in annual macro calibration, distinct from risk aversion
+- Population/context: Representative U.S. household in an annual macro-calibration setting
+- Units: elasticity
+
+Clarification for this quantity:
+- This is the elasticity of intertemporal substitution for nondurable consumption in a representative-household annual macro-calibration setting.
+- Treat it as a consumption-growth response to the intertemporal price of consumption, not as a generic willingness-to-take-risk parameter.
+- Do not answer with the inverse of CRRA unless you independently think that is the right value for this calibration target.
+- Do not switch to an asset-pricing or recursive-preferences interpretation.
+
+Task:
+1. Use exactly the target interpretation above. In `interpretation`, restate it briefly.
+2. Give your subjective quantiles p05, p25, p50, p75, and p95 for this quantity.
+3. Set `point_estimate` equal to `p50`.
+4. Make the quantiles weakly increasing and numerically coherent.
+5. In `citations`, list up to 3 source anchors from memory that influenced your belief. These are recall anchors only. If none come to mind confidently, return `[]`.
+6. Keep `reasoning_summary` brief and substantive.
+
+Return valid JSON only with exactly this shape:
+{
+  ""interpretation"": ""..."",
+  ""point_estimate"": <number>,
+  ""quantiles"": {
+    ""p05"": <number>,
+    ""p25"": <number>,
+    ""p50"": <number>,
+    ""p75"": <number>,
+    ""p95"": <number>
+  },
+  ""citations"": [""...""],
+  ""reasoning_summary"": ""...""
+}"

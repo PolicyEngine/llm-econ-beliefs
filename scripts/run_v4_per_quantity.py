@@ -16,20 +16,21 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
+from typing import Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from run_v4_full_panel import count_records
+from check_panel_grid import check_run_files, validate_grid_rows
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.experiment import (
@@ -60,6 +61,14 @@ PROVIDER_FOR_MODEL = {
     "claude-fable-5": "anthropic",
     "gemini-3.5-flash": "litellm",
     "grok-4.3": "litellm",
+    "deepseek-v4-pro": "litellm",
+    "qwen-3.7-max": "litellm",
+    "kimi-k2.6": "litellm",
+    "glm-5.2": "litellm",
+    "minimax-m3": "litellm",
+    "gpt-5.6-sol": "openai",
+    "gpt-5.6-luna": "openai",
+    "gpt-5.6-terra": "openai",
 }
 
 
@@ -135,10 +144,20 @@ def load_requests(path: Path) -> list[RequestLog]:
 
 
 def merge_per_quantity(
-    staging_root: Path, target_dir: Path, model_name: str, prompt_version: str
-) -> None:
-    """Gather per-quantity results into target_dir in canonical batch form."""
-    target_dir.mkdir(parents=True, exist_ok=True)
+    staging_root: Path,
+    target_dir: Path,
+    model_name: str,
+    prompt_version: str,
+    *,
+    expected_quantity_ids: Sequence[str] | None = None,
+    n_runs: int = 15,
+) -> bool:
+    """Validate staging and atomically publish canonical batch artifacts.
+
+    Production callers pass ``expected_quantity_ids`` so the exact grid is
+    checked before any target artifact is touched.  Returning ``False`` leaves
+    both the staging tree and the canonical target unchanged.
+    """
     all_records: list[RunResult] = []
     all_request_logs: list[RequestLog] = []
     next_request_index = 1
@@ -156,28 +175,134 @@ def merge_per_quantity(
 
     if not all_records:
         print("No records to merge.")
-        return
+        return False
 
-    quantity_ids = sorted({r.quantity_id for r in all_records})
+    quantity_ids = (
+        list(expected_quantity_ids)
+        if expected_quantity_ids is not None
+        else sorted({record.quantity_id for record in all_records})
+    )
+    if expected_quantity_ids is not None:
+        grid_result = validate_grid_rows(
+            (
+                {
+                    "model_name": record.model_name,
+                    "prompt_version": record.prompt_version,
+                    "quantity_id": record.quantity_id,
+                    "run_index": record.run_index,
+                    "parsed_ok": record.parsed_ok,
+                }
+                for record in all_records
+            ),
+            model_name=model_name,
+            prompt_version=prompt_version,
+            quantity_ids=quantity_ids,
+            n_runs=n_runs,
+        )
+        if not grid_result.ok:
+            print("Staging grid is incomplete or invalid; publication refused.")
+            for error in grid_result.errors:
+                print(f"  {error}")
+            return False
+
+    quantity_order = {
+        quantity_id: index for index, quantity_id in enumerate(quantity_ids)
+    }
+    all_records.sort(
+        key=lambda record: (
+            quantity_order.get(record.quantity_id, len(quantity_order)),
+            record.run_index,
+        )
+    )
     runs = build_run_grid(
         model_names=[model_name],
         quantity_ids=quantity_ids,
-        n_runs=15,
+        n_runs=n_runs,
         prompt_version=prompt_version,
         tool_regime="none",
     )
-    write_run_grid_csv(target_dir / "prompt_grid.csv", runs)
-    _write_jsonl(target_dir / "runs.jsonl", all_records)
-    _write_runs_csv(target_dir / "runs.csv", all_records)
-    if all_request_logs:
-        _write_jsonl(target_dir / "requests.jsonl", all_request_logs)
-        _write_requests_csv(target_dir / "requests.csv", all_request_logs)
     summaries = summarize_run_results(all_records, request_logs=all_request_logs)
-    _write_summary_csv(target_dir / "summary.csv", summaries)
+
+    # Materialize every artifact away from the canonical directory first.
+    # Each final os.replace is atomic. Existing artifacts are backed up before
+    # publication so an I/O failure partway through can roll the whole set back
+    # instead of leaving a mixed old/new canonical batch.
+    target_dir.parent.mkdir(parents=True, exist_ok=True)
+    temp_dir = Path(
+        tempfile.mkdtemp(
+            prefix=f".{target_dir.name}.publish-",
+            dir=target_dir.parent,
+        )
+    )
+    try:
+        artifacts = (
+            "prompt_grid.csv",
+            "runs.csv",
+            "requests.jsonl",
+            "requests.csv",
+            "summary.csv",
+            # Publish runs.jsonl last: it is the authoritative completeness
+            # artifact consumed by the exact-grid checker.
+            "runs.jsonl",
+        )
+        write_run_grid_csv(temp_dir / "prompt_grid.csv", runs)
+        _write_jsonl(temp_dir / "runs.jsonl", all_records)
+        _write_runs_csv(temp_dir / "runs.csv", all_records)
+        _write_jsonl(temp_dir / "requests.jsonl", all_request_logs)
+        _write_requests_csv(temp_dir / "requests.csv", all_request_logs)
+        _write_summary_csv(temp_dir / "summary.csv", summaries)
+        if not (temp_dir / "summary.csv").exists():
+            (temp_dir / "summary.csv").touch()
+
+        target_existed = target_dir.exists()
+        backup_dir = temp_dir / "backup"
+        backup_dir.mkdir()
+        if target_existed:
+            if not target_dir.is_dir():
+                print(f"Canonical target is not a directory: {target_dir}")
+                return False
+            for artifact in artifacts:
+                existing = target_dir / artifact
+                if existing.exists():
+                    shutil.copy2(existing, backup_dir / artifact)
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+        published: list[str] = []
+        try:
+            for artifact in artifacts:
+                os.replace(temp_dir / artifact, target_dir / artifact)
+                published.append(artifact)
+        except OSError as exc:
+            rollback_errors: list[str] = []
+            for artifact in reversed(published):
+                target = target_dir / artifact
+                backup = backup_dir / artifact
+                try:
+                    if backup.exists():
+                        os.replace(backup, target)
+                    else:
+                        target.unlink(missing_ok=True)
+                except OSError as rollback_exc:
+                    rollback_errors.append(f"{artifact}: {rollback_exc}")
+            if not target_existed:
+                try:
+                    target_dir.rmdir()
+                except OSError as rollback_exc:
+                    rollback_errors.append(f"target directory: {rollback_exc}")
+            if rollback_errors:
+                details = "; ".join(rollback_errors)
+                raise RuntimeError(
+                    f"Publication failed ({exc}); rollback also failed: {details}"
+                ) from exc
+            print(f"Publication failed and was rolled back: {exc}")
+            return False
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
     print(
         f"Merged {len(all_records)} records and {len(all_request_logs)} "
         f"request logs into {target_dir}"
     )
+    return True
 
 
 def main() -> int:
@@ -196,6 +321,10 @@ def main() -> int:
         help="discard any staged per-quantity results instead of resuming",
     )
     args = parser.parse_args()
+
+    if args.model not in PROVIDER_FOR_MODEL:
+        print(f"Unknown model: {args.model}", file=sys.stderr)
+        return 2
 
     if args.batch == "main":
         qids = [
@@ -223,11 +352,26 @@ def main() -> int:
     successes = 0
     for i, qid in enumerate(qids, 1):
         sub = staging_root / qid.replace(".", "_")
-        _, staged_total = count_records(sub, args.prompt_version)
-        if staged_total >= 15:
+        staged_records = load_runs(sub / "runs.jsonl")
+        staged_grid = validate_grid_rows(
+            (
+                {
+                    "model_name": record.model_name,
+                    "prompt_version": record.prompt_version,
+                    "quantity_id": record.quantity_id,
+                    "run_index": record.run_index,
+                }
+                for record in staged_records
+            ),
+            model_name=args.model,
+            prompt_version=args.prompt_version,
+            quantity_ids=[qid],
+            n_runs=15,
+        )
+        if staged_grid.ok:
             print(
                 f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid} "
-                f"SKIP ({staged_total} staged runs)"
+                "SKIP (exact staged grid)"
             )
             successes += 1
             continue
@@ -246,8 +390,38 @@ def main() -> int:
     elapsed = time.time() - start
     print(f"\nPer-quantity phase done: {successes}/{len(qids)} in {elapsed:.0f}s")
 
-    merge_per_quantity(staging_root, target_dir, args.model, args.prompt_version)
+    if successes != len(qids):
+        print(
+            "One or more quantity children failed; preserving staging and "
+            "leaving the canonical target untouched."
+        )
+        return 1
+
+    published = merge_per_quantity(
+        staging_root,
+        target_dir,
+        args.model,
+        args.prompt_version,
+        expected_quantity_ids=qids,
+        n_runs=15,
+    )
+    if not published:
+        print("Preserved staging; canonical target was not published.")
+        return 1
     shutil.rmtree(staging_root, ignore_errors=True)
+    parsed_grid = check_run_files(
+        [target_dir / "runs.jsonl"],
+        model_name=args.model,
+        prompt_version=args.prompt_version,
+        quantity_ids=qids,
+        n_runs=15,
+        require_parsed=True,
+    )
+    if not parsed_grid.ok:
+        print("Canonical grid contains unresolved runs.")
+        for error in parsed_grid.errors:
+            print(f"  {error}")
+        return 1
     return 0
 
 

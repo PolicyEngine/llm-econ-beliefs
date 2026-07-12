@@ -2,16 +2,16 @@ Note: Canonical elasticity subpanel only, sorted by cross-model spread in pooled
 
 | Quantity | Lowest model | Lowest center | Highest model | Highest center | Spread | Mean pooled 90% width | Spread / mean width |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Armington elasticity | Claude Haiku 4.5 | 1.5 | Claude Sonnet 5 | 3.18 | 1.68 | 5.312 | 0.316 |
-| Intertemporal elasticity of substitution | Claude Fable 5 | 0.5 | Gemini 3.1 Pro | 1.467 | 0.967 | 1.763 | 0.548 |
-| Capital gains realizations elasticity | GPT-5.4 mini | -0.93 | Gemini 3.5 Flash | 0.01 | 0.94 | 1.823 | 0.516 |
-| Employment participation elasticity of single mothers | GPT-5.4 nano | 0.213 | GPT-5.4 | 0.713 | 0.5 | 1.223 | 0.409 |
-| Coefficient of relative risk aversion | Claude Haiku 4.5 | 1.567 | Claude Fable 5 | 2 | 0.433 | 7.644 | 0.057 |
-| Frisch elasticity of labor supply | Claude Haiku 4.5 | 0.283 | GPT-5.4 nano | 0.593 | 0.31 | 1.261 | 0.246 |
-| Elasticity of substitution between capital and labor | Claude Opus 4.7 | 0.6 | GPT-5.4 mini | 0.883 | 0.283 | 1.017 | 0.278 |
-| Elasticity of taxable income | Gemini 3.1 Pro | 0.35 | GPT-5.4 nano | 0.552 | 0.202 | 0.995 | 0.203 |
-| TFP persistence | GPT-5.4 nano | 0.823 | Gemini 3.5 Flash | 0.955 | 0.132 | 0.202 | 0.653 |
-| Uncompensated wage elasticity of labor supply | Gemini 3.1 Pro | 0.04 | Grok 4.20 | 0.16 | 0.12 | 0.586 | 0.205 |
-| Income elasticity of labor supply | Grok 4.20 | -0.107 | Gemini 3.5 Flash | 0.011 | 0.118 | 0.351 | 0.335 |
-| Capital share in production | Claude Haiku 4.5 | 0.307 | Claude Fable 5 | 0.343 | 0.036 | 0.186 | 0.194 |
-| Annual discount factor | Grok 4.20 | 0.959 | Claude Sonnet 5 | 0.965 | 0.006 | 0.086 | 0.07 |
+| Armington elasticity | Qwen 3.7 Max | 1.433 | Claude Sonnet 5 | 3.18 | 1.747 | 5.336 | 0.327 |
+| Intertemporal elasticity of substitution | MiniMax M3 | 0.483 | Gemini 3.1 Pro | 1.467 | 0.983 | 1.768 | 0.556 |
+| Capital gains realizations elasticity | GPT-5.4 mini | -0.93 | Gemini 3.5 Flash | 0.01 | 0.94 | 1.951 | 0.482 |
+| Coefficient of relative risk aversion | Claude Haiku 4.5 | 1.567 | GLM-5.2 | 2.1 | 0.533 | 8.114 | 0.066 |
+| Employment participation elasticity of single mothers | GPT-5.4 nano | 0.213 | Qwen 3.7 Max | 0.717 | 0.503 | 1.248 | 0.403 |
+| Frisch elasticity of labor supply | Claude Haiku 4.5 | 0.283 | GPT-5.4 nano | 0.593 | 0.31 | 1.315 | 0.236 |
+| Elasticity of substitution between capital and labor | Qwen 3.7 Max | 0.593 | GPT-5.4 mini | 0.883 | 0.29 | 1.109 | 0.261 |
+| Elasticity of taxable income | Gemini 3.1 Pro | 0.35 | Qwen 3.7 Max | 0.554 | 0.204 | 1.065 | 0.192 |
+| TFP persistence | GPT-5.4 nano | 0.823 | GPT-5.6 Terra | 0.956 | 0.133 | 0.225 | 0.593 |
+| Uncompensated wage elasticity of labor supply | Gemini 3.1 Pro | 0.04 | GLM-5.2 | 0.167 | 0.127 | 0.609 | 0.208 |
+| Income elasticity of labor supply | Grok 4.20 | -0.107 | Gemini 3.5 Flash | 0.011 | 0.118 | 0.383 | 0.307 |
+| Capital share in production | Claude Haiku 4.5 | 0.307 | GPT-5.6 Luna | 0.355 | 0.048 | 0.201 | 0.239 |
+| Annual discount factor | Grok 4.20 | 0.959 | GPT-5.6 Terra | 0.982 | 0.023 | 0.087 | 0.261 |

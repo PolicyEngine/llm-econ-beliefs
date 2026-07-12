@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PageBand, ProvenanceFooter } from "@/components/site-chrome";
 import { StripPlot } from "@/components/strip-plot";
-import {
-  getModelLabel,
-  getProviderForModel,
-  PROVIDER_LABELS,
-} from "@/lib/model-meta";
+import { getModelLabel } from "@/lib/model-meta";
 import {
   buildModelProfile,
   getModelNameBySlug,
@@ -46,8 +42,8 @@ export default async function ModelPage({ params }: PageProps) {
   if (!modelName) notFound();
 
   const label = getModelLabel(modelName);
-  const provider = getProviderForModel(modelName);
   const profile = buildModelProfile(modelName);
+  const modelCount = orderedModelNames().length;
   const harness = loadHarnessRows().find(
     (row) => row.model.toLowerCase() === label.toLowerCase(),
   );
@@ -63,16 +59,15 @@ export default async function ModelPage({ params }: PageProps) {
         title={label}
         lede={
           <>
-            {provider ? PROVIDER_LABELS[provider] : "Unknown provider"} ·
-            elicited {profile.julyWave ? "July 2026" : "April 2026"} · average
+            {profile.organizationLabel} · elicited {profile.waveLabel} · average
             interval-width rank{" "}
             {profile.avgWidthRank !== null
-              ? `#${profile.avgWidthRank.toFixed(1)} of 17`
+              ? `#${profile.avgWidthRank.toFixed(1)} of ${modelCount}`
               : "—"}{" "}
             across the canonical panel ·{" "}
-            {profile.totalCostUsd > 0
+            {profile.totalCostUsd !== null
               ? `$${profile.totalCostUsd.toFixed(2)} total elicitation cost`
-              : "cost untracked"}
+              : "— (cost untracked)"}
             .
           </>
         }
@@ -99,7 +94,7 @@ export default async function ModelPage({ params }: PageProps) {
         >
           One row per canonical quantity, each on its own scale: this
           model&apos;s pooled center and 90 percent interval, with the
-          17-model panel median as a gray tick.
+          {modelCount}-model panel median as a gray tick.
         </p>
 
         <div

@@ -1,13 +1,13 @@
 Quantity,Lowest model,Lowest center,Highest model,Highest center,Spread,Mean pooled 90% width,Spread / mean width
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 7",Gemini 3.1 Flash-Lite,0.086,GPT-5.4 nano,0.623,0.537,0.601,0.894
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 8",Gemini 3.1 Flash-Lite,0.11,GPT-5.4 nano,0.609,0.499,0.619,0.805
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 6",Gemini 3.1 Flash-Lite,0.116,GPT-5.4 nano,0.59,0.474,0.6,0.79
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 5",Gemini 3 Flash,0.121,GPT-5.4 nano,0.593,0.473,0.608,0.778
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 10",Gemini 3.5 Flash,0.14,GPT-5.4 nano,0.603,0.463,0.667,0.694
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 9",Gemini 3.1 Flash-Lite,0.129,GPT-5.4 nano,0.587,0.458,0.664,0.689
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 3",Gemini 3.1 Flash-Lite,0.069,GPT-5.4 nano,0.52,0.451,0.608,0.742
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 4",Gemini 3.1 Flash-Lite,0.073,GPT-5.4 nano,0.465,0.391,0.599,0.654
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 1",Gemini 3.1 Flash-Lite,0.05,GPT-5.4 nano,0.343,0.293,0.62,0.473
-"Primary-earner substitution elasticity in a tax-benefit simulation, decile 2",Gemini 3.1 Flash-Lite,0.084,GPT-5.4 nano,0.376,0.292,0.621,0.47
-Secondary-earner substitution elasticity in a tax-benefit simulation,Gemini 3.5 Flash,0.29,Claude Sonnet 4.6,0.5,0.21,0.943,0.223
-Substitution elasticity of labor supply in a tax-benefit simulation,Gemini 3.1 Flash-Lite,0.153,GPT-5.4 nano,0.307,0.153,0.714,0.215
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 7",Gemini 3.1 Flash-Lite,0.086,GPT-5.4 nano,0.623,0.537,0.608,0.884
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 8",Gemini 3.1 Flash-Lite,0.11,GPT-5.4 nano,0.609,0.499,0.624,0.799
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 6",MiniMax M3,0.114,GPT-5.4 nano,0.59,0.476,0.597,0.798
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 5",Gemini 3 Flash,0.121,GPT-5.4 nano,0.593,0.473,0.618,0.764
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 10",Gemini 3.5 Flash,0.14,GPT-5.4 nano,0.603,0.463,0.66,0.702
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 9",Gemini 3.1 Flash-Lite,0.129,GPT-5.4 nano,0.587,0.458,0.647,0.708
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 3",Gemini 3.1 Flash-Lite,0.069,GPT-5.4 nano,0.52,0.451,0.602,0.749
+Secondary-earner substitution elasticity in a tax-benefit simulation,GPT-5.6 Sol,0.284,Qwen 3.7 Max,0.701,0.417,1.018,0.41
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 4",Gemini 3.1 Flash-Lite,0.073,GPT-5.4 nano,0.465,0.391,0.603,0.649
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 2",MiniMax M3,0.069,GPT-5.4 nano,0.376,0.307,0.61,0.504
+"Primary-earner substitution elasticity in a tax-benefit simulation, decile 1",Gemini 3.1 Flash-Lite,0.05,GPT-5.4 nano,0.343,0.293,0.631,0.465
+Substitution elasticity of labor supply in a tax-benefit simulation,Gemini 3.1 Flash-Lite,0.153,GPT-5.6 Terra,0.31,0.157,0.722,0.217

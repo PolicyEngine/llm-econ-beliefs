@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const quantity = getQuantityBySlug(slug);
   if (!quantity) return {};
+  const modelCount = getSummaryData().stats.modelCount;
   return {
     title: `${quantity.quantityName} · AI beliefs · PolicyEngine`,
-    description: `What 17 frontier language models answer for the ${quantity.quantityName.toLowerCase()}: pooled centers, 90 percent intervals, and all 255 run-level responses.`,
+    description: `What ${modelCount} frontier language models answer for the ${quantity.quantityName.toLowerCase()}: pooled centers, 90 percent intervals, and all ${15 * modelCount} run-level responses.`,
   };
 }
 

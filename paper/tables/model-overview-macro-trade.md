@@ -1,21 +1,29 @@
-Note: Canonical macro-and-trade subpanel only: 3 quantities x 17 models x 15 runs. Average ranks are computed within quantity using the absolute value of the pooled point estimate.
+Note: Canonical macro-and-trade subpanel only: 3 quantities x 25 models x 15 runs. Average ranks are computed within quantity using the absolute value of the pooled point estimate.
 
-| Model | Provider | Avg abs-elasticity rank (1=highest) | Avg predictive-uncertainty rank (1=narrowest) | Mean absolute pooled center | Mean pooled 90% width | Success rate | Cost / successful run |
+| Model | Organization | Avg abs-elasticity rank (1=highest) | Avg predictive-uncertainty rank (1=narrowest) | Mean absolute pooled center | Mean pooled 90% width | Success rate | Cost / successful run |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GPT-5.4 mini | OpenAI | 4.33 | 14.5 | 1.241 | 3.491 | 100.0% | $0.0009 |
-| Grok 4.3 | xAI | 4.5 | 15.67 | 1.509 | 3.887 | 100.0% | $0.0018 |
-| Grok 4.20 | xAI | 4.67 | 16 | 1.257 | 3.986 | 100.0% | $0.0089 |
-| GPT-5.4 nano | OpenAI | 5.67 | 10.67 | 1.256 | 2.696 | 100.0% | $0.0003 |
-| GPT-5.4 | OpenAI | 6 | 6.33 | 1.267 | 2.393 | 100.0% | $0.0033 |
-| Gemini 3.5 Flash | Google | 6.67 | 9.33 | 1.153 | 2.473 | 100.0% | $0.0104 |
-| Gemini 3.1 Pro | Google | 8 | 9 | 1.27 | 2.506 | 100.0% | $0.0091 |
-| Claude Sonnet 4.6 | Anthropic | 8.83 | 8.83 | 1.16 | 2.724 | 100.0% | $0.0109 |
-| Claude Sonnet 5 | Anthropic | 9.33 | 6.33 | 1.433 | 2.948 | 100.0% | $0.0064 |
-| GPT-5.5 | OpenAI | 10 | 10.67 | 1.121 | 2.918 | 100.0% | $0.0101 |
-| Gemini 3.1 Flash-Lite | Google | 10.33 | 7.33 | 1.164 | 2.943 | 100.0% | $0.0007 |
-| Claude Opus 4.8 | Anthropic | 10.83 | 6.17 | 1.167 | 2.737 | 100.0% | $0.0137 |
-| Grok 4.1 Fast | xAI | 11.5 | 8.17 | 0.907 | 1.785 | 100.0% | $0.0001 |
-| Claude Fable 5 | Anthropic | 12 | 6.33 | 1.041 | 2.127 | 100.0% | $0.0397 |
-| Gemini 3 Flash | Google | 12.33 | 8.67 | 0.94 | 2.632 | 100.0% | $0.0009 |
-| Claude Haiku 4.5 | Anthropic | 13.5 | 2 | 0.881 | 1.389 | 100.0% | $0.0031 |
-| Claude Opus 4.7 | Anthropic | 14.5 | 7 | 0.878 | 2.224 | 100.0% | $0.0211 |
+| Grok 4.3 | xAI | 5.17 | 21.33 | 1.509 | 3.887 | 100.0% | $0.0018 |
+| Grok 4.20 | xAI | 5.83 | 22.67 | 1.257 | 3.986 | 100.0% | $0.0089 |
+| GPT-5.4 nano | OpenAI | 6 | 15 | 1.256 | 2.696 | 100.0% | $0.0003 |
+| GPT-5.4 mini | OpenAI | 6 | 19.83 | 1.241 | 3.491 | 100.0% | $0.0009 |
+| GPT-5.6 Luna | OpenAI | 6 | 23.33 | 1.291 | 4.144 | 100.0% | — |
+| GPT-5.4 | OpenAI | 8.17 | 8 | 1.267 | 2.393 | 100.0% | $0.0033 |
+| Gemini 3.5 Flash | Google | 9 | 12.33 | 1.153 | 2.473 | 100.0% | $0.0104 |
+| Kimi K2.6 | Moonshot AI | 10 | 21 | 1.11 | 3.23 | 100.0% | — |
+| GPT-5.6 Sol | OpenAI | 11.33 | 15.33 | 1.107 | 2.904 | 100.0% | — |
+| GLM-5.2 | Zhipu AI | 11.33 | 16.33 | 1.102 | 3 | 100.0% | — |
+| Gemini 3.1 Pro | Google | 11.67 | 12.33 | 1.27 | 2.506 | 100.0% | $0.0091 |
+| Claude Sonnet 4.6 | Anthropic | 12 | 11.83 | 1.16 | 2.724 | 100.0% | $0.0109 |
+| GPT-5.5 | OpenAI | 13.17 | 14.33 | 1.121 | 2.918 | 100.0% | $0.0101 |
+| Claude Sonnet 5 | Anthropic | 13.5 | 9.33 | 1.433 | 2.948 | 100.0% | $0.0064 |
+| Gemini 3.1 Flash-Lite | Google | 14.83 | 10 | 1.164 | 2.943 | 100.0% | $0.0007 |
+| Claude Opus 4.8 | Anthropic | 15.67 | 8.83 | 1.167 | 2.737 | 100.0% | $0.0137 |
+| GPT-5.6 Terra | OpenAI | 16 | 6.67 | 1.056 | 2.03 | 100.0% | — |
+| Grok 4.1 Fast | xAI | 16.67 | 10.5 | 0.907 | 1.785 | 100.0% | $0.0001 |
+| DeepSeek V4 Pro | DeepSeek | 17 | 17.33 | 0.999 | 2.79 | 100.0% | — |
+| Claude Fable 5 | Anthropic | 17.67 | 7 | 1.041 | 2.127 | 100.0% | $0.0397 |
+| Gemini 3 Flash | Google | 18.17 | 11.33 | 0.94 | 2.632 | 100.0% | $0.0009 |
+| MiniMax M3 | MiniMax | 19.33 | 8.67 | 1.038 | 2.217 | 100.0% | — |
+| Qwen 3.7 Max | Alibaba | 19.33 | 11.33 | 0.884 | 2.269 | 100.0% | — |
+| Claude Haiku 4.5 | Anthropic | 19.83 | 2 | 0.881 | 1.389 | 100.0% | $0.0031 |
+| Claude Opus 4.7 | Anthropic | 21.33 | 8.33 | 0.878 | 2.224 | 100.0% | $0.0211 |
