@@ -40,21 +40,25 @@ export default function MethodsPage() {
             hierarchical estimators run alongside as robustness checks.
           </MethodBlock>
           <MethodBlock title="Panel">
-            17 frontier models across Anthropic, OpenAI, Google, and xAI —
-            11 elicited April 2026, 6 in July 2026 under identical prompts.
-            26 U.S.-scoped quantities: 9 headline elasticities in two
-            subpanels, 4 calibration parameters, a capital-gains convention
-            sibling, and 12 simulation-facing coefficients. 6,630 successful
-            runs at a 100 percent parse rate; 58 July slots (2.3 percent of
-            that wave) failed on infrastructure errors and re-ran as fresh
-            draws, each traced in the{" "}
+            25 models from nine organizations — Anthropic, OpenAI, Google,
+            xAI, DeepSeek, Alibaba, Moonshot AI, Zhipu AI, and MiniMax —
+            elicited in four waves: 11 in April 2026 and 14 in July 2026
+            (six frontier updates, five Chinese-lab models, and the GPT-5.6
+            family), all under identical prompts. 26 U.S.-scoped quantities:
+            9 headline elasticities in two subpanels, 4 calibration
+            parameters, a capital-gains convention sibling, and 12
+            simulation-facing coefficients. 9,750 successful runs at a 100
+            percent parse rate, with every cell verified against the exact
+            15-run grid; failed slots re-ran as fresh independent draws,
+            each traced in the{" "}
             <a
               className="underline underline-offset-2"
               href="https://github.com/PolicyEngine/llm-econ-beliefs/blob/main/results/failure-manifest.csv"
             >
               failure manifest
-            </a>
-            .
+            </a>{" "}
+            (58 July frontier slots) or in per-directory recovery archives
+            (4,168 records across the Chinese-lab wave).
           </MethodBlock>
           <MethodBlock title="Reproduce it">
             Every table rebuilds from the committed artifacts without API
