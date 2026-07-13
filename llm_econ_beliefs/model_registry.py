@@ -382,10 +382,17 @@ def write_model_registry_csv(path: Path | None = None) -> Path:
     target = path or default_registry_csv_path()
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_name(f".{target.name}.tmp")
+    # Display labels ride along so downstream consumers (the dashboard)
+    # never re-encode them by hand.
+    fieldnames = (*CSV_FIELDNAMES, "organization_label", "wave_label")
     with temporary.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_FIELDNAMES)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(asdict(model) for model in MODEL_REGISTRY)
+        for model in MODEL_REGISTRY:
+            row = asdict(model)
+            row["organization_label"] = ORGANIZATION_DISPLAY_LABELS[model.organization]
+            row["wave_label"] = WAVE_DISPLAY_LABELS[model.wave]
+            writer.writerow(row)
     os.replace(temporary, target)
     return target
 

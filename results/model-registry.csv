@@ -1,26 +1,26 @@
-model_id,display_label,organization,serving_provider_path,model_family,wave
-gpt-5.4,GPT-5.4,openai,openai_chat_completions,gpt,april_2026
-gpt-5.4-mini,GPT-5.4 mini,openai,openai_chat_completions,gpt,april_2026
-gpt-5.4-nano,GPT-5.4 nano,openai,openai_chat_completions,gpt,april_2026
-claude-opus-4.7,Claude Opus 4.7,anthropic,litellm_completion,claude,april_2026
-claude-sonnet-4.6,Claude Sonnet 4.6,anthropic,litellm_completion,claude,april_2026
-claude-haiku-4.5,Claude Haiku 4.5,anthropic,litellm_completion,claude,april_2026
-gemini-3.1-pro-preview,Gemini 3.1 Pro,google,litellm_completion,gemini,april_2026
-gemini-3-flash-preview,Gemini 3 Flash,google,litellm_completion,gemini,april_2026
-gemini-3.1-flash-lite-preview,Gemini 3.1 Flash-Lite,google,litellm_completion,gemini,april_2026
-grok-4.20,Grok 4.20,xai,litellm_completion,grok,april_2026
-grok-4.1-fast,Grok 4.1 Fast,xai,litellm_completion,grok,april_2026
-gpt-5.5,GPT-5.5,openai,openai_chat_completions,gpt,july_2026_frontier
-claude-fable-5,Claude Fable 5,anthropic,anthropic_native,claude,july_2026_frontier
-claude-opus-4.8,Claude Opus 4.8,anthropic,anthropic_native,claude,july_2026_frontier
-claude-sonnet-5,Claude Sonnet 5,anthropic,anthropic_native,claude,july_2026_frontier
-gemini-3.5-flash,Gemini 3.5 Flash,google,litellm_completion,gemini,july_2026_frontier
-grok-4.3,Grok 4.3,xai,litellm_completion,grok,july_2026_frontier
-deepseek-v4-pro,DeepSeek V4 Pro,deepseek,openrouter_via_litellm,deepseek,july_2026_independent
-qwen-3.7-max,Qwen 3.7 Max,alibaba,openrouter_via_litellm,qwen,july_2026_independent
-kimi-k2.6,Kimi K2.6,moonshot,openrouter_via_litellm,kimi,july_2026_independent
-glm-5.2,GLM-5.2,zhipu,openrouter_via_litellm,glm,july_2026_independent
-minimax-m3,MiniMax M3,minimax,openrouter_via_litellm,minimax,july_2026_independent
-gpt-5.6-sol,GPT-5.6 Sol,openai,openai_chat_completions,gpt,july_2026_gpt56
-gpt-5.6-luna,GPT-5.6 Luna,openai,openai_chat_completions,gpt,july_2026_gpt56
-gpt-5.6-terra,GPT-5.6 Terra,openai,openai_chat_completions,gpt,july_2026_gpt56
+model_id,display_label,organization,serving_provider_path,model_family,wave,organization_label,wave_label
+gpt-5.4,GPT-5.4,openai,openai_chat_completions,gpt,april_2026,OpenAI,April 2026
+gpt-5.4-mini,GPT-5.4 mini,openai,openai_chat_completions,gpt,april_2026,OpenAI,April 2026
+gpt-5.4-nano,GPT-5.4 nano,openai,openai_chat_completions,gpt,april_2026,OpenAI,April 2026
+claude-opus-4.7,Claude Opus 4.7,anthropic,litellm_completion,claude,april_2026,Anthropic,April 2026
+claude-sonnet-4.6,Claude Sonnet 4.6,anthropic,litellm_completion,claude,april_2026,Anthropic,April 2026
+claude-haiku-4.5,Claude Haiku 4.5,anthropic,litellm_completion,claude,april_2026,Anthropic,April 2026
+gemini-3.1-pro-preview,Gemini 3.1 Pro,google,litellm_completion,gemini,april_2026,Google,April 2026
+gemini-3-flash-preview,Gemini 3 Flash,google,litellm_completion,gemini,april_2026,Google,April 2026
+gemini-3.1-flash-lite-preview,Gemini 3.1 Flash-Lite,google,litellm_completion,gemini,april_2026,Google,April 2026
+grok-4.20,Grok 4.20,xai,litellm_completion,grok,april_2026,xAI,April 2026
+grok-4.1-fast,Grok 4.1 Fast,xai,litellm_completion,grok,april_2026,xAI,April 2026
+gpt-5.5,GPT-5.5,openai,openai_chat_completions,gpt,july_2026_frontier,OpenAI,July 2026 frontier
+claude-fable-5,Claude Fable 5,anthropic,anthropic_native,claude,july_2026_frontier,Anthropic,July 2026 frontier
+claude-opus-4.8,Claude Opus 4.8,anthropic,anthropic_native,claude,july_2026_frontier,Anthropic,July 2026 frontier
+claude-sonnet-5,Claude Sonnet 5,anthropic,anthropic_native,claude,july_2026_frontier,Anthropic,July 2026 frontier
+gemini-3.5-flash,Gemini 3.5 Flash,google,litellm_completion,gemini,july_2026_frontier,Google,July 2026 frontier
+grok-4.3,Grok 4.3,xai,litellm_completion,grok,july_2026_frontier,xAI,July 2026 frontier
+deepseek-v4-pro,DeepSeek V4 Pro,deepseek,openrouter_via_litellm,deepseek,july_2026_independent,DeepSeek,July 2026 independent labs
+qwen-3.7-max,Qwen 3.7 Max,alibaba,openrouter_via_litellm,qwen,july_2026_independent,Alibaba,July 2026 independent labs
+kimi-k2.6,Kimi K2.6,moonshot,openrouter_via_litellm,kimi,july_2026_independent,Moonshot AI,July 2026 independent labs
+glm-5.2,GLM-5.2,zhipu,openrouter_via_litellm,glm,july_2026_independent,Zhipu AI,July 2026 independent labs
+minimax-m3,MiniMax M3,minimax,openrouter_via_litellm,minimax,july_2026_independent,MiniMax,July 2026 independent labs
+gpt-5.6-sol,GPT-5.6 Sol,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6
+gpt-5.6-luna,GPT-5.6 Luna,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6
+gpt-5.6-terra,GPT-5.6 Terra,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6

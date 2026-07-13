@@ -23,26 +23,9 @@ const MODEL_REGISTRY_FIELDS = [
   "serving_provider_path",
   "model_family",
   "wave",
+  "organization_label",
+  "wave_label",
 ] as const;
-
-const ORGANIZATION_LABELS: Record<string, string> = {
-  anthropic: "Anthropic",
-  openai: "OpenAI",
-  google: "Google",
-  xai: "xAI",
-  deepseek: "DeepSeek",
-  alibaba: "Alibaba",
-  moonshot: "Moonshot AI",
-  zhipu: "Zhipu AI",
-  minimax: "MiniMax",
-};
-
-const WAVE_LABELS: Record<string, string> = {
-  april_2026: "April 2026",
-  july_2026_frontier: "July 2026 frontier",
-  july_2026_independent: "July 2026 independent labs",
-  july_2026_gpt56: "July 2026 GPT-5.6",
-};
 
 export interface ModelRegistryRow {
   modelId: string;
@@ -51,6 +34,8 @@ export interface ModelRegistryRow {
   servingProviderPath: string;
   modelFamily: string;
   wave: string;
+  organizationLabel: string;
+  waveLabel: string;
 }
 
 function readRequiredCsv(csvPath: string, artifactName: string): Record<string, string>[] {
@@ -96,11 +81,6 @@ export function loadModelRegistry(
     if (registry.has(modelId)) {
       throw new Error(`model-registry.csv has duplicate model_id: ${modelId}`);
     }
-    if (!ORGANIZATION_LABELS[row.organization] || !WAVE_LABELS[row.wave]) {
-      throw new Error(
-        `model-registry.csv has unknown organization/wave for ${modelId}: ${row.organization}/${row.wave}`,
-      );
-    }
     registry.set(modelId, {
       modelId,
       displayLabel: row.display_label.trim(),
@@ -108,6 +88,8 @@ export function loadModelRegistry(
       servingProviderPath: row.serving_provider_path.trim(),
       modelFamily: row.model_family.trim(),
       wave: row.wave.trim(),
+      organizationLabel: row.organization_label.trim(),
+      waveLabel: row.wave_label.trim(),
     });
   }
   return registry;
@@ -509,8 +491,8 @@ export function buildModelProfile(modelName: string): {
     avgWidthRank,
     totalCostUsd,
     metadata,
-    organizationLabel: ORGANIZATION_LABELS[metadata.organization],
-    waveLabel: WAVE_LABELS[metadata.wave],
+    organizationLabel: metadata.organizationLabel,
+    waveLabel: metadata.waveLabel,
   };
 }
 

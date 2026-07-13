@@ -10,9 +10,11 @@ import pytest
 from paper import build_tables as paper_build_tables
 from llm_econ_beliefs.model_registry import (
     MODEL_REGISTRY,
+    ORGANIZATION_DISPLAY_LABELS,
     ORGANIZATIONS,
     PANEL_MODEL_IDS,
     SERVING_PROVIDER_PATHS,
+    WAVE_DISPLAY_LABELS,
     WAVES,
     write_model_registry_csv,
 )
@@ -56,6 +58,8 @@ def test_registry_has_exact_taxonomy_and_round_trips_to_csv(tmp_path: Path) -> N
         "serving_provider_path",
         "model_family",
         "wave",
+        "organization_label",
+        "wave_label",
     )
     assert [row["model_id"] for row in rows] == list(PANEL_MODEL_IDS)
     assert rows[0] == {
@@ -65,6 +69,10 @@ def test_registry_has_exact_taxonomy_and_round_trips_to_csv(tmp_path: Path) -> N
         "serving_provider_path": MODEL_REGISTRY[0].serving_provider_path,
         "model_family": MODEL_REGISTRY[0].model_family,
         "wave": MODEL_REGISTRY[0].wave,
+        "organization_label": ORGANIZATION_DISPLAY_LABELS[
+            MODEL_REGISTRY[0].organization
+        ],
+        "wave_label": WAVE_DISPLAY_LABELS[MODEL_REGISTRY[0].wave],
     }
 
 
