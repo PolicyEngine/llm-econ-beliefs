@@ -2148,10 +2148,47 @@ HARNESS_DISCLOSURE_ROWS: list[dict[str, str]] = [
     {"model": "deepseek-v4-pro", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/deepseek/deepseek-v4-pro", "id_type": "alias"},
     {"model": "qwen-3.7-max", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/qwen/qwen3.7-max", "id_type": "alias"},
     {"model": "kimi-k2.6", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/moonshotai/kimi-k2.6", "id_type": "alias"},
-    {"model": "glm-5.2", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/z-ai/glm-5.2", "id_type": "alias"},
+    {"model": "glm-5.2", "mechanism": "forced JSON object (schema validated locally)", "budget": "16000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/z-ai/glm-5.2", "id_type": "alias"},
     {"model": "minimax-m3", "mechanism": "forced JSON object (schema validated locally)", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default", "identifier": "openrouter/minimax/minimax-m3", "id_type": "alias"},
     {"model": "grok-4.1-fast", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "non-reasoning variant", "identifier": "xai/grok-4-1-fast-non-reasoning", "id_type": "alias"},
 ]
+
+
+def _canonical_completion_budget(row: dict[str, str]) -> int:
+    """Resolve the budget the harness would use for this row's serving path."""
+    from llm_econ_beliefs.providers import (
+        ANTHROPIC_MAX_OUTPUT_TOKENS,
+        ANTHROPIC_MODEL_ALIASES,
+        LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL,
+        OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL,
+    )
+
+    model = row["model"]
+    if row["mechanism"] == "strict JSON schema":
+        if model in ANTHROPIC_MODEL_ALIASES:
+            return ANTHROPIC_MAX_OUTPUT_TOKENS
+        return OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL.get(model, 1200)
+    return LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL.get(model, 1200)
+
+
+def _validate_harness_budgets() -> None:
+    """The disclosed budget must include the canonical harness budget.
+
+    Rows may document historical protocols alongside it (gpt-5.5 discloses
+    both the 1200-token main pass and the 8000-token re-elicitation), so the
+    check is membership over the integers in the budget field, not equality.
+    """
+    for row in HARNESS_DISCLOSURE_ROWS:
+        disclosed = {int(tok) for tok in re.findall(r"\d+", row["budget"])}
+        canonical = _canonical_completion_budget(row)
+        if canonical not in disclosed:
+            raise ValueError(
+                f"harness disclosure for {row['model']} lists budget "
+                f"{sorted(disclosed)} but providers.py resolves {canonical}"
+            )
+
+
+_validate_harness_budgets()
 
 
 def build_harness_disclosure_table() -> list[dict[str, object]]:
