@@ -164,7 +164,15 @@ def main() -> int:
     macro_trade_overview = build_model_overview_table(macro_trade_rows)
     labor_tax_benchmarks = build_benchmark_table(labor_tax_rows)
     top_rate_calibration = estimate_policyengine_top_tail_pareto_parameter()
-    write_top_rate_calibration(top_rate_calibration)
+    if math.isfinite(top_rate_calibration["threshold"]):
+        write_top_rate_calibration(top_rate_calibration)
+    else:
+        print(
+            "WARNING: fallback calibration in effect — leaving the committed "
+            "results/top-rate-calibration.json untouched so build_correlates "
+            "keeps the microdata values.",
+            file=sys.stderr,
+        )
     top_rate_mapping = build_top_rate_table(
         labor_tax_rows,
         pareto_parameter=top_rate_calibration["a"],
@@ -491,12 +499,17 @@ def main() -> int:
             rows=country_rows,
             note=(
                 "US-lab versus Chinese-lab medians with exact group-label "
-                "permutation p-values on the difference in medians. "
-                "Exploratory: lab country is perfectly confounded with the "
-                "serving path (every Chinese-lab model ran through OpenRouter "
-                "JSON mode) and with elicitation wave, prompts are "
-                "English-language, and the group sizes (5 versus 20) put a "
-                "floor near 0.02-0.05 on attainable p-values."
+                "permutation p-values on the difference in medians, and Holm "
+                "and Benjamini-Hochberg adjustment over the four-outcome "
+                "family (* = the top-rate row is a derived transform of the "
+                "ETI row and mirrors its adjusted values rather than "
+                "entering the family). Exploratory: lab country is perfectly "
+                "confounded with the serving path (every Chinese-lab model "
+                "ran through OpenRouter JSON mode) and with elicitation "
+                "wave, and co-varies with completion budget and reasoning "
+                "configuration; prompts are English-language, and the group "
+                "sizes (5 versus 20) put a floor near 0.02-0.05 on "
+                "attainable p-values."
             ),
         )
 
@@ -1402,6 +1415,7 @@ def build_country_table() -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     with path.open() as handle:
         for row in csv.DictReader(handle):
+            derived = row.get("is_derived", "").strip().lower() == "true"
             rows.append(
                 {
                     "Outcome": row["outcome"],
@@ -1411,6 +1425,16 @@ def build_country_table() -> list[dict[str, object]]:
                     ),
                     "China - US": f"{float(row['china_minus_us']):+.3f}",
                     "Permutation p": f"{float(row['permutation_p']):.3f}",
+                    "Holm p": (
+                        f"{float(row['holm_adjusted_p']):.3f}" + ("*" if derived else "")
+                        if row.get("holm_adjusted_p")
+                        else "—"
+                    ),
+                    "BH p": (
+                        f"{float(row['bh_adjusted_p']):.3f}" + ("*" if derived else "")
+                        if row.get("bh_adjusted_p")
+                        else "—"
+                    ),
                 }
             )
     return rows

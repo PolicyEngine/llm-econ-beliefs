@@ -909,17 +909,23 @@ def _write_csv(path: Path, rows: Sequence[dict[str, object]]) -> None:
 
 
 COUNTRY_OUTCOMES = [
-    ("tau_star_pct", "Implied optimal top rate (%)"),
-    ("eti_median", "ETI pooled median"),
-    ("avg_width_rank", "Avg interval-width rank (1 = tightest)"),
-    ("mean_abs_center_labor_tax", "Mean |center|, labor-and-tax"),
-    ("mean_abs_center_macro_trade", "Mean |center|, macro-and-trade"),
+    # (summary key, label, is_derived) — the top-rate row is a monotone
+    # transform of the ETI row, so it tests the same hypothesis and stays
+    # outside the adjusted family, mirroring the capability cut.
+    ("tau_star_pct", "Implied optimal top rate (%)", True),
+    ("eti_median", "ETI pooled median", False),
+    ("avg_width_rank", "Avg interval-width rank (1 = tightest)", False),
+    ("mean_abs_center_labor_tax", "Mean |center|, labor-and-tax", False),
+    ("mean_abs_center_macro_trade", "Mean |center|, macro-and-trade", False),
 ]
+
+COUNTRY_PRIMARY_OUTCOME_LABEL = "ETI pooled median"
 
 COUNTRY_DISCLOSURE = (
     "Exploratory. Lab country is perfectly confounded with serving path "
     "(every Chinese lab ran via OpenRouter JSON mode) and elicitation "
-    "wave; prompts are English-language."
+    "wave, and co-varies with completion budget and reasoning "
+    "configuration; prompts are English-language."
 )
 
 
@@ -978,7 +984,7 @@ def build_country_comparison_rows(
     from llm_econ_beliefs.model_registry import country_for_organization
 
     rows: list[dict[str, object]] = []
-    for key, label in COUNTRY_OUTCOMES:
+    for key, label, is_derived in COUNTRY_OUTCOMES:
         groups: dict[str, list[float]] = {"us": [], "china": []}
         for row in summary_rows:
             value = row.get(key)
@@ -1001,9 +1007,33 @@ def build_country_comparison_rows(
                 "permutation_p": round(
                     country_permutation_p(groups["us"], groups["china"]), 4
                 ),
+                "holm_adjusted_p": None,
+                "bh_adjusted_p": None,
+                "family_size": None,
+                "is_derived": is_derived,
                 "disclosure": COUNTRY_DISCLOSURE,
             }
         )
+
+    # Same multiplicity standard as the capability cut: Holm/BH over the
+    # tested outcomes, with the derived top-rate row mirroring the ETI
+    # row's adjusted values (they state one hypothesis, not two).
+    tested = [i for i, row in enumerate(rows) if not bool(row["is_derived"])]
+    pvalues = [float(rows[i]["permutation_p"]) for i in tested]
+    holm = holm_adjusted_pvalues(pvalues)
+    bh = bh_adjusted_pvalues(pvalues)
+    for position, index in enumerate(tested):
+        rows[index]["holm_adjusted_p"] = round(holm[position], 4)
+        rows[index]["bh_adjusted_p"] = round(bh[position], 4)
+        rows[index]["family_size"] = len(tested)
+    eti_row = next(
+        row for row in rows if row["outcome"] == COUNTRY_PRIMARY_OUTCOME_LABEL
+    )
+    for row in rows:
+        if row["is_derived"]:
+            row["holm_adjusted_p"] = eti_row["holm_adjusted_p"]
+            row["bh_adjusted_p"] = eti_row["bh_adjusted_p"]
+            row["family_size"] = eti_row["family_size"]
     return rows
 
 

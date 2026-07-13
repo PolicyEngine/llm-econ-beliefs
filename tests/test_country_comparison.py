@@ -67,6 +67,29 @@ def test_country_comparison_medians_and_diff():
     assert tau_row["china_minus_us"] == 8.0
     assert 0.0 <= float(tau_row["permutation_p"]) <= 1.0
     assert "confounded" in str(tau_row["disclosure"])
+    assert "completion budget" in str(tau_row["disclosure"])
+
+
+def test_country_multiplicity_mirrors_capability_cut():
+    rows = [
+        _summary_row("gpt-a", "openai", 30.0),
+        _summary_row("gpt-b", "openai", 34.0),
+        _summary_row("claude-a", "anthropic", 38.0),
+        _summary_row("kimi-a", "moonshot", 40.0),
+        _summary_row("glm-a", "zhipu", 44.0),
+    ]
+    result = build_country_comparison_rows(rows)
+    tau_row = next(r for r in result if "top rate" in str(r["outcome"]))
+    eti_row = next(r for r in result if r["outcome"] == "ETI pooled median")
+    tested = [r for r in result if not r["is_derived"]]
+    assert tau_row["is_derived"] is True
+    assert all(r["family_size"] == len(tested) for r in tested)
+    # The derived top-rate row mirrors ETI's adjusted values (one hypothesis).
+    assert tau_row["holm_adjusted_p"] == eti_row["holm_adjusted_p"]
+    assert tau_row["bh_adjusted_p"] == eti_row["bh_adjusted_p"]
+    for row in tested:
+        assert float(row["holm_adjusted_p"]) >= float(row["permutation_p"]) - 1e-12
+        assert float(row["bh_adjusted_p"]) >= float(row["permutation_p"]) - 1e-12
 
 
 def test_permutation_p_is_one_for_identical_groups():

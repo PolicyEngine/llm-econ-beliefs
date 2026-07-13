@@ -183,21 +183,35 @@ Two reproduction paths are supported.
 
 ### (a) From cached results
 
-Use the artifacts already committed under `results/` to rebuild all
-paper tables and verify the test suite. This incurs no provider API
-cost and runs in seconds.
+Use the artifacts already committed under `results/` to rebuild the
+analysis layer and all paper tables, then verify the test suite and
+prose pins. This incurs no provider API cost.
 
 ```bash
 python3 -m pytest
+python3 scripts/build_correlates.py
 cd paper && PYTHONPATH=$(pwd)/.. python3 build_tables.py
+cd .. && python3 scripts/verify_paper_prose.py
 ```
+
+The canonical order matters: `build_tables.py` writes the microdata
+calibration to `results/top-rate-calibration.json`, which
+`scripts/build_correlates.py` consumes to regenerate
+`results/correlates-*.csv`, which `build_tables.py` in turn reformats
+into `paper/tables/`. Starting from the committed artifacts, the
+sequence above is a fixed point — `git status` stays clean — and
+`verify_paper_prose.py` then asserts every pinned number in
+`paper/paper.qmd` against the regenerated tables.
 
 Two tables (Table 4 and Appendix A13) calibrate a Pareto tail from
 PolicyEngine US microdata. Point `POLICYENGINE_US_REPO` at a
 policyengine-us checkout with an installed `.venv` (or set
 `POLICYENGINE_US_PYTHON` to its interpreter) to reproduce the
 committed `a = 1.621` build; without it, `build_tables.py` prints a
-loud warning and falls back to `a = 1.5` for those two tables only.
+loud warning, uses the fallback `a = 1.5` for those two tables only,
+and leaves the committed `results/top-rate-calibration.json`
+untouched so `build_correlates.py` keeps working from the microdata
+values.
 
 ### (b) Re-elicit from scratch
 
