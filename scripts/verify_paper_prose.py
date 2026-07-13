@@ -266,16 +266,162 @@ def verify_ablation() -> None:
 
 
 def verify_harness_disclosure() -> None:
+    sys.path.insert(0, str(REPO_ROOT))
+    from llm_econ_beliefs.providers import (  # noqa: E402
+        ANTHROPIC_MAX_OUTPUT_TOKENS,
+        LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL,
+        OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL,
+    )
+
     rows = read_rows("harness-disclosure")
     budget_col = next(c for c in rows[0] if "budget" in c.lower())
     model_col = next(iter(rows[0]))
-    gpt55 = next(
-        r for r in rows if r[model_col].strip("`").lower() == "gpt-5.5"
-    )
+
+    def row_for(model_id: str) -> dict[str, str] | None:
+        for row in rows:
+            label = row[model_col].strip("`").lower().replace(" ", "-")
+            if label == model_id:
+                return row
+        return None
+
+    gpt55 = row_for("gpt-5.5")
     check(
         "gpt-5.5 budget discloses 1200 base",
-        "1200" in gpt55[budget_col] and "8000" in gpt55[budget_col],
-        f"got {gpt55[budget_col]!r}",
+        gpt55 is not None
+        and "1200" in gpt55[budget_col]
+        and "8000" in gpt55[budget_col],
+        f"got {gpt55 and gpt55[budget_col]!r}",
+    )
+
+    # Every model with a canonical budget in providers.py must disclose that
+    # budget in A16 (rows may also document historical protocols, so the
+    # check is membership, not equality). Catches drift like the GLM-5.2
+    # 16000-token rerun landing in providers.py but not the table.
+    canonical = dict(LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL)
+    canonical.update(OPENAI_MAX_COMPLETION_TOKENS_BY_MODEL)
+    canonical.update(
+        {
+            model_id: ANTHROPIC_MAX_OUTPUT_TOKENS
+            for model_id in ("claude-fable-5", "claude-opus-4.8", "claude-sonnet-5")
+        }
+    )
+    for model_id, budget in sorted(canonical.items()):
+        row = row_for(model_id)
+        disclosed = set(re.findall(r"\d+", row[budget_col])) if row else set()
+        check(
+            f"A16 budget for {model_id} includes {budget}",
+            row is not None and str(budget) in disclosed,
+            f"got {sorted(disclosed)}",
+        )
+
+
+def verify_resampling_range() -> None:
+    rows = read_rows("resampling-stability")
+    ses = [
+        float(r["Median relative width MC SE"].rstrip("%").strip())
+        for r in rows
+    ]
+    low, high = min(ses), max(ses)
+    claim = f"run `{low:.0f}` to `{high:.0f}` percent"
+    count = PAPER.count(claim)
+    check(
+        "A14 width-SE range in both prose mentions",
+        count == 2,
+        f"expected 2 occurrences of {claim!r}, found {count}",
+    )
+
+
+def verify_rank_spread_tie() -> None:
+    rows = read_rows("pooling-robustness-appendix")
+    col = "Max rank spread"
+    top = max(float(r[col]) for r in rows)
+    tied = [r["Model"] for r in rows if float(r[col]) == top]
+    sentence = sentence_with("largest rank spread is")
+    roster = [r["Model"] for r in rows]
+    check(
+        "A2 largest rank spread names every tied model",
+        f"`{top}` positions" in sentence
+        and names_present(sentence, tied, roster),
+        f"expected {top} for {tied}",
+    )
+
+
+def verify_correlates() -> None:
+    """Pin the correlates-and-country section to results/correlates-*.csv."""
+    results = REPO_ROOT / "results"
+
+    with (results / "correlates-spearman.csv").open() as handle:
+        spearman = list(csv.DictReader(handle))
+    eti_rows = {
+        r["predictor"]: r for r in spearman if r["outcome"] == "ETI pooled median"
+    }
+    overall = next(v for k, v in eti_rows.items() if k.startswith("Overall"))
+    tax = next(v for k, v in eti_rows.items() if k.startswith("Tax"))
+    claim = (
+        f"$\\rho = {float(overall['spearman_rho']):.2f}$"
+        f" and ${float(tax['spearman_rho']):.2f}$"
+    )
+    check(
+        "capability rho per predictor in prose",
+        len(eti_rows) == 2
+        and claim in PAPER
+        and "$\\rho \\approx -0.5$" in PAPER
+        and all(r["n_models"] == "22" for r in eti_rows.values())
+        and all(0.015 <= float(r["raw_p"]) < 0.025 for r in eti_rows.values()),
+        f"expected {claim!r}; got "
+        f"{[(r['spearman_rho'], r['raw_p'], r['n_models']) for r in eti_rows.values()]}",
+    )
+    min_holm = min(float(r["holm_adjusted_p"]) for r in spearman)
+    min_bh = min(float(r["bh_adjusted_p"]) for r in spearman)
+    check(
+        "Holm and BH minima in prose",
+        f"`{min_holm:.3f}`" in PAPER and f"`{min_bh:.3f}`" in PAPER,
+        f"expected {min_holm:.3f} and {min_bh:.3f}",
+    )
+
+    with (results / "correlates-sensitivity.csv").open() as handle:
+        sensitivity = list(csv.DictReader(handle))
+    loo = [
+        float(r["spearman_rho"])
+        for r in sensitivity
+        if r["analysis"] == "leave_one_organization_out"
+        and r["predictor"].startswith("Overall")
+    ]
+    check(
+        "LOO-organization rho range in prose",
+        len(loo) == 9
+        and f"between `{max(loo):.2f}` and `{min(loo):.2f}`" in PAPER,
+        f"expected between {max(loo):.2f} and {min(loo):.2f} over {len(loo)}",
+    )
+
+    with (results / "correlates-country.csv").open() as handle:
+        country = {r["outcome"]: r for r in csv.DictReader(handle)}
+    tau = country["Implied optimal top rate (%)"]
+    eti = country["ETI pooled median"]
+    width = country["Avg interval-width rank (1 = tightest)"]
+    check(
+        "country top-rate medians and p",
+        f"`{float(tau['china_median']):.1f}%` versus `{float(tau['us_median']):.1f}%`" in PAPER
+        and f"$p = {float(tau['permutation_p']):.3f}$" in PAPER
+        and tau["us_n"] == "20"
+        and tau["china_n"] == "5",
+        f"got {tau['china_median']} vs {tau['us_median']}, p {tau['permutation_p']}",
+    )
+    check(
+        "country ETI medians and p",
+        f"`{float(eti['china_median']):.3f}` versus `{float(eti['us_median']):.3f}`" in PAPER
+        and f"$p = {float(eti['permutation_p']):.3f}$" in PAPER,
+        f"got {eti['china_median']} vs {eti['us_median']}, p {eti['permutation_p']}",
+    )
+    check(
+        "country width-rank medians and p",
+        f"`{float(width['china_median']):.1f}` versus `{float(width['us_median']):.1f}`" in PAPER
+        and f"$p = {float(width['permutation_p']):.3f}$" in PAPER,
+        f"got {width['china_median']} vs {width['us_median']}, p {width['permutation_p']}",
+    )
+    check(
+        "country rows disclose the confound",
+        all("confounded" in r["disclosure"] for r in country.values()),
     )
 
 
@@ -309,6 +455,9 @@ def main() -> int:
     verify_variance_decomposition()
     verify_ablation()
     verify_harness_disclosure()
+    verify_resampling_range()
+    verify_rank_spread_tie()
+    verify_correlates()
     verify_income_sign_counts()
     if FAILURES:
         print(f"\n{len(FAILURES)} check(s) failed")
