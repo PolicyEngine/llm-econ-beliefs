@@ -605,6 +605,19 @@ def verify_resampling_panel_median() -> None:
     )
 
 
+def verify_policybench_release_pin() -> None:
+    """The release named in prose must match the scores CSV's source."""
+    with (REPO_ROOT / "results" / "policybench-scores.csv").open() as handle:
+        releases = {r["source_release"] for r in csv.DictReader(handle)}
+    check("scores CSV pins a single release", len(releases) == 1, f"got {releases}")
+    release_tag = next(iter(releases)).split()[-1]
+    check(
+        "prose release pin matches scores CSV",
+        f"pinned release `{release_tag}`" in PAPER,
+        f"expected {release_tag}",
+    )
+
+
 def verify_country_family() -> None:
     """The country cut carries the same multiplicity treatment as Table 6."""
     sys.path.insert(0, str(REPO_ROOT))
@@ -689,6 +702,7 @@ def main() -> int:
     verify_armington_delta()
     verify_variance_median_range()
     verify_resampling_panel_median()
+    verify_policybench_release_pin()
     verify_country_family()
     verify_income_sign_counts()
     if FAILURES:

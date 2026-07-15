@@ -1,4 +1,4 @@
-Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260709b, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
+Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260710, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
 
 | Model | Organization | Wave | PolicyBench within-$1 | ETI median | Implied top rate | Avg width rank |
 | --- | --- | --- | --- | --- | --- | --- |

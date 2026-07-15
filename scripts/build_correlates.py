@@ -72,7 +72,7 @@ CANONICAL = LABOR_TAX | MACRO_TRADE | {
 ETI_QUANTITY_ID = "tax.elasticity_of_taxable_income.top_earners"
 
 EXPECTED_PANEL_ONLY = {"gpt-5.4", "grok-4.20", "grok-4.1-fast"}
-EXPECTED_POLICYBENCH_ONLY = {"grok-build-0.1"}
+EXPECTED_POLICYBENCH_ONLY = {"grok-build-0.1", "grok-4.5"}
 EXPECTED_POLICYBENCH_CONDITION = "no_tools"
 EXPECTED_POLICYBENCH_COUNTRY = "us"
 

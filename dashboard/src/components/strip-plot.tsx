@@ -110,6 +110,10 @@ function RowStrip({
   const mid = height / 2;
   const zeroInDomain = domain.min < 0 && domain.max > 0;
   const label = getModelLabel(row.modelName);
+  // The dot is the sort key, so it must dominate the row: full-opacity
+  // fill over a half-opacity bar, separated by a background-color halo.
+  const dotRadius = height >= 20 ? 5.5 : 3;
+  const dotHalo = height >= 20 ? 2 : 1.25;
 
   return (
     <svg
@@ -166,6 +170,7 @@ function RowStrip({
           y1={mid}
           y2={mid}
           stroke={color}
+          strokeOpacity={0.45}
           strokeWidth={2.5}
           strokeLinecap="round"
         />
@@ -183,7 +188,14 @@ function RowStrip({
         </line>
       ) : null}
       {row.center !== null ? (
-        <circle cx={percent(domain, row.center)} cy={mid} r={4.5} fill={color}>
+        <circle
+          cx={percent(domain, row.center)}
+          cy={mid}
+          r={dotRadius}
+          fill={color}
+          stroke="var(--background)"
+          strokeWidth={dotHalo}
+        >
           <title>{`${label}: ${valueFormatter(row.center)}${
             row.lower !== null && row.upper !== null
               ? ` [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
