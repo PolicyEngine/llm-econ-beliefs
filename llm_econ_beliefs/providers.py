@@ -31,6 +31,7 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
     "grok-4.20": "xai/grok-4.20-reasoning",
     "grok-4.1-fast": "xai/grok-4-1-fast-non-reasoning",
     "grok-4.3": "xai/grok-4.3",
+    "grok-4.5": "xai/grok-4.5",
     "gemini-3.1-pro-preview": "gemini/gemini-3.1-pro-preview",
     "gemini-3-flash-preview": "gemini/gemini-3-flash-preview",
     "gemini-3.1-flash-lite-preview": "gemini/gemini-3.1-flash-lite-preview",
@@ -51,6 +52,9 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
 LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "gemini-3.5-flash": 4000,
     "grok-4.3": 4000,
+    # Grok 4.5 reasons before answering (smoke run: ~540 reasoning tokens
+    # on the ETI prompt); give it the same headroom as the GPT-5.6 family.
+    "grok-4.5": 8000,
     # Reasoning-heavy open-weights models: reasoning tokens count against
     # the completion budget, so give the same headroom gpt-5.5 needed.
     "deepseek-v4-pro": 8000,

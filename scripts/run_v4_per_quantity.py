@@ -61,6 +61,7 @@ PROVIDER_FOR_MODEL = {
     "claude-fable-5": "anthropic",
     "gemini-3.5-flash": "litellm",
     "grok-4.3": "litellm",
+    "grok-4.5": "litellm",
     "deepseek-v4-pro": "litellm",
     "qwen-3.7-max": "litellm",
     "kimi-k2.6": "litellm",

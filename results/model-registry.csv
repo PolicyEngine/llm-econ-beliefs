@@ -24,3 +24,4 @@ minimax-m3,MiniMax M3,minimax,openrouter_via_litellm,minimax,july_2026_independe
 gpt-5.6-sol,GPT-5.6 Sol,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6
 gpt-5.6-luna,GPT-5.6 Luna,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6
 gpt-5.6-terra,GPT-5.6 Terra,openai,openai_chat_completions,gpt,july_2026_gpt56,OpenAI,July 2026 GPT-5.6
+grok-4.5,Grok 4.5,xai,litellm_completion,grok,july_2026_late,xAI,July 2026 late

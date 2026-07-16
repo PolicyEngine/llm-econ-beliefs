@@ -195,11 +195,18 @@ def verify_stability() -> None:
         "stability note says 13-quantity",
         "13-quantity canonical subpanel" in note and "9-quantity" not in note,
     )
+    with (REPO_ROOT / "results" / "model-registry.csv").open() as handle:
+        n_models = len(list(csv.DictReader(handle)))
+    expected_cells = str(13 * n_models)
     counts = {
         r["Cells compared"] for r in rows if "Cells compared" in r
     } if "Cells compared" in rows[0] else set()
     if counts:
-        check("stability cell count is 325", counts == {"325"}, f"got {counts}")
+        check(
+            f"stability cell count is {expected_cells}",
+            counts == {expected_cells},
+            f"got {counts}",
+        )
     check(
         "prose stability medians",
         "median of `0.002`" in PAPER and "`0.010`" in PAPER,
@@ -357,18 +364,24 @@ def verify_correlates() -> None:
     }
     overall = next(v for k, v in eti_rows.items() if k.startswith("Overall"))
     tax = next(v for k, v in eti_rows.items() if k.startswith("Tax"))
-    claim = (
+    rho_claim = (
         f"$\\rho = {float(overall['spearman_rho']):.2f}$"
         f" and ${float(tax['spearman_rho']):.2f}$"
     )
+    p_claim = (
+        f"raw $p$ of `{float(overall['raw_p']):.3f}`"
+        f" and `{float(tax['raw_p']):.3f}`"
+    )
+    n_values = {r["n_models"] for r in eti_rows.values()}
     check(
         "capability rho per predictor in prose",
         len(eti_rows) == 2
-        and claim in PAPER
+        and rho_claim in PAPER
+        and p_claim in PAPER
         and "$\\rho \\approx -0.5$" in PAPER
-        and all(r["n_models"] == "22" for r in eti_rows.values())
-        and all(0.015 <= float(r["raw_p"]) < 0.025 for r in eti_rows.values()),
-        f"expected {claim!r}; got "
+        and len(n_values) == 1
+        and f"$n = {next(iter(n_values))}$" in PAPER,
+        f"expected {rho_claim!r} and {p_claim!r}; got "
         f"{[(r['spearman_rho'], r['raw_p'], r['n_models']) for r in eti_rows.values()]}",
     )
     min_holm = min(float(r["holm_adjusted_p"]) for r in spearman)
@@ -396,6 +409,8 @@ def verify_correlates() -> None:
 
     with (results / "correlates-country.csv").open() as handle:
         country = {r["outcome"]: r for r in csv.DictReader(handle)}
+    with (REPO_ROOT / "results" / "model-registry.csv").open() as handle:
+        n_models = len(list(csv.DictReader(handle)))
     tau = country["Implied optimal top rate (%)"]
     eti = country["ETI pooled median"]
     width = country["Avg interval-width rank (1 = tightest)"]
@@ -403,8 +418,8 @@ def verify_correlates() -> None:
         "country top-rate medians and p",
         f"`{float(tau['china_median']):.1f}%` versus `{float(tau['us_median']):.1f}%`" in PAPER
         and f"$p = {float(tau['permutation_p']):.3f}$" in PAPER
-        and tau["us_n"] == "20"
-        and tau["china_n"] == "5",
+        and tau["china_n"] == "5"
+        and int(tau["us_n"]) + int(tau["china_n"]) == n_models,
         f"got {tau['china_median']} vs {tau['us_median']}, p {tau['permutation_p']}",
     )
     check(
@@ -427,11 +442,21 @@ def verify_correlates() -> None:
 
 NUMBER_WORDS = {
     3: "three",
+    4: "four",
     8: "eight",
+    9: "nine",
+    14: "fourteen",
     15: "fifteen",
+    16: "sixteen",
+    17: "seventeen",
+    20: "twenty",
+    21: "twenty-one",
+    22: "twenty-two",
     23: "twenty-three",
     24: "twenty-four",
     25: "twenty-five",
+    26: "twenty-six",
+    27: "twenty-seven",
 }
 
 
@@ -497,28 +522,33 @@ def verify_benchmark_counts() -> None:
     def count_for(keyword: str) -> str:
         return next(v for k, v in counts.items() if keyword.lower() in k.lower())
 
+    def spaced(count: str) -> str:
+        inside, total = count.split("/")
+        return f"`{inside} / {total}`"
+
+    frisch = count_for("frisch")
     check(
         "Frisch in-range count",
-        count_for("frisch") == "25/25"
-        and "Every one of the 25 models falls inside the rough benchmark range for the Frisch"
+        frisch.split("/")[0] == frisch.split("/")[1]
+        and f"Every one of the {frisch.split('/')[1]} models falls inside the rough benchmark range for the Frisch"
         in PAPER,
-        f"got {count_for('frisch')}",
+        f"got {frisch}",
     )
     trio = {count_for("capital gains"), count_for("wage"), count_for("single mother")}
     check(
         "capital-gains/wage/single-mother in-range counts",
-        trio == {"24/25"} and "`24 / 25` lie inside for capital gains realizations" in PAPER,
+        len(trio) == 1
+        and f"{spaced(next(iter(trio)))} lie inside for capital gains realizations" in PAPER,
         f"got {trio}",
     )
     check(
         "income-elasticity in-range count",
-        count_for("income elasticity") == "21/25"
-        and "`21 / 25` for the canonical income elasticity" in PAPER,
+        f"{spaced(count_for('income elasticity'))} for the canonical income elasticity" in PAPER,
         f"got {count_for('income elasticity')}",
     )
     check(
         "ETI in-range count",
-        count_for("taxable income") == "22/25" and "`22 / 25` models fall inside" in PAPER,
+        f"{spaced(count_for('taxable income'))} models fall inside" in PAPER,
         f"got {count_for('taxable income')}",
     )
 
@@ -541,12 +571,14 @@ def verify_eti_outliers() -> None:
         model in sentence and f"`{value:.3f}`" in sentence
         for model, value in over.items()
     )
+    with (REPO_ROOT / "results" / "model-registry.csv").open() as handle:
+        n_models = len(list(csv.DictReader(handle)))
     check(
         "ETI out-of-band models all named with centers",
-        len(records) == 25
+        len(records) == n_models
         and named
         and f"{NUMBER_WORDS[len(over)]} models just above" in sentence,
-        f"expected {sorted(over)}",
+        f"expected {sorted(over)} over {n_models} models",
     )
 
 
@@ -653,11 +685,16 @@ def verify_country_family() -> None:
         for model in MODEL_REGISTRY
         if ORGANIZATION_COUNTRY[model.organization] == "us"
     }
+    us_models = sum(
+        1
+        for model in MODEL_REGISTRY
+        if ORGANIZATION_COUNTRY[model.organization] == "us"
+    )
     check(
-        "US organization count in prose",
+        "US model and organization counts in prose",
         len(us_organizations) == 4
-        and "twenty models from four US organizations" in PAPER,
-        f"got {sorted(us_organizations)}",
+        and f"{NUMBER_WORDS[us_models]} models from four US organizations" in PAPER,
+        f"got {us_models} models across {sorted(us_organizations)}",
     )
 
 
@@ -669,11 +706,13 @@ def verify_income_sign_counts() -> None:
             for r in csv.DictReader(handle)
             if r["quantity_id"] == "labor_supply.income_elasticity.prime_age"
         ]
+    with (REPO_ROOT / "results" / "model-registry.csv").open() as handle:
+        n_models = len(list(csv.DictReader(handle)))
     centers = [float(r["pooled_point_estimate"]) for r in records]
     negative = sum(1 for c in centers if c < 0)
     check(
         "income-elasticity sign count in CSV",
-        negative == 24 and len(centers) == 25,
+        negative == len(centers) - 1 and len(centers) == n_models,
         f"{negative} negative of {len(centers)}",
     )
     check(

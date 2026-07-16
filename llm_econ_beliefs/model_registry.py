@@ -54,6 +54,7 @@ WAVES = (
     "july_2026_frontier",
     "july_2026_independent",
     "july_2026_gpt56",
+    "july_2026_late",
 )
 
 
@@ -270,6 +271,14 @@ MODEL_REGISTRY: tuple[PanelModel, ...] = (
         "gpt",
         "july_2026_gpt56",
     ),
+    PanelModel(
+        "grok-4.5",
+        "Grok 4.5",
+        "xai",
+        "litellm_completion",
+        "grok",
+        "july_2026_late",
+    ),
 )
 
 ORGANIZATION_DISPLAY_LABELS = {
@@ -296,6 +305,7 @@ WAVE_DISPLAY_LABELS = {
     "july_2026_frontier": "July 2026 frontier",
     "july_2026_independent": "July 2026 independent labs",
     "july_2026_gpt56": "July 2026 GPT-5.6",
+    "july_2026_late": "July 2026 late",
 }
 
 MODEL_REGISTRY_BY_ID = {model.model_id: model for model in MODEL_REGISTRY}
@@ -304,8 +314,8 @@ CSV_FIELDNAMES = tuple(PanelModel.__dataclass_fields__)
 
 
 def _validate_registry() -> None:
-    if len(MODEL_REGISTRY) != 25:
-        raise ValueError(f"The panel registry must contain 25 models, got {len(MODEL_REGISTRY)}")
+    if len(MODEL_REGISTRY) != 26:
+        raise ValueError(f"The panel registry must contain 26 models, got {len(MODEL_REGISTRY)}")
     if len(MODEL_REGISTRY_BY_ID) != len(MODEL_REGISTRY):
         raise ValueError("Panel model IDs must be unique")
     organizations = {model.organization for model in MODEL_REGISTRY}

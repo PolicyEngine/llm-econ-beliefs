@@ -39,8 +39,8 @@ from scripts.check_panel_grid import GridCheckResult
 
 
 def test_registry_has_exact_taxonomy_and_round_trips_to_csv(tmp_path: Path) -> None:
-    assert len(MODEL_REGISTRY) == 25
-    assert len(PANEL_MODEL_IDS) == len(set(PANEL_MODEL_IDS)) == 25
+    assert len(MODEL_REGISTRY) == 26
+    assert len(PANEL_MODEL_IDS) == len(set(PANEL_MODEL_IDS)) == 26
     assert {model.organization for model in MODEL_REGISTRY} == set(ORGANIZATIONS)
     assert {model.serving_provider_path for model in MODEL_REGISTRY} == set(
         SERVING_PROVIDER_PATHS
@@ -278,7 +278,10 @@ def test_sensitivities_cover_each_organization_both_wave_groups_and_clusters(
         cluster["permutation_unit"]
         == "organization_score_block_within_equal_size_strata"
     )
-    assert cluster["n_permutations"] == 1440
+    # Equal-size strata over the 23-model overlap: openai/anthropic at 6
+    # (2!), google at 4 and xai at 2 (1! each), five single-model Chinese
+    # labs (5!) -> 2 * 120 = 240 block assignments.
+    assert cluster["n_permutations"] == 240
     assert 0 < cluster["permutation_p"] <= 1
 
 

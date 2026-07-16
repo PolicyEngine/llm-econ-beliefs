@@ -21,6 +21,7 @@ Note: Per-model generation-harness configuration. The prompt text and repeated-r
 | Gemini 3.1 Flash-Lite | LiteLLM | forced JSON object | 1200 | temperature 1.0 | provider default thinking | gemini-3.1-flash-lite-preview | preview alias |
 | Grok 4.20 | LiteLLM | forced function call | 1200 | temperature 1.0 | reasoning variant | xai/grok-4.20-reasoning | alias |
 | Grok 4.3 | LiteLLM | forced function call | 4000 | temperature 1.0 | provider default | xai/grok-4.3 | alias |
+| Grok 4.5 | LiteLLM | forced function call | 8000 | temperature 1.0 | provider default | xai/grok-4.5 | alias |
 | DeepSeek V4 Pro | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/deepseek/deepseek-v4-pro | alias |
 | Qwen 3.7 Max | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/qwen/qwen3.7-max | alias |
 | Kimi K2.6 | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/moonshotai/kimi-k2.6 | alias |
