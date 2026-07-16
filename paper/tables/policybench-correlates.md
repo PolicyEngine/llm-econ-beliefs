@@ -2,13 +2,13 @@ Note: Spearman rank correlations between the PolicyBench within-$1 rate (PolicyE
 
 | Predictor | Outcome | Models | Spearman rho | Raw permutation p | Holm-adjusted p | BH-adjusted p | Family size | Derived |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tax within-$1 (domain-matched) | Mean |center|, labor-and-tax | 22 | 0.081 | 0.718 | 1.000 | 0.862 | 8 | no |
-| Tax within-$1 (domain-matched) | Mean |center|, macro-and-trade | 22 | 0.101 | 0.651 | 1.000 | 0.862 | 8 | no |
-| Tax within-$1 (domain-matched) | Avg interval-width rank (1 = tightest) | 22 | -0.353 | 0.104 | 0.626 | 0.278 | 8 | no |
-| Tax within-$1 (domain-matched) | ETI pooled median | 22 | -0.501 | 0.019 | 0.135 | 0.075 | 8 | no |
-| Tax within-$1 (domain-matched) | Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test | 22 | 0.501 | 0.019 | 0.135 | 0.075 | 8 | yes |
-| Overall within-$1 (leaderboard headline) | Mean |center|, labor-and-tax | 22 | 0.049 | 0.830 | 1.000 | 0.862 | 8 | no |
-| Overall within-$1 (leaderboard headline) | Mean |center|, macro-and-trade | 22 | -0.040 | 0.862 | 1.000 | 0.862 | 8 | no |
-| Overall within-$1 (leaderboard headline) | Avg interval-width rank (1 = tightest) | 22 | -0.180 | 0.418 | 1.000 | 0.835 | 8 | no |
-| Overall within-$1 (leaderboard headline) | ETI pooled median | 22 | -0.508 | 0.017 | 0.135 | 0.075 | 8 | no |
-| Overall within-$1 (leaderboard headline) | Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test | 22 | 0.508 | 0.017 | 0.135 | 0.075 | 8 | yes |
+| Tax within-$1 (domain-matched) | Mean |center|, labor-and-tax | 23 | 0.096 | 0.662 | 1.000 | 0.883 | 8 | no |
+| Tax within-$1 (domain-matched) | Mean |center|, macro-and-trade | 23 | 0.159 | 0.470 | 1.000 | 0.753 | 8 | no |
+| Tax within-$1 (domain-matched) | Avg interval-width rank (1 = tightest) | 23 | -0.318 | 0.139 | 0.836 | 0.372 | 8 | no |
+| Tax within-$1 (domain-matched) | ETI pooled median | 23 | -0.496 | 0.017 | 0.122 | 0.070 | 8 | no |
+| Tax within-$1 (domain-matched) | Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test | 23 | 0.496 | 0.017 | 0.122 | 0.070 | 8 | yes |
+| Overall within-$1 (leaderboard headline) | Mean |center|, labor-and-tax | 23 | 0.061 | 0.782 | 1.000 | 0.894 | 8 | no |
+| Overall within-$1 (leaderboard headline) | Mean |center|, macro-and-trade | 23 | 0.029 | 0.901 | 1.000 | 0.901 | 8 | no |
+| Overall within-$1 (leaderboard headline) | Avg interval-width rank (1 = tightest) | 23 | -0.158 | 0.468 | 1.000 | 0.753 | 8 | no |
+| Overall within-$1 (leaderboard headline) | ETI pooled median | 23 | -0.506 | 0.014 | 0.116 | 0.070 | 8 | no |
+| Overall within-$1 (leaderboard headline) | Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test | 23 | 0.506 | 0.014 | 0.116 | 0.070 | 8 | yes |

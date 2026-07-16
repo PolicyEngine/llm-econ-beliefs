@@ -24,6 +24,7 @@ Note: Split of the pooled predictive variance over the canonical 13-quantity sub
 | Grok 4.1 Fast | 13 | 0.743 | 0 | 0% | 4% |
 | Grok 4.20 | 13 | 0.706 | 0.042 | 0% | 7% |
 | Grok 4.3 | 13 | 0.68 | 0.046 | 0% | 6% |
+| Grok 4.5 | 13 | 0.697 | 0.034 | 0% | 4% |
 | Kimi K2.6 | 13 | 0.701 | 0.1 | 1% | 6% |
 | MiniMax M3 | 13 | 0.692 | 0.062 | 1% | 37% |
 | Qwen 3.7 Max | 13 | 0.728 | 0.048 | 0% | 18% |

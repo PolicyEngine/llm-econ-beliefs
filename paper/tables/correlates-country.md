@@ -2,8 +2,8 @@ Note: US-lab versus Chinese-lab medians with exact group-label permutation p-val
 
 | Outcome | US median (n) | China median (n) | China - US | Permutation p | Holm p | BH p |
 | --- | --- | --- | --- | --- | --- | --- |
-| Implied optimal top rate (%) | 35.622 (20) | 32.235 (5) | -3.387 | 0.050 | 0.134* | 0.101* |
-| ETI pooled median | 0.425 (20) | 0.495 (5) | +0.069 | 0.033 | 0.134 | 0.101 |
-| Avg interval-width rank (1 = tightest) | 11.192 (20) | 16.462 (5) | +5.269 | 0.059 | 0.178 | 0.101 |
-| Mean |center|, labor-and-tax | 0.368 (20) | 0.324 (5) | -0.044 | 0.076 | 0.178 | 0.101 |
-| Mean |center|, macro-and-trade | 1.162 (20) | 1.038 (5) | -0.124 | 0.243 | 0.243 | 0.243 |
+| Implied optimal top rate (%) | 35.917 (21) | 32.235 (5) | -3.682 | 0.023 | 0.078* | 0.078* |
+| ETI pooled median | 0.420 (21) | 0.495 (5) | +0.075 | 0.019 | 0.078 | 0.078 |
+| Avg interval-width rank (1 = tightest) | 11.615 (21) | 16.923 (5) | +5.308 | 0.070 | 0.190 | 0.094 |
+| Mean |center|, labor-and-tax | 0.369 (21) | 0.324 (5) | -0.045 | 0.063 | 0.190 | 0.094 |
+| Mean |center|, macro-and-trade | 1.164 (21) | 1.038 (5) | -0.127 | 0.249 | 0.249 | 0.249 |
