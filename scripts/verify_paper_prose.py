@@ -110,6 +110,12 @@ def verify_superlatives() -> None:
         names_present(sentence, labor_low, roster),
         f"expected {labor_low}",
     )
+    sentence = sentence_with("sit on the high-response side")
+    check(
+        "high-response-side naming",
+        names_present(sentence, labor_high, roster),
+        f"expected {labor_high}",
+    )
     sentence = sentence_with("move to the top of the ranking")
     check(
         "Table 2 top trio",
@@ -207,6 +213,11 @@ def verify_stability() -> None:
             counts == {expected_cells},
             f"got {counts}",
         )
+    check(
+        "A1 prose cell count",
+        f"({expected_cells} cells at every prefix length)" in PAPER,
+        f"expected {expected_cells}",
+    )
     check(
         "prose stability medians",
         "median of `0.002`" in PAPER and "`0.010`" in PAPER,
@@ -607,6 +618,12 @@ def verify_armington_delta() -> None:
             for model, value in increases.items()
         ),
         f"expected {increases}",
+    )
+    check(
+        "A7 rerun model count in prose",
+        f"Across all {len(rows)} model reruns" in PAPER
+        and f"a {len(rows)}-model follow-up on the Armington elasticity" in PAPER,
+        f"expected {len(rows)}",
     )
 
 
