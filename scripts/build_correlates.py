@@ -1041,6 +1041,95 @@ def build_country_comparison_rows(
     return rows
 
 
+POSTHOC_NOTE = (
+    "Post hoc: computed after the eight-test family was declared, prompted "
+    "in review of the width result; raw permutation p only, outside the "
+    "Holm/BH family by construction."
+)
+
+
+def consistency_metrics(
+    cells: Sequence[tuple[float, float]],
+) -> dict[str, float]:
+    """Worst-case share and median between-run SD over canonical cells.
+
+    Each cell is (within_run_sd, between_run_sd); the share is the
+    between-run component of pooled variance, matching Appendix A15.
+    """
+    shares = [
+        (between * between) / (within * within + between * between)
+        for within, between in cells
+        if (within * within + between * between) > 0
+    ]
+    if not shares:
+        raise ValueError("No decomposable cells")
+    return {
+        "max_between_run_share": max(shares),
+        "median_between_run_sd": _median([between for _, between in cells]),
+    }
+
+
+def load_consistency_metrics(
+    model_ids: Sequence[str],
+    results_root: Path | None = None,
+) -> dict[str, dict[str, float]]:
+    """Per-model run-consistency metrics from the summary artifacts."""
+    root = results_root or RESULTS
+    metrics: dict[str, dict[str, float]] = {}
+    for model_id in model_ids:
+        path = root / f"{model_id}-elasticities-batch15" / "summary.csv"
+        cells: list[tuple[float, float]] = []
+        with path.open() as handle:
+            for row in csv.DictReader(handle):
+                if row["quantity_id"] not in CANONICAL:
+                    continue
+                within = row.get("within_run_sd") or ""
+                between = row.get("between_run_sd") or ""
+                if within and between:
+                    cells.append((float(within), float(between)))
+        metrics[model_id] = consistency_metrics(cells)
+    return metrics
+
+
+def build_posthoc_consistency_rows(
+    summary_rows: Sequence[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Capability versus run-to-run consistency, reported outside the family."""
+    metrics = load_consistency_metrics(
+        [str(row["model"]) for row in summary_rows]
+    )
+    outcomes = [
+        ("max_between_run_share", "Max between-run variance share"),
+        ("median_between_run_sd", "Median between-run SD"),
+    ]
+    predictors = [
+        (PRIMARY_PREDICTOR_KEY, PRIMARY_PREDICTOR_LABEL),
+        ("policybench_tax_within_dollar", "Tax within-$1 (domain-matched)"),
+    ]
+    rows: list[dict[str, object]] = []
+    for predictor_key, predictor_label in predictors:
+        for metric_key, outcome_label in outcomes:
+            xs: list[float] = []
+            ys: list[float] = []
+            for row in summary_rows:
+                score = row.get(predictor_key)
+                if score is None:
+                    continue
+                xs.append(float(score))
+                ys.append(metrics[str(row["model"])][metric_key])
+            rows.append(
+                {
+                    "predictor": predictor_label,
+                    "outcome": outcome_label,
+                    "n_models": len(xs),
+                    "spearman_rho": spearman(xs, ys),
+                    "raw_p": permutation_p(xs, ys),
+                    "note": POSTHOC_NOTE,
+                }
+            )
+    return rows
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1070,6 +1159,7 @@ def main() -> int:
         correlation_rows = build_correlation_rows(summary_rows)
         sensitivity_rows = build_sensitivity_rows(summary_rows)
         country_rows = build_country_comparison_rows(summary_rows)
+        posthoc_rows = build_posthoc_consistency_rows(summary_rows)
     except (FileNotFoundError, KeyError, TypeError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
@@ -1077,6 +1167,7 @@ def main() -> int:
     _write_csv(RESULTS / "correlates-model-summary.csv", summary_rows)
     _write_csv(RESULTS / "correlates-spearman.csv", correlation_rows)
     _write_csv(RESULTS / "correlates-sensitivity.csv", sensitivity_rows)
+    _write_csv(RESULTS / "correlates-posthoc.csv", posthoc_rows)
     if country_rows:
         _write_csv(RESULTS / "correlates-country.csv", country_rows)
         print("\nUS-lab vs Chinese-lab medians (exploratory; see disclosure):")

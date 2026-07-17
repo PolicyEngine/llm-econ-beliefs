@@ -413,3 +413,15 @@ def test_leave_one_organization_out_keeps_independent_labs_separate() -> None:
 
     assert omitted == {"DeepSeek", "Alibaba", "Moonshot AI", "Zhipu AI", "MiniMax"}
     assert "Other" not in omitted
+
+
+def test_consistency_metrics_share_math() -> None:
+    from scripts.build_correlates import consistency_metrics
+
+    cells = [(1.0, 0.0), (1.0, 1.0), (0.0, 2.0)]
+    metrics = consistency_metrics(cells)
+    # Shares: 0, 0.5, 1.0 -> max 1.0; between SDs 0, 1, 2 -> median 1.
+    assert metrics["max_between_run_share"] == 1.0
+    assert metrics["median_between_run_sd"] == 1.0
+    with pytest.raises(ValueError):
+        consistency_metrics([(0.0, 0.0)])

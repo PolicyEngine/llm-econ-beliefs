@@ -667,6 +667,59 @@ def verify_policybench_release_pin() -> None:
     )
 
 
+def verify_posthoc_consistency() -> None:
+    """Pin the post-hoc run-consistency cut to its artifact and raw data."""
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from build_correlates import load_consistency_metrics  # noqa: E402
+
+    with (REPO_ROOT / "results" / "correlates-posthoc.csv").open() as handle:
+        rows = list(csv.DictReader(handle))
+    check(
+        "posthoc rows carry the post-hoc note",
+        len(rows) == 4 and all("Post hoc" in r["note"] for r in rows),
+        f"got {len(rows)} rows",
+    )
+    by_key = {(r["predictor"], r["outcome"]): r for r in rows}
+    overall = by_key[
+        ("Overall within-$1 (leaderboard headline)", "Max between-run variance share")
+    ]
+    tax = by_key[
+        ("Tax within-$1 (domain-matched)", "Max between-run variance share")
+    ]
+    check(
+        "posthoc consistency rhos and ps in prose",
+        f"is `{float(overall['spearman_rho']):.2f}` (raw permutation $p = {float(overall['raw_p']):.3f}$, $n = {overall['n_models']}$)"
+        in PAPER
+        and f"it is `{float(tax['spearman_rho']):.2f}` ($p = {float(tax['raw_p']):.3f}$)" in PAPER,
+        f"got overall {overall['spearman_rho']}/{overall['raw_p']}, tax {tax['spearman_rho']}/{tax['raw_p']}",
+    )
+
+    from llm_econ_beliefs.model_registry import MODEL_REGISTRY  # noqa: E402
+
+    metrics = load_consistency_metrics([m.model_id for m in MODEL_REGISTRY])
+    claude_max = max(
+        metrics[m.model_id]["max_between_run_share"]
+        for m in MODEL_REGISTRY
+        if m.organization == "anthropic"
+    )
+    check(
+        "Claude worst-case share claim",
+        claude_max < 0.04 and "worst-case share stays below `4%`" in PAPER,
+        f"claude max {claude_max:.3f}",
+    )
+    top5 = sorted(
+        (metrics[m.model_id]["max_between_run_share"] for m in MODEL_REGISTRY),
+        reverse=True,
+    )[:5]
+    claim = ", ".join(f"`{share:.0%}`" for share in top5[:4])
+    claim += f", and `{top5[4]:.0%}`"
+    check(
+        "top-5 instability shares in prose",
+        claim in PAPER,
+        f"expected {claim!r}",
+    )
+
+
 def verify_country_family() -> None:
     """The country cut carries the same multiplicity treatment as Table 6."""
     sys.path.insert(0, str(REPO_ROOT))
@@ -759,6 +812,7 @@ def main() -> int:
     verify_variance_median_range()
     verify_resampling_panel_median()
     verify_policybench_release_pin()
+    verify_posthoc_consistency()
     verify_country_family()
     verify_income_sign_counts()
     if FAILURES:
