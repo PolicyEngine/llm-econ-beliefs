@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { StripPlot, type StripRow } from "@/components/strip-plot";
 import type { BenchmarkBand } from "@/lib/site-data";
@@ -79,6 +79,31 @@ export function FilteredStripPlot({
 }) {
   const [scope, setScope] = useState<Scope>("all");
   const [organization, setOrganization] = useState<string>("all");
+
+  // Filters are shareable: ?scope=frontier|april|july&lab=<organization>
+  // seeds the state, and changes write back via replaceState.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const scopeParam = params.get("scope");
+    if (scopeParam && SCOPES.some((entry) => entry.key === scopeParam)) {
+      setScope(scopeParam as Scope);
+    }
+    const labParam = params.get("lab");
+    if (labParam) setOrganization(labParam);
+  }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (scope === "all") params.delete("scope");
+    else params.set("scope", scope);
+    if (organization === "all") params.delete("lab");
+    else params.set("lab", organization);
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}`,
+    );
+  }, [scope, organization]);
 
   const organizations = useMemo(() => {
     const seen = new Map<string, string>();
