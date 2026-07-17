@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FilteredStripPlot } from "@/components/filtered-strip-plot";
 import { RunInspector } from "@/components/run-inspector";
 import { PageBand, ProvenanceFooter } from "@/components/site-chrome";
-import { StripPlot } from "@/components/strip-plot";
+import { QUANTITY_FORMULAS } from "@/lib/quantity-formulas";
 import {
   SUBPANEL_LABELS,
   getQuantityBySlug,
   getSummaryData,
   loadBenchmarkBands,
+  loadModelRegistry,
+  loadQuantityRegistry,
   loadSlimRuns,
   modelsByCenter,
   slugForModel,
@@ -47,6 +50,28 @@ export default async function QuantityPage({ params }: PageProps) {
   const band = loadBenchmarkBands().get(quantity.quantityName) ?? null;
   const subpanel = subpanelForQuantity(quantity.quantityId);
   const ordered = modelsByCenter(quantity);
+  const definition = loadQuantityRegistry().get(quantity.quantityId) ?? null;
+  const formula = QUANTITY_FORMULAS[quantity.quantityId] ?? null;
+  const registry = loadModelRegistry();
+  const stripMeta = Object.fromEntries(
+    ordered.flatMap((summary) => {
+      const entry = registry.get(summary.modelName);
+      return entry
+        ? [
+            [
+              summary.modelName,
+              {
+                organization: entry.organization,
+                organizationLabel: entry.organizationLabel,
+                wave: entry.wave,
+                waveLabel: entry.waveLabel,
+                isFrontier: entry.isFrontier,
+              },
+            ],
+          ]
+        : [];
+    }),
+  );
 
   const modelRuns = ordered.map((summary) => ({
     modelName: summary.modelName,
@@ -102,18 +127,64 @@ export default async function QuantityPage({ params }: PageProps) {
       />
 
       <div className="mx-auto max-w-[1100px] px-5 py-8">
+        {definition ? (
+          <div
+            className="mb-6 rounded-lg border p-4"
+            style={{ borderColor: "var(--border)", background: "var(--card)" }}
+          >
+            <h2
+              className="text-sm font-semibold"
+              style={{ color: "var(--foreground)" }}
+            >
+              What the models were asked
+            </h2>
+            <p
+              className="mt-1.5 max-w-3xl text-sm leading-relaxed"
+              style={{ color: "var(--foreground)" }}
+            >
+              {definition.description}
+            </p>
+            <dl
+              className="mt-3 grid gap-x-8 gap-y-1.5 text-xs sm:grid-cols-2"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              {formula ? (
+                <div className="sm:col-span-2">
+                  <dt className="inline font-medium">In standard notation: </dt>
+                  <dd
+                    className="inline font-serif text-[13px]"
+                    style={{ color: "var(--foreground)" }}
+                    dangerouslySetInnerHTML={{ __html: formula }}
+                  />
+                  <span> (shorthand for display; the models received only the prose definition above)</span>
+                </div>
+              ) : null}
+              <div>
+                <dt className="inline font-medium">Population: </dt>
+                <dd className="inline">{definition.population}</dd>
+              </div>
+              <div>
+                <dt className="inline font-medium">Interpretation: </dt>
+                <dd className="inline">{definition.preferredInterpretation}</dd>
+              </div>
+            </dl>
+          </div>
+        ) : null}
+
         <div
           className="rounded-lg border p-4"
           style={{ borderColor: "var(--border)", background: "var(--card)" }}
         >
-          <StripPlot rows={rows} band={band} showRuns />
+          <FilteredStripPlot rows={rows} band={band} showRuns meta={stripMeta} />
           <p
             className="mt-2 text-xs"
             style={{ color: "var(--muted-foreground)" }}
           >
             Dot: pooled center (mean of run point estimates). Bar: pooled 90
             percent mixture interval. Faint underlay: each run&apos;s elicited
-            p05–p95. Models sorted by center; color = provider family.
+            p05–p95. Models sorted by center; color = provider family. Filters
+            change which models render; the axis stays fixed to the full
+            panel.
           </p>
         </div>
 

@@ -37,6 +37,9 @@ interface StripPlotProps {
   /** Show the 15 run-level intervals as faint underlays. */
   showRuns?: boolean;
   valueFormatter?: (value: number) => string;
+  /** Rows used to compute the shared x-domain (defaults to `rows`).
+   *  Filtered views pass the full roster so the scale stays fixed. */
+  domainRows?: StripRow[];
 }
 
 function formatValue(value: number): string {
@@ -252,8 +255,9 @@ export function StripPlot({
   compact = false,
   showRuns = false,
   valueFormatter = formatValue,
+  domainRows,
 }: StripPlotProps): ReactNode {
-  const domain = computeDomain(rows, band, showRuns);
+  const domain = computeDomain(domainRows ?? rows, band, showRuns);
   if (!domain) return null;
 
   if (compact) {

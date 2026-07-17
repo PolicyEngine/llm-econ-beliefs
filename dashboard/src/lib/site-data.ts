@@ -25,6 +25,7 @@ const MODEL_REGISTRY_FIELDS = [
   "wave",
   "organization_label",
   "wave_label",
+  "is_frontier",
 ] as const;
 
 export interface ModelRegistryRow {
@@ -36,6 +37,52 @@ export interface ModelRegistryRow {
   wave: string;
   organizationLabel: string;
   waveLabel: string;
+  isFrontier: boolean;
+}
+
+export interface QuantityRegistryRow {
+  quantityId: string;
+  name: string;
+  domain: string;
+  description: string;
+  population: string;
+  unit: string;
+  preferredInterpretation: string;
+  lowerSupport: string;
+  upperSupport: string;
+  benchmarkSummary: string;
+  benchmarkSource: string;
+}
+
+/** Elicited quantity definitions emitted from llm_econ_beliefs/data/quantities.toml. */
+export function loadQuantityRegistry(
+  resultsDir: string = resolveResultsDir(),
+): Map<string, QuantityRegistryRow> {
+  const csvPath = path.join(resultsDir, "quantity-registry.csv");
+  const rows = readRequiredCsv(csvPath, "quantity-registry.csv");
+  const registry = new Map<string, QuantityRegistryRow>();
+  for (const row of rows) {
+    const quantityId = row.quantity_id?.trim();
+    if (!quantityId || !row.description?.trim()) {
+      throw new Error(
+        `quantity-registry.csv row missing quantity_id/description: ${JSON.stringify(row)}`,
+      );
+    }
+    registry.set(quantityId, {
+      quantityId,
+      name: row.name.trim(),
+      domain: row.domain.trim(),
+      description: row.description.trim(),
+      population: row.population.trim(),
+      unit: row.unit.trim(),
+      preferredInterpretation: row.preferred_interpretation.trim(),
+      lowerSupport: row.lower_support.trim(),
+      upperSupport: row.upper_support.trim(),
+      benchmarkSummary: row.benchmark_summary.trim(),
+      benchmarkSource: row.benchmark_source.trim(),
+    });
+  }
+  return registry;
 }
 
 function readRequiredCsv(csvPath: string, artifactName: string): Record<string, string>[] {
@@ -90,6 +137,7 @@ export function loadModelRegistry(
       wave: row.wave.trim(),
       organizationLabel: row.organization_label.trim(),
       waveLabel: row.wave_label.trim(),
+      isFrontier: row.is_frontier.trim() === "true",
     });
   }
   return registry;
@@ -286,6 +334,36 @@ export interface HarnessRow {
 }
 
 /** Per-model harness configuration, from the paper's Table A16 CSV. */
+export interface OverviewRankRow {
+  model: string;
+  organization: string;
+  absRank: number;
+  widthRank: number;
+}
+
+/** Per-model average ranks from the subpanel overview tables. */
+export function loadModelOverview(
+  subpanel: "labor_tax" | "macro_trade",
+): OverviewRankRow[] {
+  const tablesDir = resolveTablesDir();
+  if (!tablesDir) return [];
+  const stem =
+    subpanel === "labor_tax"
+      ? "model-overview-labor-tax.csv"
+      : "model-overview-macro-trade.csv";
+  const csvPath = path.join(tablesDir, stem);
+  if (!fs.existsSync(csvPath)) return [];
+  const rows = parseCsv(fs.readFileSync(csvPath, "utf-8"), {
+    columns: true,
+  }) as Record<string, string>[];
+  return rows.map((row) => ({
+    model: row["Model"] ?? "",
+    organization: row["Organization"] ?? "",
+    absRank: Number(row["Avg abs-elasticity rank (1=highest)"]),
+    widthRank: Number(row["Avg predictive-uncertainty rank (1=narrowest)"]),
+  }));
+}
+
 export function loadHarnessRows(): HarnessRow[] {
   const tablesDir = resolveTablesDir();
   if (!tablesDir) return [];

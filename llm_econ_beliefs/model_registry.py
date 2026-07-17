@@ -312,6 +312,22 @@ MODEL_REGISTRY_BY_ID = {model.model_id: model for model in MODEL_REGISTRY}
 PANEL_MODEL_IDS = tuple(model.model_id for model in MODEL_REGISTRY)
 CSV_FIELDNAMES = tuple(PanelModel.__dataclass_fields__)
 
+# Each organization's newest flagship in the panel, for "frontier" views.
+# One model per organization; validated below.
+FRONTIER_MODEL_IDS = frozenset(
+    {
+        "claude-fable-5",
+        "gpt-5.6-sol",
+        "gemini-3.5-flash",
+        "grok-4.5",
+        "deepseek-v4-pro",
+        "qwen-3.7-max",
+        "kimi-k2.6",
+        "glm-5.2",
+        "minimax-m3",
+    }
+)
+
 
 def _validate_registry() -> None:
     if len(MODEL_REGISTRY) != 26:
@@ -352,6 +368,18 @@ def _validate_registry() -> None:
         raise ValueError("Panel registry fields must not be blank")
     if len({model.display_label for model in MODEL_REGISTRY}) != len(MODEL_REGISTRY):
         raise ValueError("Panel display labels must be unique")
+    unknown_frontier = FRONTIER_MODEL_IDS - set(PANEL_MODEL_IDS)
+    if unknown_frontier:
+        raise ValueError(f"Unknown frontier model IDs: {sorted(unknown_frontier)}")
+    frontier_organizations = [
+        MODEL_REGISTRY_BY_ID[model_id].organization
+        for model_id in FRONTIER_MODEL_IDS
+    ]
+    if sorted(frontier_organizations) != sorted(ORGANIZATIONS):
+        raise ValueError(
+            "Frontier set must name exactly one model per organization, got "
+            f"{sorted(frontier_organizations)!r}"
+        )
 
 
 _validate_registry()
@@ -392,9 +420,14 @@ def write_model_registry_csv(path: Path | None = None) -> Path:
     target = path or default_registry_csv_path()
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_name(f".{target.name}.tmp")
-    # Display labels ride along so downstream consumers (the dashboard)
-    # never re-encode them by hand.
-    fieldnames = (*CSV_FIELDNAMES, "organization_label", "wave_label")
+    # Display labels and the frontier flag ride along so downstream
+    # consumers (the dashboard) never re-encode them by hand.
+    fieldnames = (
+        *CSV_FIELDNAMES,
+        "organization_label",
+        "wave_label",
+        "is_frontier",
+    )
     with temporary.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -402,6 +435,7 @@ def write_model_registry_csv(path: Path | None = None) -> Path:
             row = asdict(model)
             row["organization_label"] = ORGANIZATION_DISPLAY_LABELS[model.organization]
             row["wave_label"] = WAVE_DISPLAY_LABELS[model.wave]
+            row["is_frontier"] = str(model.model_id in FRONTIER_MODEL_IDS).lower()
             writer.writerow(row)
     os.replace(temporary, target)
     return target
