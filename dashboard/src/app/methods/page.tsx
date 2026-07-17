@@ -30,6 +30,19 @@ export default function MethodsPage() {
             define what the reported sign means without calling either
             direction correct.
           </MethodBlock>
+          <MethodBlock title="How the nine headline elasticities were chosen">
+            Three criteria, fixed in the registry before the panel ran: each
+            quantity is a standard named object with a published review anchor
+            or an established calibration home; each has a direct policy
+            consumer (six labor-and-tax parameters feed CBO-style and
+            PolicyEngine-style tax-benefit microsimulation, three
+            macro-and-trade parameters are core calibration inputs); and the
+            two subpanels pair a domain where lower elasticities read as more
+            room for redistribution with one where no such monotone mapping
+            exists. Selection determines coverage, not model comparisons —
+            every model answers the identical panel. Each quantity&apos;s page
+            opens with the exact definition the models received.
+          </MethodBlock>
           <MethodBlock title="Repeated runs and pooling">
             Each model-quantity cell runs 15 independent times. Each
             run&apos;s quantiles become a piecewise-uniform distribution;

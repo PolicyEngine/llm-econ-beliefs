@@ -9,6 +9,7 @@ import pytest
 
 from paper import build_tables as paper_build_tables
 from llm_econ_beliefs.model_registry import (
+    FRONTIER_MODEL_IDS,
     MODEL_REGISTRY,
     ORGANIZATION_DISPLAY_LABELS,
     ORGANIZATIONS,
@@ -60,6 +61,7 @@ def test_registry_has_exact_taxonomy_and_round_trips_to_csv(tmp_path: Path) -> N
         "wave",
         "organization_label",
         "wave_label",
+        "is_frontier",
     )
     assert [row["model_id"] for row in rows] == list(PANEL_MODEL_IDS)
     assert rows[0] == {
@@ -73,7 +75,13 @@ def test_registry_has_exact_taxonomy_and_round_trips_to_csv(tmp_path: Path) -> N
             MODEL_REGISTRY[0].organization
         ],
         "wave_label": WAVE_DISPLAY_LABELS[MODEL_REGISTRY[0].wave],
+        "is_frontier": str(
+            MODEL_REGISTRY[0].model_id in FRONTIER_MODEL_IDS
+        ).lower(),
     }
+    frontier_rows = [row for row in rows if row["is_frontier"] == "true"]
+    assert {row["model_id"] for row in frontier_rows} == set(FRONTIER_MODEL_IDS)
+    assert len({row["organization"] for row in frontier_rows}) == len(frontier_rows)
 
 
 def _valid_policybench_rows() -> list[dict[str, str]]:
