@@ -7,16 +7,16 @@ Note: Leave-one-organization-out sensitivity of the average absolute-elasticity 
 | Labor/tax | DeepSeek | 0.999 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 0.833 |
 | Labor/tax | Google | 0.998 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 2.5 |
 | Labor/tax | MiniMax | 0.999 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 0.833 |
-| Labor/tax | Moonshot AI | 0.999 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 1 |
+| Labor/tax | Moonshot AI | 0.999 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 2 |
 | Labor/tax | OpenAI | 0.996 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 5.667 |
 | Labor/tax | Zhipu AI | 1 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 0.833 |
-| Labor/tax | xAI | 0.999 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 3.5 |
+| Labor/tax | xAI | 0.998 | Claude Sonnet 4.6 | Claude Sonnet 4.6 | 3.5 |
 | Macro/trade | Alibaba | 1 | Grok 4.3 | Grok 4.3 | 0.333 |
 | Macro/trade | Anthropic | 0.997 | Grok 4.3 | Grok 4.3 | 4 |
 | Macro/trade | DeepSeek | 1 | Grok 4.3 | Grok 4.3 | 1 |
 | Macro/trade | Google | 0.998 | Grok 4.3 | Grok 4.3 | 3.667 |
 | Macro/trade | MiniMax | 0.999 | Grok 4.3 | Grok 4.3 | 0.667 |
-| Macro/trade | Moonshot AI | 1 | Grok 4.3 | Grok 4.3 | 1 |
-| Macro/trade | OpenAI | 0.991 | Grok 4.3 | Grok 4.20 | 7 |
+| Macro/trade | Moonshot AI | 1 | Grok 4.3 | Grok 4.3 | 1.667 |
+| Macro/trade | OpenAI | 0.992 | Grok 4.3 | Grok 4.20 | 7 |
 | Macro/trade | Zhipu AI | 1 | Grok 4.3 | Grok 4.3 | 1 |
 | Macro/trade | xAI | 0.999 | GPT-5.6 Luna | GPT-5.4 nano | 3.667 |

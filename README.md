@@ -217,13 +217,13 @@ values.
 
 Run the April v4 panel from scratch. This calls out to every provider
 and takes roughly 1–2 hours of wall time. The full committed panel is
-26 models × 26 quantities × 15 runs (10,140 main-panel runs) elicited
+27 models × 26 quantities × 15 runs (10,530 main-panel runs) elicited
 in five waves: the 11-model April wave via this driver (~$23), the
 6-model July frontier wave (~$38 including clarify probes), the
 5-model Chinese-lab wave through OpenRouter (~$29 at the account
 level, including recovered failures), the 3-model GPT-5.6 wave
-(request-level costs untracked), and the late Grok 4.5 addition
-(~$2.71). Set provider API keys in your
+(request-level costs untracked), and the late Grok 4.5 and Kimi K3
+additions (~$2.71 tracked; ~$10.69 estimated from logged tokens). Set provider API keys in your
 environment first (`OPENROUTER_API_KEY` for the Chinese-lab models).
 If any runs fail on infrastructure errors,
 `scripts/rerun_failed_runs.py` re-elicits the failed slots in place

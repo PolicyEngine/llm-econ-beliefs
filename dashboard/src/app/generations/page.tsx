@@ -22,6 +22,7 @@ const SUCCESSOR_PAIRS: Array<[string, string]> = [
   ["GPT-5.5", "GPT-5.6 Sol"],
   ["Gemini 3 Flash", "Gemini 3.5 Flash"],
   ["Grok 4.3", "Grok 4.5"],
+  ["Kimi K2.6", "Kimi K3"],
 ];
 
 const WAVE_ORDER: Record<string, number> = {

@@ -279,6 +279,14 @@ MODEL_REGISTRY: tuple[PanelModel, ...] = (
         "grok",
         "july_2026_late",
     ),
+    PanelModel(
+        "kimi-k3",
+        "Kimi K3",
+        "moonshot",
+        "openrouter_via_litellm",
+        "kimi",
+        "july_2026_late",
+    ),
 )
 
 ORGANIZATION_DISPLAY_LABELS = {
@@ -322,7 +330,7 @@ FRONTIER_MODEL_IDS = frozenset(
         "grok-4.5",
         "deepseek-v4-pro",
         "qwen-3.7-max",
-        "kimi-k2.6",
+        "kimi-k3",
         "glm-5.2",
         "minimax-m3",
     }
@@ -330,8 +338,8 @@ FRONTIER_MODEL_IDS = frozenset(
 
 
 def _validate_registry() -> None:
-    if len(MODEL_REGISTRY) != 26:
-        raise ValueError(f"The panel registry must contain 26 models, got {len(MODEL_REGISTRY)}")
+    if len(MODEL_REGISTRY) != 27:
+        raise ValueError(f"The panel registry must contain 27 models, got {len(MODEL_REGISTRY)}")
     if len(MODEL_REGISTRY_BY_ID) != len(MODEL_REGISTRY):
         raise ValueError("Panel model IDs must be unique")
     organizations = {model.organization for model in MODEL_REGISTRY}

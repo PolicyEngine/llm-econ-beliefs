@@ -25,6 +25,7 @@ Note: Per-model generation-harness configuration. The prompt text and repeated-r
 | DeepSeek V4 Pro | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/deepseek/deepseek-v4-pro | alias |
 | Qwen 3.7 Max | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/qwen/qwen3.7-max | alias |
 | Kimi K2.6 | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/moonshotai/kimi-k2.6 | alias |
+| Kimi K3 | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/moonshotai/kimi-k3 | alias |
 | GLM-5.2 | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 16000 | temperature 1.0 | provider default | openrouter/z-ai/glm-5.2 | alias |
 | MiniMax M3 | LiteLLM via OpenRouter | forced JSON object (schema validated locally) | 8000 | temperature 1.0 | provider default | openrouter/minimax/minimax-m3 | alias |
 | Grok 4.1 Fast | LiteLLM | forced function call | 1200 | temperature 1.0 | non-reasoning variant | xai/grok-4-1-fast-non-reasoning | alias |

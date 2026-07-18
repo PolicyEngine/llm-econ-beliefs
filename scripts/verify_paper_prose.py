@@ -425,11 +425,22 @@ def verify_correlates() -> None:
     tau = country["Implied optimal top rate (%)"]
     eti = country["ETI pooled median"]
     width = country["Avg interval-width rank (1 = tightest)"]
+    sys.path.insert(0, str(REPO_ROOT))
+    from llm_econ_beliefs.model_registry import (  # noqa: E402
+        MODEL_REGISTRY,
+        ORGANIZATION_COUNTRY,
+    )
+
+    china_models = sum(
+        1
+        for model in MODEL_REGISTRY
+        if ORGANIZATION_COUNTRY[model.organization] == "china"
+    )
     check(
         "country top-rate medians and p",
         f"`{float(tau['china_median']):.1f}%` versus `{float(tau['us_median']):.1f}%`" in PAPER
         and f"$p = {float(tau['permutation_p']):.3f}$" in PAPER
-        and tau["china_n"] == "5"
+        and int(tau["china_n"]) == china_models
         and int(tau["us_n"]) + int(tau["china_n"]) == n_models,
         f"got {tau['china_median']} vs {tau['us_median']}, p {tau['permutation_p']}",
     )
