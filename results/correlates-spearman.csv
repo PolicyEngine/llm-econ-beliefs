@@ -1,11 +1,11 @@
 predictor,outcome,n_models,spearman_rho,raw_p,holm_adjusted_p,bh_adjusted_p,family_size,is_derived
 Tax within-$1 (domain-matched),"Mean |center|, labor-and-tax",23,0.09639150955210281,0.6623668816559172,1.0,0.8831558422078896,8,False
 Tax within-$1 (domain-matched),"Mean |center|, macro-and-trade",23,0.15867525418576922,0.4704764761761912,1.0,0.7527623618819059,8,False
-Tax within-$1 (domain-matched),Avg interval-width rank (1 = tightest),23,-0.31792337189080744,0.13939303034848258,0.8363581820908954,0.3717147475959535,8,False
+Tax within-$1 (domain-matched),Avg interval-width rank (1 = tightest),23,-0.3203164009731416,0.13654317284135795,0.8192590370481476,0.3641151275769545,8,False
 Tax within-$1 (domain-matched),ETI pooled median,23,-0.49641534273463556,0.01749912504374781,0.12249387530623468,0.06999650017499125,8,False
 Tax within-$1 (domain-matched),"Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test",23,0.49641534273463556,0.01749912504374781,0.12249387530623468,0.06999650017499125,8,True
 Overall within-$1 (leaderboard headline),"Mean |center|, labor-and-tax",23,0.06126482213438735,0.7821608919554023,1.0,0.8938981622347455,8,False
 Overall within-$1 (leaderboard headline),"Mean |center|, macro-and-trade",23,0.02865612648221344,0.9008549572521374,1.0,0.9008549572521374,8,False
-Overall within-$1 (leaderboard headline),Avg interval-width rank (1 = tightest),23,-0.15814183828469403,0.46847657617119143,1.0,0.7527623618819059,8,False
+Overall within-$1 (leaderboard headline),Avg interval-width rank (1 = tightest),23,-0.1600790513833992,0.46447677616119193,1.0,0.7527623618819059,8,False
 Overall within-$1 (leaderboard headline),ETI pooled median,23,-0.5055596892663812,0.014449277536123194,0.11559422028898556,0.06999650017499125,8,False
 Overall within-$1 (leaderboard headline),"Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test",23,0.5055596892663812,0.014449277536123194,0.11559422028898556,0.06999650017499125,8,True

@@ -44,6 +44,7 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
     "kimi-k2.6": "openrouter/moonshotai/kimi-k2.6",
     "glm-5.2": "openrouter/z-ai/glm-5.2",
     "minimax-m3": "openrouter/minimax/minimax-m3",
+    "kimi-k3": "openrouter/moonshotai/kimi-k3",
 }
 
 # Reasoning tokens count against the completion cap for these models, so give
@@ -60,6 +61,7 @@ LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "deepseek-v4-pro": 8000,
     "qwen-3.7-max": 8000,
     "kimi-k2.6": 8000,
+    "kimi-k3": 8000,
     # GLM-5.2 exhausted an 8000-token budget on reasoning in 109 of its
     # first 390 runs (empty JSON content), so it gets double headroom.
     "glm-5.2": 16000,

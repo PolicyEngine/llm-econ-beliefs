@@ -1,6 +1,6 @@
 Outcome,US median (n),China median (n),China - US,Permutation p,Holm p,BH p
-Implied optimal top rate (%),35.917 (21),32.235 (5),-3.682,0.023,0.078*,0.078*
-ETI pooled median,0.420 (21),0.495 (5),+0.075,0.019,0.078,0.078
-Avg interval-width rank (1 = tightest),11.615 (21),16.923 (5),+5.308,0.070,0.190,0.094
-"Mean |center|, labor-and-tax",0.369 (21),0.324 (5),-0.045,0.063,0.190,0.094
-"Mean |center|, macro-and-trade",1.164 (21),1.038 (5),-0.127,0.249,0.249,0.249
+Implied optimal top rate (%),35.917 (21),32.589 (6),-3.329,0.052,0.189*,0.099*
+ETI pooled median,0.420 (21),0.487 (6),+0.067,0.047,0.189,0.099
+Avg interval-width rank (1 = tightest),11.846 (21),17.308 (6),+5.462,0.050,0.189,0.099
+"Mean |center|, labor-and-tax",0.369 (21),0.340 (6),-0.028,0.109,0.218,0.145
+"Mean |center|, macro-and-trade",1.164 (21),1.070 (6),-0.094,0.266,0.266,0.266

@@ -23,7 +23,7 @@ def test_every_registry_organization_has_a_country():
         assert country_for_organization(model.organization) in {"us", "china"}
 
 
-def test_registry_has_exactly_five_chinese_models():
+def test_registry_has_exactly_six_chinese_models():
     chinese = [
         model
         for model in MODEL_REGISTRY
@@ -33,6 +33,7 @@ def test_registry_has_exactly_five_chinese_models():
         "deepseek-v4-pro",
         "glm-5.2",
         "kimi-k2.6",
+        "kimi-k3",
         "minimax-m3",
         "qwen-3.7-max",
     ]

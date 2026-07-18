@@ -71,7 +71,7 @@ CANONICAL = LABOR_TAX | MACRO_TRADE | {
 }
 ETI_QUANTITY_ID = "tax.elasticity_of_taxable_income.top_earners"
 
-EXPECTED_PANEL_ONLY = {"gpt-5.4", "grok-4.20", "grok-4.1-fast"}
+EXPECTED_PANEL_ONLY = {"gpt-5.4", "grok-4.20", "grok-4.1-fast", "kimi-k3"}
 EXPECTED_POLICYBENCH_ONLY = {"grok-build-0.1"}
 EXPECTED_POLICYBENCH_CONDITION = "no_tools"
 EXPECTED_POLICYBENCH_COUNTRY = "us"
@@ -942,9 +942,9 @@ def country_permutation_p(
     china_values: Sequence[float],
     *,
     seed: int = 20260710,
-    # C(26, 5) = 65,780 — keep the 26-model panel's country cut on the
+    # C(27, 6) = 296,010 — keep the panel's country cut on the
     # exact-enumeration path (the paper reports it as exact).
-    max_exact: int = 70000,
+    max_exact: int = 300000,
 ) -> float:
     """Two-sided group-label permutation p for the difference in medians.
 

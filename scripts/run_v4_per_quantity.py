@@ -65,6 +65,7 @@ PROVIDER_FOR_MODEL = {
     "deepseek-v4-pro": "litellm",
     "qwen-3.7-max": "litellm",
     "kimi-k2.6": "litellm",
+    "kimi-k3": "litellm",
     "glm-5.2": "litellm",
     "minimax-m3": "litellm",
     "gpt-5.6-sol": "openai",
