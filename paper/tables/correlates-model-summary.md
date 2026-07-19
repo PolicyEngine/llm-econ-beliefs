@@ -1,11 +1,11 @@
-Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260710, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
+Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260719, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
 
 | Model | Organization | Wave | PolicyBench within-$1 | ETI median | Implied top rate | Avg width rank |
 | --- | --- | --- | --- | --- | --- | --- |
 | Gemini 3.1 Pro | Google | April 2026 | 77.9 | 0.351 | 40.2% | 9.3 |
 | Gemini 3.5 Flash | Google | July 2026 frontier | 76.2 | 0.357 | 39.8% | 11.4 |
 | GPT-5.5 | OpenAI | July 2026 frontier | 83.5 | 0.369 | 39.0% | 12.7 |
-| Kimi K3 | Moonshot AI | July 2026 late | — | 0.371 | 38.8% | 16.1 |
+| Kimi K3 | Moonshot AI | July 2026 late | 86.2 | 0.371 | 38.8% | 16.1 |
 | GPT-5.6 Luna | OpenAI | July 2026 GPT-5.6 | 84.5 | 0.377 | 38.4% | 22.6 |
 | Claude Opus 4.8 | Anthropic | July 2026 frontier | 72.6 | 0.383 | 38.0% | 9.3 |
 | Gemini 3.1 Flash-Lite | Google | April 2026 | 76.1 | 0.389 | 37.7% | 11.8 |
