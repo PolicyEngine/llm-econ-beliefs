@@ -462,24 +462,18 @@ def verify_correlates() -> None:
     )
 
 
-NUMBER_WORDS = {
-    3: "three",
-    4: "four",
-    8: "eight",
-    9: "nine",
-    14: "fourteen",
-    15: "fifteen",
-    16: "sixteen",
-    17: "seventeen",
-    20: "twenty",
-    21: "twenty-one",
-    22: "twenty-two",
-    23: "twenty-three",
-    24: "twenty-four",
-    25: "twenty-five",
-    26: "twenty-six",
-    27: "twenty-seven",
-}
+# Cover 1-30 so panel growth can never KeyError a check mid-run (a crash
+# here hides every later check, which happened at 26 and again at 18).
+_ONES = (
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+    "seventeen", "eighteen", "nineteen", "twenty",
+)
+NUMBER_WORDS = {i + 1: word for i, word in enumerate(_ONES)}
+NUMBER_WORDS.update(
+    {20 + i: f"twenty-{_ONES[i - 1]}" for i in range(1, 10)}
+)
+NUMBER_WORDS[30] = "thirty"
 
 
 def verify_cap_gains_audit() -> None:

@@ -17,6 +17,7 @@ Note: Per-model generation-harness configuration. The prompt text and repeated-r
 | Claude Haiku 4.5 | LiteLLM | forced function call | 1200 | temperature 1.0 | off (provider default) | claude-haiku-4-5-20251001 | dated snapshot |
 | Gemini 3.1 Pro | LiteLLM | forced JSON object | 1200 | temperature 1.0 | provider default thinking | gemini-3.1-pro-preview | preview alias |
 | Gemini 3.5 Flash | LiteLLM | forced JSON object | 4000 | temperature 1.0 | provider default thinking | gemini-3.5-flash | alias |
+| Gemini 3.6 Flash | LiteLLM | forced JSON object | 8000 | temperature 1.0 | provider default thinking | gemini-3.6-flash | alias |
 | Gemini 3 Flash | LiteLLM | forced JSON object | 1200 | temperature 1.0 | provider default thinking | gemini-3-flash-preview | preview alias |
 | Gemini 3.1 Flash-Lite | LiteLLM | forced JSON object | 1200 | temperature 1.0 | provider default thinking | gemini-3.1-flash-lite-preview | preview alias |
 | Grok 4.20 | LiteLLM | forced function call | 1200 | temperature 1.0 | reasoning variant | xai/grok-4.20-reasoning | alias |

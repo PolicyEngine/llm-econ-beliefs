@@ -93,7 +93,7 @@ export default async function ModelPage({ params }: PageProps) {
           style={{ color: "var(--muted-foreground)" }}
         >
           One row per canonical quantity, each on its own scale: this
-          model&apos;s pooled center and 90 percent interval, with the
+          model&apos;s pooled center and 90 percent interval, with the{" "}
           {modelCount}-model panel median as a gray tick.
         </p>
 

@@ -1767,7 +1767,7 @@ print(json.dumps({{
 """
     try:
         completed = subprocess.run(
-            [str(POLICYENGINE_US_PYTHON), "-c", script],
+            [str(POLICYENGINE_US_PYTHON), "-P", "-c", script],
             cwd=POLICYENGINE_US_REPO,
             capture_output=True,
             text=True,
@@ -1874,7 +1874,7 @@ print(json.dumps({{
 """
     try:
         completed = subprocess.run(
-            [str(POLICYENGINE_US_PYTHON), "-c", script],
+            [str(POLICYENGINE_US_PYTHON), "-P", "-c", script],
             cwd=POLICYENGINE_US_REPO,
             capture_output=True,
             text=True,
@@ -2165,6 +2165,7 @@ HARNESS_DISCLOSURE_ROWS: list[dict[str, str]] = [
     {"model": "claude-haiku-4.5", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "off (provider default)", "identifier": "claude-haiku-4-5-20251001", "id_type": "dated snapshot"},
     {"model": "gemini-3.1-pro-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-pro-preview", "id_type": "preview alias"},
     {"model": "gemini-3.5-flash", "mechanism": "forced JSON object", "budget": "4000", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.5-flash", "id_type": "alias"},
+    {"model": "gemini-3.6-flash", "mechanism": "forced JSON object", "budget": "8000", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.6-flash", "id_type": "alias"},
     {"model": "gemini-3-flash-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3-flash-preview", "id_type": "preview alias"},
     {"model": "gemini-3.1-flash-lite-preview", "mechanism": "forced JSON object", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "provider default thinking", "identifier": "gemini-3.1-flash-lite-preview", "id_type": "preview alias"},
     {"model": "grok-4.20", "mechanism": "forced function call", "budget": "1200", "sampling": "temperature 1.0", "reasoning": "reasoning variant", "identifier": "xai/grok-4.20-reasoning", "id_type": "alias"},
