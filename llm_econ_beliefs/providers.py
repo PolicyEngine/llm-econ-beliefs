@@ -36,6 +36,7 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
     "gemini-3-flash-preview": "gemini/gemini-3-flash-preview",
     "gemini-3.1-flash-lite-preview": "gemini/gemini-3.1-flash-lite-preview",
     "gemini-3.5-flash": "gemini/gemini-3.5-flash",
+    "gemini-3.6-flash": "gemini/gemini-3.6-flash",
     # July 2026 open-weights / independent-lab wave, served through
     # OpenRouter. Panel names match PolicyBench model ids exactly so the
     # two datasets join on name.
@@ -52,6 +53,9 @@ POLICYBENCH_LITELLM_MODEL_ALIASES: dict[str, str] = {
 # (the cap only guards against runaways; billing reflects actual generation).
 LITELLM_MAX_COMPLETION_TOKENS_BY_MODEL: dict[str, int] = {
     "gemini-3.5-flash": 4000,
+    # Gemini 3.6 Flash reasons before answering (smoke run: 479 reasoning
+    # tokens on the ETI prompt); same headroom as the other reasoners.
+    "gemini-3.6-flash": 8000,
     "grok-4.3": 4000,
     # Grok 4.5 reasons before answering (smoke run: ~540 reasoning tokens
     # on the ETI prompt); give it the same headroom as the GPT-5.6 family.

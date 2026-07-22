@@ -25,15 +25,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from llm_econ_beliefs import list_quantities
+from llm_econ_beliefs.model_registry import MODEL_REGISTRY, PANEL_MODEL_IDS
 
 
 RUNS_PER_QUANTITY = 15
-OPEN_WEIGHTS_MODELS = (
-    "deepseek-v4-pro",
-    "qwen-3.7-max",
-    "kimi-k2.6",
-    "glm-5.2",
-    "minimax-m3",
+# The no-argument invocation verifies exactly the completeness the paper
+# claims: the main elasticities batch for every registry model, plus the
+# clarify batches for the July 2026 waves. Three April models carry
+# documented clarify-batch gaps (claude-opus-4.7's armington runs are
+# tagged v4; two Gemini previews hold unparsed clarify slots), so April
+# clarify cells are only checked when named explicitly via --models.
+JULY_MODEL_IDS = tuple(
+    model.model_id for model in MODEL_REGISTRY if model.wave != "april_2026"
 )
 BATCH_PROMPT_VERSIONS = {
     "elasticities-batch15": "v4",
@@ -250,12 +253,15 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--models",
-        default=",".join(OPEN_WEIGHTS_MODELS),
-        help="comma-separated model names (default: the open-weights wave)",
+        default=None,
+        help=(
+            "comma-separated model names (default: the full registry for the "
+            "main batch, July-wave models for the clarify batches)"
+        ),
     )
     parser.add_argument(
         "--batches",
-        default=",".join(BATCH_PROMPT_VERSIONS),
+        default=None,
         help="comma-separated canonical batch suffixes",
     )
     parser.add_argument(
@@ -271,34 +277,57 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        models = _parse_csv_list(args.models, option="--models")
-        batches = _parse_csv_list(args.batches, option="--batches")
+        models = (
+            _parse_csv_list(args.models, option="--models")
+            if args.models is not None
+            else None
+        )
+        batches = (
+            _parse_csv_list(args.batches, option="--batches")
+            if args.batches is not None
+            else None
+        )
     except ValueError as exc:
         parser.error(str(exc))
-    unknown_batches = sorted(set(batches) - set(BATCH_PROMPT_VERSIONS))
-    if unknown_batches:
-        parser.error(f"unknown batches: {', '.join(unknown_batches)}")
+    if batches is not None:
+        unknown_batches = sorted(set(batches) - set(BATCH_PROMPT_VERSIONS))
+        if unknown_batches:
+            parser.error(f"unknown batches: {', '.join(unknown_batches)}")
+
+    if models is None and batches is None:
+        # The paper-claim plan: main batch panel-wide, clarify July-wide.
+        plan = [(model, "elasticities-batch15") for model in PANEL_MODEL_IDS]
+        plan += [
+            (model, batch)
+            for model in JULY_MODEL_IDS
+            for batch in ("armington-clarify-batch15", "ies-clarify-batch15")
+        ]
+    else:
+        plan = [
+            (model, batch)
+            for model in (models if models is not None else PANEL_MODEL_IDS)
+            for batch in (batches if batches is not None else BATCH_PROMPT_VERSIONS)
+        ]
 
     all_ok = True
-    for model_name in models:
-        for batch in batches:
-            result = check_batch_directory(
-                args.results_root,
-                model_name=model_name,
-                batch=batch,
-                require_parsed=args.require_parsed,
-            )
-            label = f"{model_name}/{batch}"
-            if result.ok:
-                print(f"OK {label}: {result.observed_count}/{result.expected_count}")
-                continue
-            all_ok = False
-            print(
-                f"FAIL {label}: {result.observed_count}/{result.expected_count}",
-                file=sys.stderr,
-            )
-            for error in result.errors:
-                print(f"  {error}", file=sys.stderr)
+    for model_name, batch in plan:
+        result = check_batch_directory(
+            args.results_root,
+            model_name=model_name,
+            batch=batch,
+            require_parsed=args.require_parsed,
+        )
+        label = f"{model_name}/{batch}"
+        if result.ok:
+            print(f"OK {label}: {result.observed_count}/{result.expected_count}")
+            continue
+        all_ok = False
+        print(
+            f"FAIL {label}: {result.observed_count}/{result.expected_count}",
+            file=sys.stderr,
+        )
+        for error in result.errors:
+            print(f"  {error}", file=sys.stderr)
     return 0 if all_ok else 1
 
 

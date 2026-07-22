@@ -60,6 +60,7 @@ PROVIDER_FOR_MODEL = {
     "claude-opus-4.8": "anthropic",
     "claude-fable-5": "anthropic",
     "gemini-3.5-flash": "litellm",
+    "gemini-3.6-flash": "litellm",
     "grok-4.3": "litellm",
     "grok-4.5": "litellm",
     "deepseek-v4-pro": "litellm",
