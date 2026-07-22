@@ -191,6 +191,13 @@ def verify_top_rate() -> None:
         f"from `{revs[0]}%` to `{revs[-1]}%`" in PAPER,
         f"expected {revs[0]}%..{revs[-1]}%",
     )
+    width_col = next(c for c in rows[0] if "width" in c.lower())
+    widths = sorted(float(r[width_col]) for r in rows)
+    check(
+        "top-rate interval-width range prose",
+        f"roughly `{round(widths[0])}` to `{round(widths[-1])}` percentage points wide" in PAPER,
+        f"expected roughly {round(widths[0])}..{round(widths[-1])} (table {widths[0]}..{widths[-1]})",
+    )
 
 
 def verify_stability() -> None:
