@@ -649,4 +649,119 @@ export function loadTopRateRows(): TopRateRow[] {
   return parsed;
 }
 
+/* ------------------------------------------------------------------ */
+/* Verbatim prompts and costs (Process page + quantity pages)          */
+/* ------------------------------------------------------------------ */
+
+export interface VerbatimPrompt {
+  /** The most widely sent archived text (ties broken deterministically). */
+  text: string;
+  promptVersion: string;
+  /** Models whose archived runs carry exactly `text`. */
+  modelCount: number;
+  /** Models with any archived prompt for this quantity. */
+  totalModels: number;
+  /** Models whose archived text differs from `text` (0 for 23 of the 26
+   *  quantities; the three sign-clarified quantities carry an earlier
+   *  wording for the earliest April models). */
+  otherWordingCount: number;
+}
+
+/** The exact prompt sent for one quantity, read from the archived
+ *  runs.jsonl of the same experiments the dashboard displays. When the
+ *  archives carry more than one wording, the majority text is returned
+ *  and the split is reported so pages can disclose it instead of
+ *  mislabeling the text as universal. */
+export function loadVerbatimPrompt(quantityId: string): VerbatimPrompt | null {
+  const { resultsDir, gatedModelIds } = getSiteInputs();
+  const quantity = getSummaryData().quantities.find(
+    (entry) => entry.quantityId === quantityId,
+  );
+  if (!quantity) return null;
+
+  const variants = new Map<string, { promptVersion: string; models: number }>();
+  for (const summary of quantity.modelSummaries) {
+    const payload = loadRunPayload(
+      quantityId,
+      summary.modelName,
+      resultsDir,
+      gatedModelIds,
+    );
+    const run = payload?.runs.find((entry) => entry.prompt);
+    if (!run?.prompt) continue;
+    const variant = variants.get(run.prompt) ?? {
+      promptVersion: run.promptVersion,
+      models: 0,
+    };
+    variant.models += 1;
+    variants.set(run.prompt, variant);
+  }
+  if (variants.size === 0) return null;
+
+  const totalModels = [...variants.values()].reduce(
+    (total, variant) => total + variant.models,
+    0,
+  );
+  const [text, majority] = [...variants.entries()].sort(
+    (a, b) => b[1].models - a[1].models || a[0].localeCompare(b[0]),
+  )[0];
+  return {
+    text,
+    promptVersion: majority.promptVersion,
+    modelCount: majority.models,
+    totalModels,
+    otherWordingCount: totalModels - majority.models,
+  };
+}
+
+export interface CostRow {
+  modelId: string;
+  displayLabel: string;
+  organizationLabel: string;
+  servingProviderPath: string;
+  runs: number;
+  totalTokens: number | null;
+  totalCostUsd: number | null;
+  costPerRunUsd: number | null;
+}
+
+/** Per-model usage and tracked cost across the main elicitation batches
+ *  the dashboard serves. Models whose serving path reports no
+ *  per-request price come back with null cost, mirroring the paper's
+ *  em-dash cost columns. */
+export function loadCostRows(): CostRow[] {
+  const { registry } = getSiteInputs();
+  const data = getSummaryData();
+  const rows: CostRow[] = [];
+  for (const modelName of data.modelNames) {
+    const meta = registry.get(modelName);
+    if (!meta) {
+      throw new Error(`Cost table model is absent from model-registry.csv: ${modelName}`);
+    }
+    const summaries = data.quantities.flatMap((quantity) =>
+      quantity.modelSummaries.filter((summary) => summary.modelName === modelName),
+    );
+    const runs = summaries.reduce((total, summary) => total + summary.nSuccessfulRuns, 0);
+    const totalTokens = sumCompleteOrNull(summaries.map((summary) => summary.totalTokens));
+    const totalCostUsd = sumCompleteOrNull(summaries.map((summary) => summary.totalCostUsd));
+    rows.push({
+      modelId: modelName,
+      displayLabel: meta.displayLabel,
+      organizationLabel: meta.organizationLabel,
+      servingProviderPath: meta.servingProviderPath,
+      runs,
+      totalTokens,
+      totalCostUsd,
+      costPerRunUsd:
+        totalCostUsd !== null && runs > 0 ? totalCostUsd / runs : null,
+    });
+  }
+  rows.sort(
+    (a, b) =>
+      (b.totalCostUsd ?? -1) - (a.totalCostUsd ?? -1) ||
+      a.displayLabel.localeCompare(b.displayLabel),
+  );
+  return rows;
+}
+
 export { resolveResultsDir };

@@ -91,6 +91,10 @@ function percent(domain: Domain, value: number): string {
   return `${(((value - domain.min) / (domain.max - domain.min)) * 100).toFixed(3)}%`;
 }
 
+function percentNumber(domain: Domain, value: number): number {
+  return ((value - domain.min) / (domain.max - domain.min)) * 100;
+}
+
 /** One model's strip: band, zero line, run underlays, interval, dot.
  *  Percentage x-coordinates, so the strip stretches to any container
  *  width without distorting text or markers. */
@@ -117,15 +121,21 @@ function RowStrip({
   // fill over a half-opacity bar, separated by a background-color halo.
   const dotRadius = height >= 20 ? 5.5 : 3;
   const dotHalo = height >= 20 ? 2 : 1.25;
+  const ariaValue =
+    row.center !== null
+      ? `${valueFormatter(row.center)}${
+          row.lower !== null && row.upper !== null
+            ? `, 90 percent interval ${valueFormatter(row.lower)} to ${valueFormatter(row.upper)}`
+            : ""
+        }`
+      : "no estimate";
 
   return (
     <svg
       width="100%"
       height={height}
       role="img"
-      aria-label={`${label}: ${
-        row.center !== null ? valueFormatter(row.center) : "no estimate"
-      }`}
+      aria-label={`${label}: ${ariaValue}`}
       style={{ display: "block" }}
     >
       {band ? (
@@ -138,16 +148,6 @@ function RowStrip({
           ).toFixed(3)}%`}
           height={height}
           fill="var(--muted)"
-        />
-      ) : null}
-      {zeroInDomain ? (
-        <line
-          x1={percent(domain, 0)}
-          x2={percent(domain, 0)}
-          y1={0}
-          y2={height}
-          stroke="var(--border)"
-          strokeDasharray="3 3"
         />
       ) : null}
       {showRuns && row.runs
@@ -166,6 +166,19 @@ function RowStrip({
             ) : null,
           )
         : null}
+      {zeroInDomain ? (
+        // Rows butt against each other, so per-row segments read as one
+        // continuous rule; solid muted-foreground keeps it visible over
+        // the faint run underlays without competing with the data marks.
+        <line
+          x1={percent(domain, 0)}
+          x2={percent(domain, 0)}
+          y1={0}
+          y2={height}
+          stroke="var(--muted-foreground)"
+          strokeWidth={1}
+        />
+      ) : null}
       {row.lower !== null && row.upper !== null ? (
         <line
           x1={percent(domain, row.lower)}
@@ -186,9 +199,7 @@ function RowStrip({
           y2={mid + 7}
           stroke="var(--muted-foreground)"
           strokeWidth={1.5}
-        >
-          <title>{`Panel median ${valueFormatter(row.referenceValue)}`}</title>
-        </line>
+        />
       ) : null}
       {row.center !== null ? (
         <circle
@@ -198,15 +209,82 @@ function RowStrip({
           fill={color}
           stroke="var(--background)"
           strokeWidth={dotHalo}
-        >
-          <title>{`${label}: ${valueFormatter(row.center)}${
-            row.lower !== null && row.upper !== null
-              ? ` [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
-              : ""
-          }`}</title>
-        </circle>
+        />
       ) : null}
     </svg>
+  );
+}
+
+/** Hover card for one row: the interval values, width, run envelope, and
+ *  panel median — everything the trailing column cannot fit. Pure CSS
+ *  (group-hover), anchored at the row's dot. */
+function RowTooltip({
+  row,
+  domain,
+  showRuns,
+  valueFormatter,
+}: {
+  row: StripRow;
+  domain: Domain;
+  showRuns: boolean;
+  valueFormatter: (value: number) => string;
+}) {
+  if (row.center === null) return null;
+  const anchor = Math.min(92, Math.max(8, percentNumber(domain, row.center)));
+  const width =
+    row.lower !== null && row.upper !== null ? row.upper - row.lower : null;
+  const runStats = (() => {
+    if (!showRuns || !row.runs || row.runs.length === 0) return null;
+    const lows = row.runs
+      .map((run) => run.p05)
+      .filter((value): value is number => value !== null);
+    const highs = row.runs
+      .map((run) => run.p95)
+      .filter((value): value is number => value !== null);
+    if (lows.length === 0 || highs.length === 0) return null;
+    return {
+      count: row.runs.length,
+      min: Math.min(...lows),
+      max: Math.max(...highs),
+    };
+  })();
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute bottom-full z-10 mb-1 hidden -translate-x-1/2 rounded-md border px-2.5 py-1.5 text-left text-xs leading-relaxed shadow-sm group-hover:block"
+      style={{
+        left: `${anchor}%`,
+        borderColor: "var(--border)",
+        background: "var(--card)",
+        color: "var(--muted-foreground)",
+      }}
+    >
+      <p
+        className="whitespace-nowrap font-medium"
+        style={{ color: "var(--foreground)" }}
+      >
+        {getModelLabel(row.modelName)}
+      </p>
+      <p className="whitespace-nowrap font-mono">
+        center {valueFormatter(row.center)}
+        {row.lower !== null && row.upper !== null
+          ? ` · 90% [${valueFormatter(row.lower)}, ${valueFormatter(row.upper)}]`
+          : ""}
+        {width !== null ? ` · width ${valueFormatter(width)}` : ""}
+      </p>
+      {runStats ? (
+        <p className="whitespace-nowrap font-mono">
+          {runStats.count} runs · p05–p95 envelope [
+          {valueFormatter(runStats.min)}, {valueFormatter(runStats.max)}]
+        </p>
+      ) : null}
+      {row.referenceValue !== null && row.referenceValue !== undefined ? (
+        <p className="whitespace-nowrap font-mono">
+          panel median {valueFormatter(row.referenceValue)}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -220,27 +298,32 @@ function AxisStrip({
   const ticks = niceTicks(domain.min, domain.max, 5);
   return (
     <svg width="100%" height={20} aria-hidden="true" style={{ display: "block" }}>
-      {ticks.map((tick) => (
-        <g key={tick}>
-          <line
-            x1={percent(domain, tick)}
-            x2={percent(domain, tick)}
-            y1={0}
-            y2={4}
-            stroke="var(--border)"
-          />
-          <text
-            x={percent(domain, tick)}
-            y={16}
-            textAnchor="middle"
-            fontSize={11}
-            fontFamily="var(--font-sans)"
-            fill="var(--muted-foreground)"
-          >
-            {valueFormatter(tick)}
-          </text>
-        </g>
-      ))}
+      {ticks.map((tick) => {
+        const isZero = tick === 0 && domain.min < 0 && domain.max > 0;
+        return (
+          <g key={tick}>
+            <line
+              x1={percent(domain, tick)}
+              x2={percent(domain, tick)}
+              y1={0}
+              y2={isZero ? 6 : 4}
+              stroke={isZero ? "var(--muted-foreground)" : "var(--border)"}
+              strokeWidth={isZero ? 1.5 : 1}
+            />
+            <text
+              x={percent(domain, tick)}
+              y={16}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight={isZero ? 700 : 400}
+              fontFamily="var(--font-sans)"
+              fill={isZero ? "var(--foreground)" : "var(--muted-foreground)"}
+            >
+              {isZero ? "0" : valueFormatter(tick)}
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 }
@@ -283,7 +366,7 @@ export function StripPlot({
       {rows.map((row) => {
         const label = getModelLabel(row.modelName);
         return (
-          <div key={row.modelName} className="flex items-center gap-3 py-0.5">
+          <div key={row.modelName} className="flex items-center gap-3">
             <span
               className="w-28 shrink-0 truncate text-right text-xs sm:w-40 sm:text-[12.5px]"
               style={{ color: "var(--foreground)" }}
@@ -297,13 +380,19 @@ export function StripPlot({
                 label
               )}
             </span>
-            <div className="min-w-0 flex-1">
+            <div className="group relative min-w-0 flex-1">
               <RowStrip
                 row={row}
                 domain={domain}
                 band={band}
                 showRuns={showRuns}
-                height={26}
+                height={30}
+                valueFormatter={valueFormatter}
+              />
+              <RowTooltip
+                row={row}
+                domain={domain}
+                showRuns={showRuns}
                 valueFormatter={valueFormatter}
               />
             </div>

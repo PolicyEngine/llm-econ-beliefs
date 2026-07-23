@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { PageBand, ProvenanceFooter } from "@/components/site-chrome";
 import { loadHarnessRows, totalRunCount } from "@/lib/site-data";
 
@@ -28,7 +30,16 @@ export default function MethodsPage() {
             alone — no tools, no literature reconstruction. Two
             sign-ambiguous quantities carry direction-first clarifiers that
             define what the reported sign means without calling either
-            direction correct.
+            direction correct. The exact prompt text appears verbatim on
+            every quantity page and on the{" "}
+            <Link
+              href="/process"
+              className="underline underline-offset-2"
+              style={{ color: "var(--foreground)" }}
+            >
+              Process
+            </Link>{" "}
+            page, alongside costs and the full generation pipeline.
           </MethodBlock>
           <MethodBlock title="How the nine headline elasticities were chosen">
             Three criteria, fixed in the registry before the panel ran: each
