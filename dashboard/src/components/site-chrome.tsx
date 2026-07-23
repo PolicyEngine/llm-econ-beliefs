@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Overview" },
   { href: "/quantities", label: "Quantities" },
   { href: "/models", label: "Models" },
+  { href: "/top-rates", label: "Top rates" },
   { href: "/generations", label: "Generations" },
   { href: "/methods", label: "Methods" },
 ] as const;
@@ -68,7 +69,14 @@ export function ProvenanceFooter({
           className="underline underline-offset-2"
           href="https://github.com/PolicyEngine/llm-econ-beliefs"
         >
-          Code and raw responses
+          Code
+        </a>
+        {" · "}
+        <a
+          className="underline underline-offset-2"
+          href="https://github.com/PolicyEngine/llm-econ-beliefs/tree/main/results"
+        >
+          Raw responses
         </a>
         {" · "}
         <a

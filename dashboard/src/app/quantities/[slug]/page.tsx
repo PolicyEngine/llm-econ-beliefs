@@ -145,11 +145,11 @@ export default async function QuantityPage({ params }: PageProps) {
               {definition.description}
             </p>
             <dl
-              className="mt-3 grid gap-x-8 gap-y-1.5 text-xs sm:grid-cols-2"
+              className="mt-3 grid gap-y-1.5 text-xs"
               style={{ color: "var(--muted-foreground)" }}
             >
               {formula ? (
-                <div className="sm:col-span-2">
+                <div>
                   <dt className="inline font-medium">In standard notation: </dt>
                   <dd
                     className="inline font-serif text-[13px]"
@@ -195,6 +195,25 @@ export default async function QuantityPage({ params }: PageProps) {
           >
             Review-range sources: {band.sources}. These are hand-coded
             literature anchors, not benchmark truths.
+          </p>
+        ) : null}
+
+        {quantity.quantityId ===
+        "tax.elasticity_of_taxable_income.top_earners" ? (
+          <p
+            className="mt-3 text-sm"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            Each model&apos;s elicited ETI implies a top marginal rate under
+            one fixed Saez calibration —{" "}
+            <Link
+              className="underline underline-offset-2"
+              href="/top-rates"
+              style={{ color: "var(--foreground)" }}
+            >
+              see the implied top rates for all 28 models
+            </Link>
+            .
           </p>
         ) : null}
 
