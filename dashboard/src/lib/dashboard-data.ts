@@ -325,16 +325,25 @@ function selectPreferredSummaries(rows: SummaryRecord[]): SummaryRecord[] {
   );
 }
 
+/** Deterministic preference order: run count, then logged token volume,
+ *  then directory name. Filesystem mtime is deliberately not consulted —
+ *  it is checkout-time on a fresh clone, so ordering by it would make the
+ *  preferred experiment depend on when the repo was cloned. */
 function compareSummaryRows(left: SummaryRecord, right: SummaryRecord): number {
   return (
     right.nSuccessfulRuns - left.nSuccessfulRuns ||
-    right.experimentUpdatedAt - left.experimentUpdatedAt ||
     (right.usageTotalTokensTotal ?? -1) - (left.usageTotalTokensTotal ?? -1) ||
     right.experimentDir.localeCompare(left.experimentDir)
   );
 }
 
+const summaryRowsCache = new Map<string, SummaryRecord[]>();
+
 function loadSummaryRows(resultsDir: string): SummaryRecord[] {
+  const cached = summaryRowsCache.get(resultsDir);
+  if (cached) {
+    return cached;
+  }
   const experimentDirs = fs
     .readdirSync(resultsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
@@ -398,6 +407,7 @@ function loadSummaryRows(resultsDir: string): SummaryRecord[] {
     }
   }
 
+  summaryRowsCache.set(resultsDir, rows);
   return rows;
 }
 

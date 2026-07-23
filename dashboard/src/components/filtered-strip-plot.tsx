@@ -8,25 +8,18 @@ import type { BenchmarkBand } from "@/lib/site-data";
 export interface StripModelMeta {
   organization: string;
   organizationLabel: string;
-  wave: string;
-  waveLabel: string;
   isFrontier: boolean;
 }
 
-type Scope = "all" | "frontier" | "april" | "july";
+type Scope = "all" | "frontier";
 
 const SCOPES: Array<{ key: Scope; label: string }> = [
   { key: "all", label: "All models" },
   { key: "frontier", label: "Frontier (latest per lab)" },
-  { key: "april", label: "April 2026" },
-  { key: "july", label: "July 2026" },
 ];
 
 function matchesScope(meta: StripModelMeta, scope: Scope): boolean {
-  if (scope === "all") return true;
-  if (scope === "frontier") return meta.isFrontier;
-  if (scope === "april") return meta.wave === "april_2026";
-  return meta.wave.startsWith("july_2026");
+  return scope === "all" || meta.isFrontier;
 }
 
 function Chip({
@@ -65,7 +58,9 @@ function Chip({
 
 /** Strip plot with client-side scope and lab filters. Filtering changes
  *  which models render; the shared x-domain stays fixed to the full
- *  roster so intervals remain comparable across filter states. */
+ *  roster so intervals remain comparable across filter states. Wave
+ *  membership stays visible on model pages, Methods, and Generations —
+ *  it is disclosure metadata, not a filter anyone needs here. */
 export function FilteredStripPlot({
   rows,
   band = null,
@@ -84,6 +79,9 @@ export function FilteredStripPlot({
   const [organization, setOrganization] = useState<string>("all");
   const wroteBackOnce = useRef(false);
 
+  // Lab list is fixed by the full roster (stable dropdown); counts follow
+  // the active scope so the numbers always describe what selecting a lab
+  // would show.
   const organizations = useMemo(() => {
     const counts = new Map<string, { label: string; count: number }>();
     for (const row of rows) {
@@ -93,16 +91,17 @@ export function FilteredStripPlot({
         label: rowMeta.organizationLabel,
         count: 0,
       };
-      entry.count += 1;
+      if (matchesScope(rowMeta, scope)) entry.count += 1;
       counts.set(rowMeta.organization, entry);
     }
     return [...counts.entries()]
       .map(([key, { label, count }]) => ({ key, label, count }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
-  }, [rows, meta]);
+  }, [rows, meta, scope]);
 
-  // Filters are shareable: ?scope=frontier|april|july&lab=<organization>
-  // seeds the state, and changes write back via replaceState.
+  // Filters are shareable: ?scope=frontier&lab=<organization> seeds the
+  // state, and changes write back via replaceState. Unknown params
+  // (including retired scopes from old links) are ignored.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const scopeParam = params.get("scope");
@@ -146,6 +145,10 @@ export function FilteredStripPlot({
   });
 
   const labSelected = organization !== "all";
+  const scopedTotal = rows.filter((row) => {
+    const rowMeta = meta[row.modelName];
+    return !rowMeta || matchesScope(rowMeta, scope);
+  }).length;
 
   return (
     <div>
@@ -173,7 +176,7 @@ export function FilteredStripPlot({
               color: labSelected ? "var(--background)" : "var(--foreground)",
             }}
           >
-            <option value="all">All labs ({organizations.length})</option>
+            <option value="all">All labs ({scopedTotal})</option>
             {organizations.map((entry) => (
               <option key={entry.key} value={entry.key}>
                 {entry.label} ({entry.count})

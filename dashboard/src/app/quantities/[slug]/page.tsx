@@ -24,6 +24,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export function generateStaticParams() {
   return getSummaryData().quantities.map((quantity) => ({
     slug: slugForQuantity(quantity.quantityId),
@@ -65,8 +67,6 @@ export default async function QuantityPage({ params }: PageProps) {
               {
                 organization: entry.organization,
                 organizationLabel: entry.organizationLabel,
-                wave: entry.wave,
-                waveLabel: entry.waveLabel,
                 isFrontier: entry.isFrontier,
               },
             ],
@@ -78,6 +78,7 @@ export default async function QuantityPage({ params }: PageProps) {
   const modelRuns = ordered.map((summary) => ({
     modelName: summary.modelName,
     experimentDir: summary.experimentDir,
+    runsJsonHref: `${basePath}/api/runs/${slugForQuantity(quantity.quantityId)}/${slugForModel(summary.modelName)}`,
     runs: loadSlimRuns(quantity.quantityId, summary.modelName),
   }));
   const runsByModel = new Map(

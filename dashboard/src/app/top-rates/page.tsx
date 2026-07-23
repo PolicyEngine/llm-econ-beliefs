@@ -35,8 +35,6 @@ export default function TopRatesPage() {
               {
                 organization: entry.organization,
                 organizationLabel: entry.organizationLabel,
-                wave: entry.wave,
-                waveLabel: entry.waveLabel,
                 isFrontier: entry.isFrontier,
               },
             ],
