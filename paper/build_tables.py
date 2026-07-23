@@ -68,6 +68,7 @@ from llm_econ_beliefs.model_registry import (  # noqa: E402
     organization_display_label,
     serving_provider_display_label,
 )
+from llm_econ_beliefs.prompts import create_belief_prompt  # noqa: E402
 from llm_econ_beliefs.registry import get_quantity  # noqa: E402
 
 LEGACY_QUANTITY_LABELS = {
@@ -451,6 +452,37 @@ def main() -> int:
                 "Opus 4.7 runs without extended reasoning on both paths, so the reasoning-mode axis is not covered."
             ),
         )
+    wording_rows, wording_tau_rows = build_wording_comparison_tables()
+    write_table_bundle(
+        stem="wording-comparison",
+        rows=wording_rows,
+        note=(
+            "Same four models (the April premium tier), same quantities, same repeated-run design, two v4 "
+            "clarifier wordings: the superseded April 19 elicitation (original wording — plain conditionals "
+            "with the conventional direction first; the net-of-tax sibling's definition line states the "
+            "conversion identity backwards) versus the published April 21 re-elicitation (revised wording — "
+            "symmetric if-and-only-if clauses, worked magnitude example, corrected identity). April 19 runs "
+            f"are read from git history (commit {WORDING_ARCHIVE_COMMIT[:8]}); every cell's prompt text is "
+            "byte-verified against the original wording preserved in the seven holdout models' committed "
+            "archives and against the current prompt builder's revised wording. Each cell pools 15 runs with "
+            "the headline piecewise-uniform mixture. The comparison is not a pure wording experiment: the "
+            "April 21 re-elicitation also moved to the per-quantity fallback harness that added request "
+            "logging, and two days elapsed between elicitations, so wording is confounded with harness path "
+            "and time."
+        ),
+    )
+    write_table_bundle(
+        stem="wording-comparison-tau",
+        rows=wording_tau_rows,
+        note=(
+            "The Appendix A9 implied-tau bootstrap (1,000 draws, fixed seed, tau = -rho / (1 - rho) with "
+            "rho = epsilon_taxrate / epsilon_netoftax) applied separately to each wording's 15 tax-rate and "
+            "15 net-of-tax-rate runs for the four models elicited under both v4 clarifier wordings. Bands as "
+            "in Appendix Table A9: LTCG-rate [0.15, 0.37], ordinary-income-rate (0.37, 0.55]. All eight "
+            "model-wording cells are sign-consistent (tax-rate median < 0 < net-of-tax median), so the "
+            "identity's premise holds throughout. See the Table A18 note for the harness-path confound."
+        ),
+    )
     if grok_failures:
         write_table_bundle(
             stem="grok-failures-appendix",
@@ -2446,6 +2478,228 @@ def build_mechanism_ablation_table(
         )
     table_rows.sort(key=lambda row: str(row["Quantity"]))
     return table_rows
+
+
+# ---------------------------------------------------------------------------
+# Clarifier-wording ablation: the four April premium-tier models are the only
+# cells elicited under both v4 clarifier wordings (original April 19 versus
+# revised April 21). Their superseded April 19 runs live in git history.
+
+WORDING_ARCHIVE_COMMIT = "ddca237501ffa3ea658b86fa6546aa98307bb3be"
+DUAL_WORDING_MODELS = (
+    "claude-opus-4.7",
+    "claude-sonnet-4.6",
+    "gemini-3.1-pro-preview",
+    "grok-4.20",
+)
+# Any of the seven never-re-elicited April models preserves the original
+# wording verbatim in its committed archive; gpt-5.4 stands in for the group.
+WORDING_HOLDOUT_MODEL = "gpt-5.4"
+SIGN_CLARIFIED_QUANTITY_IDS = (
+    "labor_supply.income_elasticity.prime_age",
+    CAP_GAINS_TAX_RATE_ID,
+    CAP_GAINS_NET_OF_TAX_RATE_ID,
+)
+
+
+def _read_runs_jsonl_records(text: str) -> list[dict[str, object]]:
+    return [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def _read_archived_runs_jsonl(commit: str, git_path: str) -> list[dict[str, object]]:
+    try:
+        content = subprocess.check_output(
+            ["git", "-C", str(REPO_ROOT), "show", f"{commit}:{git_path}"],
+            text=True,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError(
+            f"cannot read {git_path} at {commit}: {error.stderr.strip()} "
+            "(the wording ablation needs full git history; run "
+            "`git fetch --unshallow` in shallow clones)"
+        ) from error
+    return _read_runs_jsonl_records(content)
+
+
+def _wording_cell(
+    records: list[dict[str, object]], quantity_id: str
+) -> tuple[list[BeliefEstimate], set[str]]:
+    """Successful-run estimates plus the set of verbatim prompt texts."""
+    estimates: list[BeliefEstimate] = []
+    prompt_texts: set[str] = set()
+    for record in records:
+        if record.get("quantity_id") != quantity_id:
+            continue
+        prompt_texts.add(str(record["prompt"]))
+        if not record.get("parsed_ok") or record.get("point_estimate") is None:
+            continue
+        point_value = float(record["point_estimate"])
+        if not math.isfinite(point_value):
+            continue
+        quantiles = record.get("quantiles") or {}
+        estimates.append(
+            BeliefEstimate(
+                point_estimate=point_value,
+                quantity_id=quantity_id,
+                quantiles={str(key): float(value) for key, value in quantiles.items()},
+            )
+        )
+    return estimates, prompt_texts
+
+
+def _pooled_wording_cell(
+    estimates: list[BeliefEstimate], quantity_id: str
+) -> dict[str, object]:
+    quantity = get_quantity(quantity_id)
+    aggregated = aggregate_beliefs(
+        estimates,
+        confidence_level=0.9,
+        lower_support=quantity.lower_support,
+        upper_support=quantity.upper_support,
+    )
+    return {
+        "center": aggregated.point_estimate,
+        "width": aggregated.upper_bound - aggregated.lower_bound,
+        "points": [estimate.point_estimate for estimate in estimates],
+    }
+
+
+def _implied_tau_band_flag(tau_p50: float, tau_share_unit: float) -> str:
+    """The Appendix A9 band flag for a sign-consistent cell."""
+    ltcg_lo, ltcg_hi = CAP_GAINS_LTCG_TAU_RANGE
+    ord_lo, ord_hi = CAP_GAINS_ORDINARY_INCOME_TAU_RANGE
+    if not math.isfinite(tau_p50):
+        return "not identified"
+    if tau_share_unit < 0.8:
+        return "uninformative (pole-straddling)"
+    if ltcg_lo <= tau_p50 <= ltcg_hi:
+        return "LTCG-rate consistent"
+    if ord_lo < tau_p50 <= ord_hi:
+        return "ordinary-income-rate consistent"
+    if 0.0 < tau_p50 < 1.0:
+        return "plausible sign, outside bands"
+    return "out of band"
+
+
+def build_wording_comparison_tables() -> tuple[
+    list[dict[str, object]], list[dict[str, object]]
+]:
+    """Within-model comparison of the two v4 clarifier wordings.
+
+    For the four April premium-tier models — the only cells elicited under
+    both wordings — pool the superseded April 19 runs (git history, commit
+    ``WORDING_ARCHIVE_COMMIT``) and the published April 21 runs with the
+    paper's piecewise-uniform construction, per sign-clarified quantity, and
+    rerun the Appendix A9 implied-tau bootstrap per wording. Prompt text is
+    byte-verified on every cell: April 19 text must equal the original
+    wording preserved in the holdout model's committed archive, April 21
+    text must equal the current prompt builder's revised wording. Raises if
+    any identity fails, so the table cannot silently describe a different
+    contrast than the Design section discloses.
+    """
+    holdout_path = (
+        RESULTS_DIR / f"{WORDING_HOLDOUT_MODEL}-elasticities-batch15" / "runs.jsonl"
+    )
+    holdout_records = _read_runs_jsonl_records(holdout_path.read_text())
+    original_texts: dict[str, str] = {}
+    revised_texts: dict[str, str] = {}
+    for quantity_id in SIGN_CLARIFIED_QUANTITY_IDS:
+        _, holdout_prompts = _wording_cell(holdout_records, quantity_id)
+        if len(holdout_prompts) != 1:
+            raise RuntimeError(
+                f"holdout {WORDING_HOLDOUT_MODEL}:{quantity_id} carries "
+                f"{len(holdout_prompts)} prompt texts, expected 1"
+            )
+        original_texts[quantity_id] = next(iter(holdout_prompts))
+        revised_texts[quantity_id] = create_belief_prompt(get_quantity(quantity_id))
+        if original_texts[quantity_id] == revised_texts[quantity_id]:
+            raise RuntimeError(
+                f"{quantity_id}: holdout archive text equals the current prompt "
+                "builder; the two-wording premise no longer holds"
+            )
+
+    table_rows: list[dict[str, object]] = []
+    tau_rows: list[dict[str, object]] = []
+    for model_name in DUAL_WORDING_MODELS:
+        archived_records = _read_archived_runs_jsonl(
+            WORDING_ARCHIVE_COMMIT,
+            f"results/{model_name}-elasticities-batch15/runs.jsonl",
+        )
+        current_path = (
+            RESULTS_DIR / f"{model_name}-elasticities-batch15" / "runs.jsonl"
+        )
+        current_records = _read_runs_jsonl_records(current_path.read_text())
+
+        cells: dict[tuple[str, str], dict[str, object]] = {}
+        for quantity_id in SIGN_CLARIFIED_QUANTITY_IDS:
+            original_estimates, original_prompts = _wording_cell(
+                archived_records, quantity_id
+            )
+            revised_estimates, revised_prompts = _wording_cell(
+                current_records, quantity_id
+            )
+            if original_prompts != {original_texts[quantity_id]}:
+                raise RuntimeError(
+                    f"{model_name}:{quantity_id} April 19 prompt text does not "
+                    "match the holdout original wording"
+                )
+            if revised_prompts != {revised_texts[quantity_id]}:
+                raise RuntimeError(
+                    f"{model_name}:{quantity_id} April 21 prompt text does not "
+                    "match the current prompt builder"
+                )
+            if len(original_estimates) != 15 or len(revised_estimates) != 15:
+                raise RuntimeError(
+                    f"{model_name}:{quantity_id} expected 15 successful runs "
+                    f"per wording, got {len(original_estimates)} original / "
+                    f"{len(revised_estimates)} revised"
+                )
+            original_cell = _pooled_wording_cell(original_estimates, quantity_id)
+            revised_cell = _pooled_wording_cell(revised_estimates, quantity_id)
+            cells[(quantity_id, "original")] = original_cell
+            cells[(quantity_id, "revised")] = revised_cell
+            table_rows.append(
+                {
+                    "Model": model_label(model_name),
+                    "Quantity": quantity_label(quantity_id),
+                    "Original center": round(float(original_cell["center"]), 3),
+                    "Revised center": round(float(revised_cell["center"]), 3),
+                    "Center change": round(
+                        float(revised_cell["center"]) - float(original_cell["center"]),
+                        3,
+                    ),
+                    "Original 90% width": round(float(original_cell["width"]), 3),
+                    "Revised 90% width": round(float(revised_cell["width"]), 3),
+                }
+            )
+
+        tau_row: dict[str, object] = {"Model": model_label(model_name)}
+        tau_medians: dict[str, float] = {}
+        for wording, label in (("original", "Original"), ("revised", "Revised")):
+            tax_points = list(cells[(CAP_GAINS_TAX_RATE_ID, wording)]["points"])
+            net_points = list(cells[(CAP_GAINS_NET_OF_TAX_RATE_ID, wording)]["points"])
+            if not (median(tax_points) <= 0 <= median(net_points)):
+                raise RuntimeError(
+                    f"{model_name} {wording}-wording medians are not "
+                    "sign-consistent; the implied-tau table assumes the "
+                    "identity's premise holds"
+                )
+            tau_p05, tau_p50, tau_p95, tau_share_unit = (
+                _bootstrap_implied_tau_quantiles(tax_points, net_points)
+            )
+            tau_medians[wording] = tau_p50
+            tau_row[f"{label} implied tau median [90%]"] = (
+                f"{tau_p50:.3f} [{tau_p05:.3f}, {tau_p95:.3f}]"
+            )
+            tau_row[f"{label} share in (0, 1)"] = f"{100 * tau_share_unit:.0f}%"
+            tau_row[f"{label} band"] = _implied_tau_band_flag(tau_p50, tau_share_unit)
+        tau_row["Tau median change"] = round(
+            tau_medians["revised"] - tau_medians["original"], 3
+        )
+        tau_rows.append(tau_row)
+
+    return table_rows, tau_rows
 
 
 if __name__ == "__main__":
