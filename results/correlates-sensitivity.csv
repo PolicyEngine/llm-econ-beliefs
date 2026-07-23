@@ -1,13 +1,13 @@
 analysis,predictor,outcome,omitted_organization,wave,n_models,n_organizations,statistic_level,permutation_unit,n_permutations,spearman_rho,permutation_p
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,alibaba,,23,8,model,,,-0.5361996704340407,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,anthropic,,18,8,model,,,-0.6037151702786377,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,deepseek,,23,8,model,,,-0.5302693514983646,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,alibaba,,24,8,model,,,-0.5240269747710022,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,anthropic,,19,8,model,,,-0.5877192982456141,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,deepseek,,24,8,model,,,-0.5196782031961392,
 leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,google,,20,8,model,,,-0.6090225563909775,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,minimax,,23,8,model,,,-0.534222897455482,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,moonshot,,22,8,model,,,-0.46088677353251045,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,openai,,18,8,model,,,-0.5141972807074519,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,xai,,22,8,model,,,-0.5518215413495866,
-leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,zhipu,,23,8,model,,,-0.525327419051968,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,minimax,,24,8,model,,,-0.522287466141057,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,moonshot,,23,8,model,,,-0.45317520533457634,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,openai,,19,8,model,,,-0.5046073324739203,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,xai,,23,8,model,,,-0.5426241826143564,
+leave_one_organization_out,Overall within-$1 (leaderboard headline),ETI pooled median,zhipu,,24,8,model,,,-0.5144596773063035,
 within_wave,Overall within-$1 (leaderboard headline),ETI pooled median,,april_only,8,3,model,,,-0.6946232319096902,
-within_wave,Overall within-$1 (leaderboard headline),ETI pooled median,,july_only,16,9,model,,,-0.538235294117647,
-organization_cluster_permutation,Overall within-$1 (leaderboard headline),ETI pooled median,,,24,9,model,organization_score_block_within_equal_size_strata,96,-0.5396825524405094,0.20833333333333334
+within_wave,Overall within-$1 (leaderboard headline),ETI pooled median,,july_only,17,9,model,,,-0.5318627450980392,
+organization_cluster_permutation,Overall within-$1 (leaderboard headline),ETI pooled median,,,25,9,model,organization_score_block_within_equal_size_strata,96,-0.5320253993395131,0.20833333333333334
