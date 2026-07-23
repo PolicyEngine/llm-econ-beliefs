@@ -714,6 +714,72 @@ export function loadVerbatimPrompt(quantityId: string): VerbatimPrompt | null {
   };
 }
 
+/** Run payload for one gated (quantity, model) cell — the same loader the
+ *  pages use, wired to the site's results dir and gate. */
+export function loadRunPayloadForSite(quantityId: string, modelName: string) {
+  const { resultsDir, gatedModelIds } = getSiteInputs();
+  return loadRunPayload(quantityId, modelName, resultsDir, gatedModelIds);
+}
+
+export interface ArchivedBatchRow {
+  dirName: string;
+  runs: number;
+  totalTokens: number | null;
+  /** Sum of the tracked (non-null) cost cells. */
+  trackedCostUsd: number;
+  /** True when every cost cell in the batch is tracked. */
+  fullyTracked: boolean;
+  /** True when at least one cost cell is tracked. */
+  hasCostData: boolean;
+}
+
+/** Every archived batch outside the main elicitation panel (clarify
+ *  probes, ablations, pilots, connectivity probes) that carries a
+ *  summary.csv, with per-batch run counts and tracked spend. */
+export function loadArchivedBatchRows(): ArchivedBatchRow[] {
+  const resultsDir = resolveResultsDir();
+  const rows: ArchivedBatchRow[] = [];
+  for (const entry of fs.readdirSync(resultsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.includes("elasticities")) continue;
+    const summaryPath = path.join(resultsDir, entry.name, "summary.csv");
+    if (!fs.existsSync(summaryPath)) continue;
+    const parsed = parseCsv(fs.readFileSync(summaryPath, "utf-8"), {
+      columns: true,
+      skip_empty_lines: true,
+      relax_quotes: true,
+    }) as Record<string, string>[];
+    let runs = 0;
+    let trackedCostUsd = 0;
+    let untrackedCells = 0;
+    let trackedCells = 0;
+    let totalTokens: number | null = 0;
+    for (const row of parsed) {
+      runs += Number.parseInt(row.n_successful_runs ?? "0", 10) || 0;
+      const cost = row.usage_estimated_total_cost_usd_total;
+      if (cost) {
+        trackedCostUsd += Number(cost);
+        trackedCells += 1;
+      } else {
+        untrackedCells += 1;
+      }
+      const tokens = row.usage_total_tokens_total;
+      if (totalTokens !== null) {
+        totalTokens = tokens ? totalTokens + Number(tokens) : null;
+      }
+    }
+    rows.push({
+      dirName: entry.name,
+      runs,
+      totalTokens,
+      trackedCostUsd,
+      fullyTracked: untrackedCells === 0,
+      hasCostData: trackedCells > 0,
+    });
+  }
+  rows.sort((a, b) => a.dirName.localeCompare(b.dirName));
+  return rows;
+}
+
 export interface CostRow {
   modelId: string;
   displayLabel: string;

@@ -1,0 +1,52 @@
+name: Deploy dashboard
+
+# Deploys are pinned to main: the workflow stages the committed results
+# tree, paper tables, and paper PDF into the dashboard exactly the way the
+# manual recipe did, then ships to the Vercel production project. This
+# replaces deploying from whatever a local working tree happened to hold.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: dashboard-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Stage results, tables, and paper PDF
+        run: |
+          rm -rf dashboard/results dashboard/tables
+          cp -R results dashboard/results
+          cp -R paper/tables dashboard/tables
+          cp paper/paper.pdf dashboard/public/paper.pdf
+
+      - name: Deploy to Vercel production
+        working-directory: dashboard
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_xsyTmFLMLGbHH7Qxu70R5G4r
+          VERCEL_PROJECT_ID: prj_npXPomFjT6nhnl7af1cXGxIuvWOR
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN secret is not set; cannot deploy." >&2
+            exit 1
+          fi
+          bunx vercel@56 deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Verify live deployment
+        run: |
+          for path in /ai-beliefs /ai-beliefs/process /ai-beliefs/paper.pdf; do
+            code=$(curl -sL -o /dev/null -w '%{http_code}' "https://www.policyengine.org$path")
+            echo "$path -> $code"
+            [ "$code" = "200" ] || exit 1
+          done

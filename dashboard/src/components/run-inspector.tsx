@@ -9,6 +9,8 @@ import type { SlimRun } from "@/lib/site-data";
 interface ModelRuns {
   modelName: string;
   experimentDir: string;
+  /** Site-served JSON of this cell's parsed runs (prompt + raw responses). */
+  runsJsonHref: string;
   runs: SlimRun[];
 }
 
@@ -168,7 +170,13 @@ function RunList({ entry }: { entry: ModelRuns }) {
           color: "var(--muted-foreground)",
         }}
       >
-        Raw JSON responses and request logs:{" "}
+        <a
+          className="underline underline-offset-2"
+          href={entry.runsJsonHref}
+        >
+          Parsed runs as JSON
+        </a>{" "}
+        (prompt, quantiles, citations, raw responses) · full request logs:{" "}
         <a
           className="underline underline-offset-2"
           href={`https://github.com/PolicyEngine/llm-econ-beliefs/tree/main/results/${entry.experimentDir}`}

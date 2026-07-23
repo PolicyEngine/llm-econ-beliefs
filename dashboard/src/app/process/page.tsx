@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageBand, ProvenanceFooter } from "@/components/site-chrome";
 import {
   getSummaryData,
+  loadArchivedBatchRows,
   loadCostRows,
   loadVerbatimPrompt,
   slugForModel,
@@ -37,6 +38,11 @@ export default function ProcessPage() {
   const trackedRows = costRows.filter((row) => row.totalCostUsd !== null);
   const trackedTotal = trackedRows.reduce(
     (total, row) => total + (row.totalCostUsd ?? 0),
+    0,
+  );
+  const archivedBatches = loadArchivedBatchRows();
+  const archivedTracked = archivedBatches.reduce(
+    (total, row) => total + row.trackedCostUsd,
     0,
   );
 
@@ -354,6 +360,83 @@ export default function ProcessPage() {
               pricing.py
             </a>
             .
+          </p>
+
+          <h3 className="mt-6 text-sm font-semibold" style={cellStyle}>
+            Archived batches outside the main panel
+          </h3>
+          <p
+            className="mt-1 max-w-3xl text-xs leading-relaxed"
+            style={mutedStyle}
+          >
+            Every other archived batch in the results tree: the Armington and
+            IES clarify probes feed the paper&apos;s appendix cross-prompt
+            tables, and the ablation, pilot, and connectivity-probe batches
+            are kept for provenance. None of these runs enter the headline
+            panel.
+          </p>
+          <details className="mt-2">
+            <summary
+              className="cursor-pointer text-xs font-medium"
+              style={cellStyle}
+            >
+              All {archivedBatches.length} archived batches
+            </summary>
+            <div
+              className="mt-2 overflow-x-auto rounded-lg border"
+              style={{ borderColor: "var(--border)", background: "var(--card)" }}
+            >
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr
+                  className="border-b"
+                  style={{ borderColor: "var(--border)", ...mutedStyle }}
+                >
+                  <th className="px-3 py-2 font-medium">Batch</th>
+                  <th className="px-3 py-2 font-medium">Runs</th>
+                  <th className="px-3 py-2 font-medium">Tokens</th>
+                  <th className="px-3 py-2 font-medium">Tracked cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                {archivedBatches.map((batch) => (
+                  <tr
+                    key={batch.dirName}
+                    className="border-b last:border-b-0"
+                    style={{ borderColor: "var(--border)" }}
+                  >
+                    <td className="px-3 py-2 font-mono" style={cellStyle}>
+                      <a
+                        className="underline-offset-2 hover:underline"
+                        href={`${REPO}/tree/main/results/${batch.dirName}`}
+                      >
+                        {batch.dirName}
+                      </a>
+                    </td>
+                    <td className="px-3 py-2 font-mono" style={mutedStyle}>
+                      {batch.runs.toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 font-mono" style={mutedStyle}>
+                      {batch.totalTokens !== null
+                        ? batch.totalTokens.toLocaleString()
+                        : "—"}
+                    </td>
+                    <td className="px-3 py-2 font-mono" style={mutedStyle}>
+                      {batch.hasCostData
+                        ? `${formatUsd(batch.trackedCostUsd)}${batch.fullyTracked ? "" : " (partial)"}`
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
+          </details>
+          <p className="mt-2 max-w-3xl text-xs leading-relaxed" style={mutedStyle}>
+            Tracked cells across these archived batches add{" "}
+            {formatUsd(archivedTracked)}; &quot;partial&quot; marks batches
+            where some cost cells are untracked, so the batch total is a
+            floor, not a sum.
           </p>
         </section>
 

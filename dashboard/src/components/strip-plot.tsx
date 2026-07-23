@@ -252,7 +252,7 @@ function RowTooltip({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute bottom-full z-10 mb-1 hidden -translate-x-1/2 rounded-md border px-2.5 py-1.5 text-left text-xs leading-relaxed shadow-sm group-hover:block"
+      className="pointer-events-none absolute bottom-full z-10 mb-1 hidden -translate-x-1/2 rounded-md border px-2.5 py-1.5 text-left text-xs leading-relaxed shadow-sm group-hover:block group-focus-within:block"
       style={{
         left: `${anchor}%`,
         borderColor: "var(--border)",
@@ -366,7 +366,7 @@ export function StripPlot({
       {rows.map((row) => {
         const label = getModelLabel(row.modelName);
         return (
-          <div key={row.modelName} className="flex items-center gap-3">
+          <div key={row.modelName} className="group flex items-center gap-3">
             <span
               className="w-28 shrink-0 truncate text-right text-xs sm:w-40 sm:text-[12.5px]"
               style={{ color: "var(--foreground)" }}
@@ -380,7 +380,7 @@ export function StripPlot({
                 label
               )}
             </span>
-            <div className="group relative min-w-0 flex-1">
+            <div className="relative min-w-0 flex-1">
               <RowStrip
                 row={row}
                 domain={domain}
