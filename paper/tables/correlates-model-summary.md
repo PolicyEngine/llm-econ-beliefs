@@ -1,4 +1,4 @@
-Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260719, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
+Note: Per-model summary joining the elicitation panel to the published PolicyBench leaderboard (PolicyEngine/policybench dashboard-data-20260721, US, no-tools, household-weighted within-$1 rate — the leaderboard headline). Width rank averages tie-averaged 90 percent interval-width ranks across the canonical panel (1 = tightest). Implied top rates come from Table 4's threshold-normalized log-utility mapping. Dashes mark models outside the PolicyBench panel.
 
 | Model | Organization | Wave | PolicyBench within-$1 | ETI median | Implied top rate | Avg width rank |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ Note: Per-model summary joining the elicitation panel to the published PolicyBen
 | Grok 4.1 Fast | xAI | April 2026 | — | 0.400 | 37.0% | 17.3 |
 | Grok 4.5 | xAI | July 2026 late | 80.9 | 0.410 | 36.5% | 16.6 |
 | GPT-5.4 | OpenAI | April 2026 | — | 0.420 | 35.9% | 13.8 |
-| Gemini 3.6 Flash | Google | July 2026 late | — | 0.423 | 35.8% | 6.8 |
+| Gemini 3.6 Flash | Google | July 2026 late | 79.0 | 0.423 | 35.8% | 6.8 |
 | GPT-5.6 Sol | OpenAI | July 2026 GPT-5.6 | 88.7 | 0.431 | 35.3% | 15.5 |
 | GPT-5.4 mini | OpenAI | April 2026 | 70.5 | 0.437 | 35.0% | 21.0 |
 | Claude Fable 5 | Anthropic | July 2026 frontier | 79.9 | 0.437 | 35.0% | 6.3 |
