@@ -50,13 +50,14 @@ export function RunInspector({ models }: RunInspectorProps) {
               onClick={() =>
                 setOpenModel(selected ? null : entry.modelName)
               }
+              aria-pressed={selected}
               className="rounded-md border px-2.5 py-1.5 text-sm transition"
               style={{
                 borderColor: selected
                   ? providerColor(entry.modelName)
                   : "var(--border)",
-                background: selected ? "var(--muted)" : "var(--card)",
-                color: "var(--foreground)",
+                background: selected ? "var(--foreground)" : "var(--card)",
+                color: selected ? "var(--background)" : "var(--foreground)",
               }}
             >
               <span

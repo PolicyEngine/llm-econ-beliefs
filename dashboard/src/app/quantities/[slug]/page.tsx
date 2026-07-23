@@ -13,6 +13,7 @@ import {
   loadModelRegistry,
   loadQuantityRegistry,
   loadSlimRuns,
+  loadVerbatimPrompt,
   modelsByCenter,
   slugForModel,
   slugForQuantity,
@@ -52,6 +53,7 @@ export default async function QuantityPage({ params }: PageProps) {
   const ordered = modelsByCenter(quantity);
   const definition = loadQuantityRegistry().get(quantity.quantityId) ?? null;
   const formula = QUANTITY_FORMULAS[quantity.quantityId] ?? null;
+  const verbatimPrompt = loadVerbatimPrompt(quantity.quantityId);
   const registry = loadModelRegistry();
   const stripMeta = Object.fromEntries(
     ordered.flatMap((summary) => {
@@ -168,6 +170,51 @@ export default async function QuantityPage({ params }: PageProps) {
                 <dd className="inline">{definition.preferredInterpretation}</dd>
               </div>
             </dl>
+            {verbatimPrompt ? (
+              <details className="mt-3">
+                <summary
+                  className="cursor-pointer text-xs font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  The exact prompt, verbatim
+                </summary>
+                <pre
+                  className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-md border p-3 font-mono text-xs leading-relaxed"
+                  style={{
+                    borderColor: "var(--border)",
+                    background: "var(--muted)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {verbatimPrompt.text}
+                </pre>
+                <p
+                  className="mt-1.5 text-xs"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
+                  Read from the archived request logs;{" "}
+                  {verbatimPrompt.otherWordingCount === 0
+                    ? `all ${verbatimPrompt.totalModels} models received this identical text`
+                    : `${verbatimPrompt.modelCount} of ${verbatimPrompt.totalModels} models received exactly this text, and the other ${verbatimPrompt.otherWordingCount} an earlier v4 wording — every model's prompt is archived verbatim`}
+                  . How the JSON response is enforced varies by provider
+                  — see the{" "}
+                  <Link
+                    href="/methods"
+                    className="underline underline-offset-2"
+                  >
+                    Methods harness table
+                  </Link>{" "}
+                  and the{" "}
+                  <Link
+                    href="/process"
+                    className="underline underline-offset-2"
+                  >
+                    Process
+                  </Link>{" "}
+                  page.
+                </p>
+              </details>
+            ) : null}
           </div>
         ) : null}
 

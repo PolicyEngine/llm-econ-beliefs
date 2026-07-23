@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { StripPlot, type StripRow } from "@/components/strip-plot";
 import type { BenchmarkBand } from "@/lib/site-data";
@@ -82,6 +82,24 @@ export function FilteredStripPlot({
 }) {
   const [scope, setScope] = useState<Scope>("all");
   const [organization, setOrganization] = useState<string>("all");
+  const wroteBackOnce = useRef(false);
+
+  const organizations = useMemo(() => {
+    const counts = new Map<string, { label: string; count: number }>();
+    for (const row of rows) {
+      const rowMeta = meta[row.modelName];
+      if (!rowMeta) continue;
+      const entry = counts.get(rowMeta.organization) ?? {
+        label: rowMeta.organizationLabel,
+        count: 0,
+      };
+      entry.count += 1;
+      counts.set(rowMeta.organization, entry);
+    }
+    return [...counts.entries()]
+      .map(([key, { label, count }]) => ({ key, label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }, [rows, meta]);
 
   // Filters are shareable: ?scope=frontier|april|july&lab=<organization>
   // seeds the state, and changes write back via replaceState.
@@ -92,9 +110,21 @@ export function FilteredStripPlot({
       setScope(scopeParam as Scope);
     }
     const labParam = params.get("lab");
-    if (labParam) setOrganization(labParam);
+    if (labParam && organizations.some((entry) => entry.key === labParam)) {
+      setOrganization(labParam);
+    }
+    // organizations is derived from build-time props, so it cannot change
+    // between mount and this read.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
+    // The mount invocation runs before the URL-seeded state lands and would
+    // strip a shared link's params — skip it; every later invocation is a
+    // real filter change.
+    if (!wroteBackOnce.current) {
+      wroteBackOnce.current = true;
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     if (scope === "all") params.delete("scope");
     else params.set("scope", scope);
@@ -108,17 +138,6 @@ export function FilteredStripPlot({
     );
   }, [scope, organization]);
 
-  const organizations = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const row of rows) {
-      const rowMeta = meta[row.modelName];
-      if (rowMeta && !seen.has(rowMeta.organization)) {
-        seen.set(rowMeta.organization, rowMeta.organizationLabel);
-      }
-    }
-    return [...seen.entries()];
-  }, [rows, meta]);
-
   const filtered = rows.filter((row) => {
     const rowMeta = meta[row.modelName];
     if (!rowMeta) return true;
@@ -126,9 +145,11 @@ export function FilteredStripPlot({
     return organization === "all" || rowMeta.organization === organization;
   });
 
+  const labSelected = organization !== "all";
+
   return (
     <div>
-      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+      <div className="mb-3 flex flex-wrap items-center gap-1.5">
         {SCOPES.map((entry) => (
           <Chip
             key={entry.key}
@@ -137,21 +158,29 @@ export function FilteredStripPlot({
             onClick={() => setScope(entry.key)}
           />
         ))}
-      </div>
-      <div className="mb-3 flex flex-wrap items-center gap-1.5">
-        <Chip
-          label="All labs"
-          selected={organization === "all"}
-          onClick={() => setOrganization("all")}
-        />
-        {organizations.map(([key, label]) => (
-          <Chip
-            key={key}
-            label={label}
-            selected={organization === key}
-            onClick={() => setOrganization(key)}
-          />
-        ))}
+        <label
+          className="ml-1 flex items-center gap-1.5 text-xs"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          Lab
+          <select
+            value={organization}
+            onChange={(event) => setOrganization(event.target.value)}
+            className="rounded-md border px-2 py-0.5 text-xs"
+            style={{
+              borderColor: labSelected ? "var(--foreground)" : "var(--border)",
+              background: labSelected ? "var(--foreground)" : "var(--card)",
+              color: labSelected ? "var(--background)" : "var(--foreground)",
+            }}
+          >
+            <option value="all">All labs ({organizations.length})</option>
+            {organizations.map((entry) => (
+              <option key={entry.key} value={entry.key}>
+                {entry.label} ({entry.count})
+              </option>
+            ))}
+          </select>
+        </label>
         <span
           className="ml-auto text-xs"
           style={{ color: "var(--muted-foreground)" }}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+
+import { NavLinks } from "@/components/nav-links";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview" },
@@ -7,6 +8,7 @@ const NAV_ITEMS = [
   { href: "/models", label: "Models" },
   { href: "/top-rates", label: "Top rates" },
   { href: "/generations", label: "Generations" },
+  { href: "/process", label: "Process" },
   { href: "/methods", label: "Methods" },
 ] as const;
 
@@ -26,16 +28,7 @@ export function SubNav(): ReactNode {
         >
           AI beliefs
         </span>
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="rounded-md px-2.5 py-1.5 text-sm transition hover:bg-[color:var(--muted)]"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            {item.label}
-          </Link>
-        ))}
+        <NavLinks items={NAV_ITEMS} />
         <a
           href={`${basePath}/paper.pdf`}
           className="rounded-md px-2.5 py-1.5 text-sm transition hover:bg-[color:var(--muted)]"
