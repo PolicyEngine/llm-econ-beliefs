@@ -71,11 +71,14 @@ export function FilteredStripPlot({
   band = null,
   showRuns = false,
   meta,
+  percent = false,
 }: {
   rows: StripRow[];
   band?: BenchmarkBand | null;
   showRuns?: boolean;
   meta: Record<string, StripModelMeta>;
+  /** Format values as percentages (server components cannot pass functions). */
+  percent?: boolean;
 }) {
   const [scope, setScope] = useState<Scope>("all");
   const [organization, setOrganization] = useState<string>("all");
@@ -157,7 +160,15 @@ export function FilteredStripPlot({
         </span>
       </div>
       {filtered.length > 0 ? (
-        <StripPlot rows={filtered} band={band} showRuns={showRuns} domainRows={rows} />
+        <StripPlot
+          rows={filtered}
+          band={band}
+          showRuns={showRuns}
+          domainRows={rows}
+          valueFormatter={
+            percent ? (value) => `${value.toFixed(1)}%` : undefined
+          }
+        />
       ) : (
         <p className="py-4 text-sm" style={{ color: "var(--muted-foreground)" }}>
           No models match this filter.

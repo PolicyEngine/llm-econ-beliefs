@@ -591,4 +591,62 @@ export function orderedModelNames(): string[] {
   return [...getSummaryData().modelNames].sort(compareModelNames);
 }
 
+/* ------------------------------------------------------------------ */
+/* Implied top rates (paper Table 4, staged from paper/tables)         */
+/* ------------------------------------------------------------------ */
+
+export interface TopRateRow {
+  modelId: string;
+  displayLabel: string;
+  isFrontier: boolean;
+  etiMedian: number;
+  etiLower: number;
+  etiUpper: number;
+  topRate: number;
+  topRateLower: number;
+  topRateUpper: number;
+  revenueMax: number;
+  widthPp: number;
+}
+
+const MEDIAN_INTERVAL = /(-?[\d.]+)%?\s*\[\s*(-?[\d.]+)%?\s*,\s*(-?[\d.]+)%?\s*\]/;
+
+/** Paper Table 4: each model's elicited ETI mapped through one fixed
+ *  Saez calibration. Rows come back sorted by implied top rate. */
+export function loadTopRateRows(): TopRateRow[] {
+  const tablesDir = resolveTablesDir();
+  if (!tablesDir) return [];
+  const csvPath = path.join(tablesDir, "toy-top-rate-labor-tax.csv");
+  if (!fs.existsSync(csvPath)) return [];
+  const registry = loadModelRegistry();
+  const byLabel = new Map(
+    [...registry.values()].map((row) => [row.displayLabel, row]),
+  );
+  const rows = parseCsv(fs.readFileSync(csvPath, "utf-8"), {
+    columns: true,
+  }) as Record<string, string>[];
+  const parsed: TopRateRow[] = [];
+  for (const row of rows) {
+    const meta = byLabel.get(row["Model"]);
+    const eti = MEDIAN_INTERVAL.exec(row["ETI median [90%]"] ?? "");
+    const top = MEDIAN_INTERVAL.exec(row["Top rate median [90%]"] ?? "");
+    if (!meta || !eti || !top) continue;
+    parsed.push({
+      modelId: meta.modelId,
+      displayLabel: meta.displayLabel,
+      isFrontier: meta.isFrontier,
+      etiMedian: Number(eti[1]),
+      etiLower: Number(eti[2]),
+      etiUpper: Number(eti[3]),
+      topRate: Number(top[1]),
+      topRateLower: Number(top[2]),
+      topRateUpper: Number(top[3]),
+      revenueMax: Number((row["Revenue-max median"] ?? "").replace("%", "")),
+      widthPp: Number(row["Top-rate 90% width (pp)"]),
+    });
+  }
+  parsed.sort((a, b) => a.topRate - b.topRate);
+  return parsed;
+}
+
 export { resolveResultsDir };
