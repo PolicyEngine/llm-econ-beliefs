@@ -14,6 +14,8 @@ import {
   loadQuantityRegistry,
   loadSlimRuns,
   loadVerbatimPrompt,
+  loadWordingComparisonRows,
+  loadWordingTauRows,
   modelsByCenter,
   slugForModel,
   slugForQuantity,
@@ -97,6 +99,22 @@ export default async function QuantityPage({ params }: PageProps) {
   const runCount = ordered.reduce(
     (total, summary) => total + summary.nSuccessfulRuns,
     0,
+  );
+
+  const wordingRows = loadWordingComparisonRows(quantity.quantityName);
+  const isConventionSibling =
+    quantity.quantityId ===
+    "tax.capital_gains_realizations.elasticity.net_of_tax_rate";
+  const tauRows =
+    wordingRows.length > 0 &&
+    quantity.quantityId.startsWith("tax.capital_gains_realizations.elasticity")
+      ? loadWordingTauRows()
+      : [];
+  const tauMovers = tauRows.filter(
+    (row) => row.originalBand !== row.revisedBand,
+  );
+  const tauStayers = tauRows.filter(
+    (row) => row.originalBand === row.revisedBand,
   );
 
   return (
@@ -196,7 +214,7 @@ export default async function QuantityPage({ params }: PageProps) {
                   Read from the archived request logs;{" "}
                   {verbatimPrompt.otherWordingCount === 0
                     ? `all ${verbatimPrompt.totalModels} models received this identical text`
-                    : `${verbatimPrompt.modelCount} of ${verbatimPrompt.totalModels} models received exactly this text, and the other ${verbatimPrompt.otherWordingCount} an earlier v4 wording — every model's prompt is archived verbatim`}
+                    : `${verbatimPrompt.modelCount} of ${verbatimPrompt.totalModels} models received exactly this text, and the other ${verbatimPrompt.otherWordingCount} an earlier v4 wording — every model's prompt is archived verbatim, and the two-wording comparison below shows the four models elicited under both`}
                   . How the JSON response is enforced varies by provider
                   — see the{" "}
                   <Link
@@ -244,6 +262,142 @@ export default async function QuantityPage({ params }: PageProps) {
             Review-range sources: {band.sources}. These are hand-coded
             literature anchors, not benchmark truths.
           </p>
+        ) : null}
+
+        {wordingRows.length > 0 ? (
+          <section
+            className="mt-6 rounded-lg border p-4"
+            style={{ borderColor: "var(--border)", background: "var(--card)" }}
+          >
+            <h2
+              className="text-sm font-semibold"
+              style={{ color: "var(--foreground)" }}
+            >
+              Same model, two clarifier wordings
+            </h2>
+            <p
+              className="mt-1.5 max-w-3xl text-xs leading-relaxed"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              The sign clarifier for this quantity was revised two days into
+              the April 2026 wave: plain conditionals with the conventional
+              direction first became symmetric if-and-only-if clauses
+              {isConventionSibling
+                ? ", and the definition line's conversion identity — stated backwards in the original wording — was corrected"
+                : ""}
+              . Seven April models keep the original wording (the split
+              disclosed above), while the four April premium models were
+              re-elicited in full under the revision — so those four answered
+              this quantity under both wordings. Their superseded April 19
+              runs remain in git history and pool to:
+            </p>
+            <div
+              className="mt-3 overflow-x-auto rounded-md border"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr
+                    className="border-b"
+                    style={{
+                      borderColor: "var(--border)",
+                      color: "var(--muted-foreground)",
+                    }}
+                  >
+                    <th className="px-3 py-2 font-medium">Model</th>
+                    <th className="px-3 py-2 font-medium">
+                      April 19 center (original wording)
+                    </th>
+                    <th className="px-3 py-2 font-medium">
+                      April 21 center (revised wording)
+                    </th>
+                    <th className="px-3 py-2 font-medium">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {wordingRows.map((row) => (
+                    <tr
+                      key={row.modelId}
+                      className="border-b last:border-b-0"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      <td
+                        className="px-3 py-2"
+                        style={{ color: "var(--foreground)" }}
+                      >
+                        <Link
+                          href={`/models/${slugForModel(row.modelId)}`}
+                          className="hover:underline"
+                        >
+                          {row.displayLabel}
+                        </Link>
+                      </td>
+                      <td
+                        className="px-3 py-2 font-mono"
+                        style={{ color: "var(--muted-foreground)" }}
+                      >
+                        {round(row.originalCenter)}
+                      </td>
+                      <td
+                        className="px-3 py-2 font-mono"
+                        style={{ color: "var(--muted-foreground)" }}
+                      >
+                        {round(row.revisedCenter)}
+                      </td>
+                      <td
+                        className="px-3 py-2 font-mono"
+                        style={{ color: "var(--foreground)" }}
+                      >
+                        {signedChange(row.centerChange)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p
+              className="mt-2 max-w-3xl text-xs leading-relaxed"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              Pooled centers under the paper&apos;s piecewise-uniform
+              construction, 15 runs per cell on both sides. The comparison is
+              not a pure wording experiment — the April 21 re-elicitation also
+              moved to the per-quantity harness that added request logging,
+              and two days elapsed — so wording is confounded with harness
+              path and time (paper, Appendix Tables A18–A19).
+              {tauMovers.length > 0 ? (
+                <>
+                  {" "}
+                  Rerunning the paper&apos;s implied-tax-rate convention audit
+                  per wording moves{" "}
+                  {tauMovers.map((row, index) => (
+                    <span key={row.modelId}>
+                      {index > 0 ? " and " : ""}
+                      {row.displayLabel} from{" "}
+                      <span className="font-mono">
+                        {row.originalMedian.toFixed(3)}
+                      </span>{" "}
+                      ({row.originalBand}) to{" "}
+                      <span className="font-mono">
+                        {row.revisedMedian.toFixed(3)}
+                      </span>{" "}
+                      ({row.revisedBand})
+                    </span>
+                  ))}
+                  {tauStayers.length > 0 ? (
+                    <>
+                      , while{" "}
+                      {tauStayers
+                        .map((row) => row.displayLabel)
+                        .join(" and ")}{" "}
+                      stay in their bands
+                    </>
+                  ) : null}
+                  .
+                </>
+              ) : null}
+            </p>
+          </section>
         ) : null}
 
         {quantity.quantityId ===
@@ -376,4 +530,9 @@ function IntervalCell({
 
 function round(value: number): string {
   return Math.abs(value) >= 10 ? value.toFixed(1) : value.toFixed(2);
+}
+
+function signedChange(value: number): string {
+  if (value === 0) return "0.000";
+  return `${value > 0 ? "+" : ""}${value.toFixed(3)}`;
 }

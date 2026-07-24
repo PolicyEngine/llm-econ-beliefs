@@ -155,10 +155,16 @@ export default function ProcessPage() {
               capital-gains realizations
             </Link>{" "}
             — carry an extra sign-convention block that defines what the
-            reported sign means without calling either direction correct. How
-            the JSON is enforced (strict schema, forced function call, or
-            JSON-object mode) follows each provider&apos;s API surface and is
-            disclosed per model in the{" "}
+            reported sign means without calling either direction correct.
+            That clarifier text was revised two days into the April 2026
+            wave: seven April models keep the original wording, and the four
+            April premium models were re-elicited under both. The affected
+            quantity pages carry the model-by-model comparison — the two
+            headline quantities barely move, while the net-of-tax sibling
+            moves materially for two models (paper, Appendix Tables
+            A18–A19). How the JSON is enforced (strict schema, forced
+            function call, or JSON-object mode) follows each provider&apos;s
+            API surface and is disclosed per model in the{" "}
             <Link href="/methods" className="underline underline-offset-2">
               Methods harness table
             </Link>

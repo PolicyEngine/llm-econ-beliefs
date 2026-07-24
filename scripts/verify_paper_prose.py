@@ -989,6 +989,259 @@ def verify_prompt_identity() -> None:
     )
 
 
+WORDING_SIBLING_LABEL = "Capital gains realizations elasticity (net-of-tax-rate convention)"
+WORDING_DUAL_LABELS = ("Claude Opus 4.7", "Claude Sonnet 4.6", "Gemini 3.1 Pro", "Grok 4.20")
+
+
+def _tau_median(cell: str) -> float:
+    """Leading number of an 'x.xxx [p05, p95]' implied-tau cell."""
+    return float(cell.split(" ", 1)[0])
+
+
+def verify_wording_comparison_prose() -> None:
+    """Pin the clarifier-wording-ablation prose (Design, A9 caveat, A18-A19)
+    to the committed tables. Hermetic: reads only in-tree files, so the
+    pytest wrapper can gate it in CI; the archive recomputation lives in
+    ``verify_wording_comparison_tables()``.
+    """
+    sys.path.insert(0, str(REPO_ROOT))
+    from llm_econ_beliefs.model_registry import MODEL_REGISTRY  # noqa: E402
+
+    rows = read_rows("wording-comparison")
+    tau_rows = read_rows("wording-comparison-tau")
+    check(
+        "A18 is 4 models x 3 quantities and A19 is 4 models",
+        len(rows) == 12
+        and len(tau_rows) == 4
+        and [row["Model"] for row in tau_rows] == list(WORDING_DUAL_LABELS),
+        f"got {len(rows)} and {[row['Model'] for row in tau_rows]}",
+    )
+
+    headline = [row for row in rows if row["Quantity"] != WORDING_SIBLING_LABEL]
+    sibling = {
+        row["Model"]: row for row in rows if row["Quantity"] == WORDING_SIBLING_LABEL
+    }
+    check("A18 has 8 headline rows and 4 sibling rows", len(headline) == 8 and len(sibling) == 4)
+
+    max_center = max(abs(float(row["Center change"])) for row in headline)
+    max_width = max(
+        abs(float(row["Revised 90% width"]) - float(row["Original 90% width"]))
+        for row in headline
+    )
+    check(
+        "design and appendix quote the max headline center move",
+        f"pooled centers move by at most `{max_center:.2f}`" in PAPER
+        and f"pooled center moves by at most `{max_center:.2f}`" in PAPER,
+        f"max headline |center change| is {max_center:.3f}",
+    )
+    check(
+        "appendix quotes the max headline width move",
+        f"width by at most `{max_width:.2f}`" in PAPER,
+        f"max headline |width change| is {max_width:.3f}",
+    )
+
+    sonnet_row, gemini_row = sibling["Claude Sonnet 4.6"], sibling["Gemini 3.1 Pro"]
+    check(
+        "design quotes the two sibling center changes",
+        f"`{float(sonnet_row['Center change']):.2f}` and "
+        f"`{float(gemini_row['Center change']):+.2f}`" in PAPER,
+    )
+    check(
+        "appendix quotes the sibling center moves",
+        f"`{float(sonnet_row['Original center']):.2f}` to "
+        f"`{float(sonnet_row['Revised center']):.2f}`" in PAPER
+        and f"`{float(gemini_row['Original center']):.2f}` to "
+        f"`{float(gemini_row['Revised center']):.2f}`" in PAPER,
+    )
+    check(
+        "opus and grok sibling centers are the effectively-unmoved ones",
+        all(
+            abs(float(sibling[label]["Center change"])) <= 0.02
+            for label in ("Claude Opus 4.7", "Grok 4.20")
+        ),
+    )
+
+    tau = {row["Model"]: row for row in tau_rows}
+    audit = {row["Model"]: row for row in read_rows("cap-gains-convention-audit")}
+    check(
+        "A19 revised implied-tau cells equal the published A9 cells",
+        all(
+            tau[label]["Revised implied tau median [90%]"]
+            == audit[label]["Implied tau median [90%]"]
+            for label in WORDING_DUAL_LABELS
+        ),
+    )
+    sonnet_tau, gemini_tau = tau["Claude Sonnet 4.6"], tau["Gemini 3.1 Pro"]
+    check(
+        "A9 caveat quotes the two implied-tau moves",
+        f"implied-tau median `{_tau_median(sonnet_tau['Original implied tau median [90%]']):.3f}` "
+        f"to `{_tau_median(sonnet_tau['Revised implied tau median [90%]']):.3f}`" in PAPER
+        and f"(`{_tau_median(gemini_tau['Original implied tau median [90%]']):.3f}` "
+        f"to `{_tau_median(gemini_tau['Revised implied tau median [90%]']):.3f}`)" in PAPER,
+    )
+    check(
+        "the two movers cross into the LTCG band",
+        sonnet_tau["Original band"] == "plausible sign, outside bands"
+        and _tau_median(sonnet_tau["Original implied tau median [90%]"]) < 0.15
+        and sonnet_tau["Revised band"] == "LTCG-rate consistent"
+        and gemini_tau["Original band"] == "ordinary-income-rate consistent"
+        and gemini_tau["Revised band"] == "LTCG-rate consistent",
+    )
+    check(
+        "opus and grok stay in their bands",
+        all(
+            tau[label]["Original band"] == tau[label]["Revised band"]
+            and abs(float(tau[label]["Tau median change"])) <= 0.04
+            for label in ("Claude Opus 4.7", "Grok 4.20")
+        ),
+    )
+
+    # the extreme-flip parity claim in the A9 caveat, from the audit table
+    display_to_id = {model.display_label: model.model_id for model in MODEL_REGISTRY}
+    band_col = "Band (LTCG [0.15, 0.37], ordinary-income [0.37, 0.55])"
+    ordinary_total = ltcg_total = original_ordinary = 0
+    for row in read_rows("cap-gains-convention-audit"):
+        band = row[band_col].strip()
+        if band == "ordinary-income-rate consistent":
+            ordinary_total += 1
+            if display_to_id[row["Model"].strip("`")] in ORIGINAL_WORDING_MODELS:
+                original_ordinary += 1
+        elif band == "LTCG-rate consistent":
+            ltcg_total += 1
+    check(
+        "extreme-flip parity arithmetic (18-5 == 8+5 == 13)",
+        (ordinary_total, ltcg_total, original_ordinary) == (18, 8, 5)
+        and ordinary_total - original_ordinary == ltcg_total + original_ordinary == 13,
+        f"got {ordinary_total}/{ltcg_total}/{original_ordinary}",
+    )
+    check(
+        "A9 caveat carries the parity sentence",
+        "eighteen-to-eight ordinary-income majority" in PAPER
+        and "narrow to thirteen-all parity, not reverse" in PAPER,
+    )
+
+    check(
+        "wording-ablation captions and includes are present",
+        "**Appendix Table A18. Same model, two clarifier wordings: sign-clarified quantities.**"
+        in PAPER
+        and "**Appendix Table A19. Same model, two clarifier wordings: implied tau.**"
+        in PAPER
+        and "{{< include tables/wording-comparison.md >}}" in PAPER
+        and "{{< include tables/wording-comparison-tau.md >}}" in PAPER,
+    )
+    check(
+        "support-bounds table renumbered to A20",
+        "**Appendix Table A20. Registry support bounds.**" in PAPER
+        and "Appendix Table A20 tabulates" in PAPER
+        and "Appendix Table A18. Registry support bounds" not in PAPER,
+    )
+    check(
+        "the design section no longer defers the comparison",
+        "this paper does not run it" not in PAPER
+        and "Appendix Tables A18-A19 run it" in PAPER,
+    )
+    check(
+        "appendix discloses the harness-path confound",
+        "wording is confounded with harness path and time" in PAPER,
+    )
+
+
+def verify_wording_comparison_tables() -> None:
+    """Rebuild the A18-A19 tables from the ``ddca237`` archives and diff them
+    against the committed CSVs, then pin the appendix's median-pair prose to
+    the same archives. Needs full git history, so this stays in the local
+    gate and out of the pytest wrapper (CI clones are shallow).
+    """
+    import importlib.util
+    from statistics import median
+
+    spec = importlib.util.spec_from_file_location(
+        "paper_build_tables", REPO_ROOT / "paper" / "build_tables.py"
+    )
+    build_tables = importlib.util.module_from_spec(spec)
+    sys.modules["paper_build_tables"] = build_tables
+    try:
+        spec.loader.exec_module(build_tables)
+        rebuilt_rows, rebuilt_tau = build_tables.build_wording_comparison_tables()
+    except Exception as error:  # noqa: BLE001 - report any rebuild failure
+        check("wording tables rebuild from the archives", False, str(error))
+        return
+
+    check(
+        "A18 CSV matches the archive recomputation",
+        [{key: str(value) for key, value in row.items()} for row in rebuilt_rows]
+        == read_rows("wording-comparison"),
+    )
+    check(
+        "A19 CSV matches the archive recomputation",
+        [{key: str(value) for key, value in row.items()} for row in rebuilt_tau]
+        == read_rows("wording-comparison-tau"),
+    )
+
+    cells: dict[tuple[str, str, str], float] = {}
+    for model_name in ("claude-sonnet-4.6", "gemini-3.1-pro-preview"):
+        archived = build_tables._read_archived_runs_jsonl(
+            build_tables.WORDING_ARCHIVE_COMMIT,
+            f"results/{model_name}-elasticities-batch15/runs.jsonl",
+        )
+        current = build_tables._read_runs_jsonl_records(
+            (
+                REPO_ROOT / "results" / f"{model_name}-elasticities-batch15" / "runs.jsonl"
+            ).read_text()
+        )
+        for wording, records in (("original", archived), ("revised", current)):
+            for quantity_id in (
+                build_tables.CAP_GAINS_TAX_RATE_ID,
+                build_tables.CAP_GAINS_NET_OF_TAX_RATE_ID,
+            ):
+                estimates, _ = build_tables._wording_cell(records, quantity_id)
+                cells[(model_name, wording, quantity_id)] = median(
+                    estimate.point_estimate for estimate in estimates
+                )
+
+    tax_id = build_tables.CAP_GAINS_TAX_RATE_ID
+    net_id = build_tables.CAP_GAINS_NET_OF_TAX_RATE_ID
+    gemini = "gemini-3.1-pro-preview"
+    gem_tax_o = cells[(gemini, "original", tax_id)]
+    gem_net_o = cells[(gemini, "original", net_id)]
+    gem_tax_r = cells[(gemini, "revised", tax_id)]
+    gem_net_r = cells[(gemini, "revised", net_id)]
+    check(
+        "appendix quotes Gemini's median pairs",
+        f"$({gem_tax_o:.2f}, {gem_net_o:.2f})$" in PAPER
+        and f"$({gem_tax_r:.2f}, {gem_net_r:.1f})$" in PAPER,
+        f"pairs ({gem_tax_o}, {gem_net_o}) and ({gem_tax_r}, {gem_net_r})",
+    )
+    # internal tax rates implied by the identity stated in each wording
+    backwards_rate = gem_net_o / (gem_net_o + abs(gem_tax_o))
+    corrected_rate = (abs(gem_tax_r) / gem_net_r) / (1 + abs(gem_tax_r) / gem_net_r)
+    rho = gem_tax_o / gem_net_o
+    plug_in = -rho / (1 - rho)
+    check(
+        "appendix quotes Gemini's internal rates and the plug-in complement",
+        f"near `{backwards_rate:.2f}`" in PAPER
+        and f"(`{corrected_rate:.2f}`)" in PAPER
+        and f"plug-in `{plug_in:.2f}`" in PAPER,
+        f"rates {backwards_rate:.3f}, {corrected_rate:.3f}, plug-in {plug_in:.3f}",
+    )
+
+    sonnet = "claude-sonnet-4.6"
+    son_net_o = cells[(sonnet, "original", net_id)]
+    son_net_r = cells[(sonnet, "revised", net_id)]
+    son_rate_o = (abs(cells[(sonnet, "original", tax_id)]) / son_net_o) / (
+        1 + abs(cells[(sonnet, "original", tax_id)]) / son_net_o
+    )
+    son_rate_r = (abs(cells[(sonnet, "revised", tax_id)]) / son_net_r) / (
+        1 + abs(cells[(sonnet, "revised", tax_id)]) / son_net_r
+    )
+    check(
+        "appendix quotes Sonnet's sibling medians and corrected-identity rates",
+        f"median `{son_net_o:.1f}` to `{son_net_r:.1f}`" in PAPER
+        and f"(`{son_rate_o:.2f}` to `{son_rate_r:.2f}`)" in PAPER,
+        f"medians {son_net_o}, {son_net_r}; rates {son_rate_o:.3f}, {son_rate_r:.3f}",
+    )
+
+
 def main() -> int:
     verify_superlatives()
     verify_top_rate()
@@ -1013,6 +1266,8 @@ def main() -> int:
     verify_country_family()
     verify_income_sign_counts()
     verify_prompt_identity()
+    verify_wording_comparison_prose()
+    verify_wording_comparison_tables()
     if FAILURES:
         print(f"\n{len(FAILURES)} check(s) failed")
         return 1
