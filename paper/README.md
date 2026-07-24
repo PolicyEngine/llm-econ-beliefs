@@ -28,7 +28,17 @@ Render the manuscript:
 /Users/maxghenis/quarto/bin/quarto render paper.qmd
 ```
 
-Quarto is installed at `/Users/maxghenis/quarto/bin/quarto` locally and is not on the default shell `PATH`. The manuscript renders to `paper.html`.
+Quarto is installed at `/Users/maxghenis/quarto/bin/quarto` locally and is not on the default shell `PATH`. The manuscript renders to `paper.html`; the bare `render` command does not rebuild the committed `paper.pdf`, so after any prose change also run:
+
+```bash
+/Users/maxghenis/quarto/bin/quarto render paper.qmd --to pdf
+```
+
+After rebuilding, run the prose-consistency gate from the repo root:
+
+```bash
+.venv/bin/python scripts/verify_paper_prose.py
+```
 
 ## Core question
 

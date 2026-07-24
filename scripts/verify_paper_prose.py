@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import json
 import re
 import sys
 from pathlib import Path
@@ -804,6 +805,190 @@ def verify_income_sign_counts() -> None:
     )
 
 
+SIGN_CLARIFIED_QUANTITIES = (
+    "labor_supply.income_elasticity.prime_age",
+    "tax.capital_gains_realizations.elasticity",
+    "tax.capital_gains_realizations.elasticity.net_of_tax_rate",
+)
+ORIGINAL_WORDING_MODELS = frozenset(
+    {
+        "claude-haiku-4.5",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite-preview",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "gpt-5.4-nano",
+        "grok-4.1-fast",
+    }
+)
+
+
+def verify_prompt_identity() -> None:
+    """Pin the prompt-wording disclosure to the archived request logs.
+
+    Recomputes the per-quantity prompt census from every
+    ``results/*-elasticities-batch15/runs.jsonl``: which models received
+    byte-identical prompt text, quantity by quantity. Fails if the archives
+    stop matching the paper's claims (23 of 26 quantities uniform across all
+    28 models, the three sign-clarified quantities split 21/7 on the same
+    seven April models, every cell internally uniform), if any archived
+    wording other than the disclosed original stops matching what the
+    current prompt builder produces, or if the prose fragments carrying the
+    disclosure numbers drift.
+    """
+    sys.path.insert(0, str(REPO_ROOT))
+    from llm_econ_beliefs.model_registry import MODEL_REGISTRY  # noqa: E402
+    from llm_econ_beliefs.prompts import create_belief_prompt  # noqa: E402
+    from llm_econ_beliefs.registry import get_quantity  # noqa: E402
+
+    dirs = sorted((REPO_ROOT / "results").glob("*-elasticities-batch15"))
+    check("main-panel archive count is 28", len(dirs) == 28, f"got {len(dirs)}")
+
+    variants: dict[str, dict[str, set[str]]] = {}
+    mixed: list[str] = []
+    for directory in dirs:
+        model = directory.name.removesuffix("-elasticities-batch15")
+        cell_texts: dict[str, set[str]] = {}
+        with (directory / "runs.jsonl").open() as handle:
+            for line in handle:
+                record = json.loads(line)
+                cell_texts.setdefault(record["quantity_id"], set()).add(
+                    record["prompt"]
+                )
+        for quantity_id, texts in cell_texts.items():
+            if len(texts) > 1:
+                mixed.append(f"{model}:{quantity_id}")
+            for text in texts:
+                variants.setdefault(quantity_id, {}).setdefault(text, set()).add(model)
+
+    check(
+        "every model-quantity cell carries one prompt text",
+        not mixed,
+        f"mixed cells: {mixed[:5]}",
+    )
+    check("archive quantity count is 26", len(variants) == 26, f"got {len(variants)}")
+
+    split = {q: texts for q, texts in variants.items() if len(texts) > 1}
+    check(
+        "23 quantities byte-identical across all models",
+        len(variants) - len(split) == 23
+        and all(
+            len(next(iter(texts.values()))) == 28
+            for q, texts in variants.items()
+            if q not in split
+        ),
+        f"got {len(variants) - len(split)} uniform",
+    )
+    check(
+        "split quantities are exactly the three sign-clarified ones",
+        set(split) == set(SIGN_CLARIFIED_QUANTITIES),
+        f"got {sorted(split)}",
+    )
+
+    for quantity_id in SIGN_CLARIFIED_QUANTITIES:
+        texts = variants.get(quantity_id, {})
+        if len(texts) != 2:
+            check(f"{quantity_id} carries two wordings", False, f"got {len(texts)}")
+            continue
+        (majority_text, majority), (minority_text, minority) = sorted(
+            texts.items(), key=lambda item: -len(item[1])
+        )
+        check(
+            f"{quantity_id} splits 21/7",
+            (len(majority), len(minority)) == (21, 7),
+            f"got {len(majority)}/{len(minority)}",
+        )
+        check(
+            f"{quantity_id} original-wording membership",
+            minority == ORIGINAL_WORDING_MODELS,
+            f"got {sorted(minority)}",
+        )
+        check(
+            f"{quantity_id} revised wording matches current prompt builder",
+            majority_text == create_belief_prompt(get_quantity(quantity_id)),
+        )
+        check(
+            f"{quantity_id} wording forms (iff revised, conditional original)",
+            "if and only if" in majority_text and "if and only if" not in minority_text,
+        )
+
+    sibling = "tax.capital_gains_realizations.elasticity.net_of_tax_rate"
+    if len(variants.get(sibling, {})) == 2:
+        by_size = sorted(variants[sibling].items(), key=lambda item: -len(item[1]))
+        check(
+            "sibling identity backwards in original, corrected in revised",
+            "minus epsilon_taxrate times tau / (1 - tau)" in by_size[1][0]
+            and "epsilon_taxrate = -(tau / (1 - tau)) * epsilon_netoftax"
+            in by_size[0][0],
+        )
+
+    stale = [
+        quantity_id
+        for quantity_id, texts in variants.items()
+        if quantity_id not in split
+        and next(iter(texts)) != create_belief_prompt(get_quantity(quantity_id))
+    ]
+    check(
+        "uniform quantities match current prompt builder",
+        not stale,
+        f"stale: {stale[:5]}",
+    )
+
+    # prose fragments carrying the disclosure numbers
+    check(
+        "abstract discloses the 21/7 wording split",
+        "21 models carry the revised text and seven April models the original" in PAPER,
+    )
+    check(
+        "design discloses the byte-identical census",
+        "23 of the 26 quantities are byte-identical across all 28 models" in PAPER
+        and "split 21/7 on the same seven models" in PAPER,
+    )
+    sentence = sentence_with("were elicited before the revision and never re-elicited")
+    check(
+        "design names the seven original-wording models",
+        all(f"`{model_id}`" in sentence for model_id in ORIGINAL_WORDING_MODELS),
+        f"sentence: {sentence[:120]!r}",
+    )
+    check(
+        "results section scopes the iff clarifier to 21 models",
+        "revised wording that 21 of the 28 models received" in PAPER,
+    )
+    check(
+        "A16 prose scopes prompt identity to 23 of 26 quantities",
+        "byte-identical across models on 23 of the 26 quantities" in PAPER,
+    )
+
+    # A9 caveat: band counts by wording group, recomputed from the audit table
+    display_to_id = {model.display_label: model.model_id for model in MODEL_REGISTRY}
+    banded = {"LTCG-rate consistent", "ordinary-income-rate consistent"}
+    band_col = "Band (LTCG [0.15, 0.37], ordinary-income [0.37, 0.55])"
+    original_banded = original_ordinary = revised_banded = revised_ordinary = 0
+    for row in read_rows("cap-gains-convention-audit"):
+        band = row[band_col].strip()
+        if band not in banded:
+            continue
+        original = display_to_id[row["Model"].strip("`")] in ORIGINAL_WORDING_MODELS
+        original_banded += original
+        revised_banded += not original
+        if band == "ordinary-income-rate consistent":
+            original_ordinary += original
+            revised_ordinary += not original
+    check(
+        "A9 band counts by wording group",
+        (revised_ordinary, revised_banded, original_ordinary, original_banded)
+        == (13, 20, 5, 6),
+        f"got revised {revised_ordinary}/{revised_banded}, "
+        f"original {original_ordinary}/{original_banded}",
+    )
+    check(
+        "A9 caveat prose carries the per-group band counts",
+        f"{revised_ordinary} of its {revised_banded} banded models" in PAPER
+        and f"{original_ordinary} of the {original_banded} banded original-wording"
+        in PAPER,
+    )
+
+
 def main() -> int:
     verify_superlatives()
     verify_top_rate()
@@ -827,6 +1012,7 @@ def main() -> int:
     verify_posthoc_consistency()
     verify_country_family()
     verify_income_sign_counts()
+    verify_prompt_identity()
     if FAILURES:
         print(f"\n{len(FAILURES)} check(s) failed")
         return 1
