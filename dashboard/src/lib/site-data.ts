@@ -650,6 +650,103 @@ export function loadTopRateRows(): TopRateRow[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* Clarifier-wording ablation (paper Tables A18-A19, staged from       */
+/* paper/tables)                                                       */
+/* ------------------------------------------------------------------ */
+
+export interface WordingComparisonRow {
+  modelId: string;
+  displayLabel: string;
+  originalCenter: number;
+  revisedCenter: number;
+  centerChange: number;
+  originalWidth: number;
+  revisedWidth: number;
+}
+
+/** Paper Table A18 rows for one quantity: the four April premium models
+ *  elicited under both v4 clarifier wordings, pooled per wording. Empty
+ *  for the 23 quantities whose prompt text never changed. */
+export function loadWordingComparisonRows(
+  quantityName: string,
+): WordingComparisonRow[] {
+  const tablesDir = resolveTablesDir();
+  if (!tablesDir) return [];
+  const csvPath = path.join(tablesDir, "wording-comparison.csv");
+  if (!fs.existsSync(csvPath)) return [];
+  const registry = loadModelRegistry();
+  const byLabel = new Map(
+    [...registry.values()].map((row) => [row.displayLabel, row]),
+  );
+  const rows = parseCsv(fs.readFileSync(csvPath, "utf-8"), {
+    columns: true,
+  }) as Record<string, string>[];
+  const parsed: WordingComparisonRow[] = [];
+  for (const row of rows) {
+    if (row["Quantity"] !== quantityName) continue;
+    const meta = byLabel.get(row["Model"]);
+    if (!meta) continue;
+    parsed.push({
+      modelId: meta.modelId,
+      displayLabel: meta.displayLabel,
+      originalCenter: Number(row["Original center"]),
+      revisedCenter: Number(row["Revised center"]),
+      centerChange: Number(row["Center change"]),
+      originalWidth: Number(row["Original 90% width"]),
+      revisedWidth: Number(row["Revised 90% width"]),
+    });
+  }
+  return parsed;
+}
+
+export interface WordingTauRow {
+  modelId: string;
+  displayLabel: string;
+  originalMedian: number;
+  revisedMedian: number;
+  originalBand: string;
+  revisedBand: string;
+}
+
+const TAU_MEDIAN = /^(-?[\d.]+)\s*\[/;
+
+/** Paper Table A19: the A9 implied-tau bootstrap rerun per clarifier
+ *  wording for the four dual-elicited models. */
+export function loadWordingTauRows(): WordingTauRow[] {
+  const tablesDir = resolveTablesDir();
+  if (!tablesDir) return [];
+  const csvPath = path.join(tablesDir, "wording-comparison-tau.csv");
+  if (!fs.existsSync(csvPath)) return [];
+  const registry = loadModelRegistry();
+  const byLabel = new Map(
+    [...registry.values()].map((row) => [row.displayLabel, row]),
+  );
+  const rows = parseCsv(fs.readFileSync(csvPath, "utf-8"), {
+    columns: true,
+  }) as Record<string, string>[];
+  const parsed: WordingTauRow[] = [];
+  for (const row of rows) {
+    const meta = byLabel.get(row["Model"]);
+    const original = TAU_MEDIAN.exec(
+      row["Original implied tau median [90%]"] ?? "",
+    );
+    const revised = TAU_MEDIAN.exec(
+      row["Revised implied tau median [90%]"] ?? "",
+    );
+    if (!meta || !original || !revised) continue;
+    parsed.push({
+      modelId: meta.modelId,
+      displayLabel: meta.displayLabel,
+      originalMedian: Number(original[1]),
+      revisedMedian: Number(revised[1]),
+      originalBand: row["Original band"] ?? "",
+      revisedBand: row["Revised band"] ?? "",
+    });
+  }
+  return parsed;
+}
+
+/* ------------------------------------------------------------------ */
 /* Verbatim prompts and costs (Process page + quantity pages)          */
 /* ------------------------------------------------------------------ */
 
