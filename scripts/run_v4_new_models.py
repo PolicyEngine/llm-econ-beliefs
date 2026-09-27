@@ -23,7 +23,13 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from llm_econ_beliefs import list_quantities
-from check_panel_grid import check_batch_directory
+from check_panel_grid import (
+    BATCH_PROMPT_VERSIONS,
+    check_batch_directory,
+    check_canonical_cell,
+    expected_cell_identity,
+    quantity_ids_for_batch,
+)
 from run_v4_full_panel import NEW_MODELS_JULY_2026, count_records
 from run_v4_per_quantity import PROVIDER_FOR_MODEL
 
@@ -105,6 +111,29 @@ def main() -> int:
                 model_name=model_name,
                 batch=batch_key,
             )
+            if grid_result.ok:
+                # The exact grid says nothing about what was sent; a cell
+                # from another provider or with mixed prompt texts must be
+                # re-elicited, not reported as complete. Unparsed slots stay
+                # a skip-and-flag case for rerun_failed_runs.py.
+                identity_result, _ = check_canonical_cell(
+                    target_dir,
+                    expected_cell_identity(
+                        model_name=model_name,
+                        runner=PROVIDER_FOR_MODEL[model_name],
+                        prompt_version=BATCH_PROMPT_VERSIONS[batch_key],
+                        quantity_ids=quantity_ids_for_batch(batch_key),
+                    ),
+                    require_parsed=False,
+                )
+                if not identity_result.ok:
+                    print(
+                        f"[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
+                        "holds an exact grid with the wrong identity:"
+                    )
+                    for error in identity_result.errors:
+                        print(f"  {error}")
+                    grid_result = identity_result
             if grid_result.ok:
                 parsed_grid = check_batch_directory(
                     REPO_ROOT / "results",

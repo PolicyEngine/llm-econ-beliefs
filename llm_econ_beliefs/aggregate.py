@@ -40,20 +40,32 @@ def aggregate_beliefs(
     lower_support: float | None = None,
     upper_support: float | None = None,
 ) -> AggregatedBelief:
-    """Pool repeated runs using the law of total variance on the raw scale."""
+    """Pool repeated runs using the law of total variance on the raw scale.
+
+    ``Var(X) = E[Var(X | run)] + Var(E[X | run])``: the within-run term
+    averages each run distribution's variance and the between-run term is the
+    population variance of the run distributions' *means*. When every run
+    carries full quantiles, ``total_sd ** 2`` is therefore exactly the
+    variance of the equal-weight mixture of run distributions that the
+    headline interval comes from. The reported center is separately the mean
+    of the run point estimates (the elicited medians), which is intended; the
+    medians are not the component means of an asymmetric run distribution, so
+    they must not stand in for them in the between-run term.
+    """
     if not estimates:
         raise ValueError("At least one estimate is required")
 
     points = [estimate.point_estimate for estimate in estimates]
     point_estimate = fmean(points)
 
-    between_run_var = pvariance(points) if len(points) > 1 else 0.0
-    within_vars = [
-        variance
-        for estimate in estimates
-        if (variance := _within_variance_raw(estimate, lower_support, upper_support)) is not None
-        and math.isfinite(variance)
-    ]
+    run_means = []
+    within_vars = []
+    for estimate in estimates:
+        run_mean, run_variance = _run_moments_raw(estimate, lower_support, upper_support)
+        run_means.append(run_mean)
+        if run_variance is not None and math.isfinite(run_variance):
+            within_vars.append(run_variance)
+    between_run_var = pvariance(run_means) if len(run_means) > 1 else 0.0
     within_run_var = fmean(within_vars) if within_vars else 0.0
     total_var = between_run_var + within_run_var
 
@@ -540,11 +552,17 @@ def _within_variance_transformed(
     return sigma * sigma
 
 
-def _within_variance_raw(
+def _run_moments_raw(
     estimate: BeliefEstimate,
     lower_support: float | None,
     upper_support: float | None,
-) -> float | None:
+) -> tuple[float, float | None]:
+    """Return one run's (mean, variance) on the raw scale.
+
+    With full quantiles these are the moments of the reconstructed run
+    distribution. Otherwise the run is treated as centered on its point
+    estimate, with a normal variance implied by its interval when one exists.
+    """
     if has_full_quantiles(estimate):
         distribution = distribution_from_belief_estimate(
             estimate,
@@ -552,7 +570,7 @@ def _within_variance_raw(
             upper_support=upper_support,
         )
         if distribution is not None:
-            return distribution.variance()
+            return distribution.mean(), distribution.variance()
 
     if (
         estimate.lower_bound is None
@@ -560,14 +578,14 @@ def _within_variance_raw(
         or estimate.confidence_level is None
         or not 0 < estimate.confidence_level < 1
     ):
-        return None
+        return estimate.point_estimate, None
 
     z_value = NORMAL.inv_cdf(0.5 + estimate.confidence_level / 2)
     if z_value <= 0:
-        return None
+        return estimate.point_estimate, None
 
     sigma = abs(estimate.upper_bound - estimate.lower_bound) / (2.0 * z_value)
-    return sigma * sigma
+    return estimate.point_estimate, sigma * sigma
 
 
 def _mixture_interval_from_quantiles(

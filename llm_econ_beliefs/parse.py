@@ -1,9 +1,18 @@
-"""Parse structured or semi-structured LLM belief responses."""
+"""Parse structured or semi-structured LLM belief responses.
+
+Numeric contract: every accepted number is a literal numeric token the model
+wrote, with its sign, decimal point, and exponent intact. A value that is not
+a bare finite number (a refusal such as ``"N/A (0)"``, a unit-annotated
+``"1%"``, NaN, or infinity) is treated as missing, never coerced into a
+different number, so a refusal stays a failed run under the quantile-complete
+contract below.
+"""
 
 from __future__ import annotations
 
 import ast
 import json
+import math
 import re
 from typing import Any, Sequence
 
@@ -33,6 +42,28 @@ QUANTILE_ALIASES = {
     "p95": ("p95", "q95", "95th percentile", "95th quantile"),
 }
 
+# One numeric token: optional sign (ASCII or U+2212 minus), digits with an
+# optional fraction or a bare leading-decimal fraction, optional exponent.
+_NUMBER = r"[-+\u2212]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
+_NUMBER_RE = re.compile(_NUMBER)
+_JSON_DECODER = json.JSONDecoder()
+_THOUSANDS_RE = re.compile(r"[-+\u2212]?\d{1,3}(?:,\d{3})+(?:\.\d*)?")
+# What may sit between a quantile label and its value on the same line:
+# quoting/markup filler, one short parenthetical such as "(5th percentile)",
+# and one assignment marker. Digits, signs, decimal points, and newlines are
+# excluded, so the separator can never swallow a minus sign or reach a number
+# on another line or inside another label.
+_FILLER = r"[ \t\"'`*_|\\]*"
+_SEPARATOR = (
+    rf"{_FILLER}(?:\([^()\n]{{0,40}}\))?{_FILLER}"
+    rf"(?::=|->|=>|[:=≈~]|\bis\b)?{_FILLER}"
+)
+# A value must end the numeric token: no trailing digit, decimal point, or
+# percent sign (a percent annotation changes the number's meaning), and no
+# digit or decimal point after a space — "0 .1" is a token split in two, not
+# a reading of 0.
+_VALUE_END = r"(?![\d.]|[ \t]*[\d.]|\s*%)"
+
 
 def parse_belief_response(
     response_text: str,
@@ -52,31 +83,25 @@ def parse_belief_response(
         )
 
     quantiles, quantiles_repaired = _extract_quantiles_from_text(response_text)
-    point_estimate = _extract_point_estimate_from_text(response_text, quantiles=quantiles)
-    if point_estimate is None:
-        raise ValueError("Could not parse a point estimate from the response")
     # Same quantile-complete contract as the structured path: the pooled
     # analysis is a mixture over the five quantiles, so a response without
     # all five is a failed run, not a parsed one.
-    missing_quantiles = [
-        key for key in ("p05", "p25", "p50", "p75", "p95") if quantiles.get(key) is None
-    ]
+    missing_quantiles = [key for key in QUANTILE_ORDER if quantiles.get(key) is None]
     if missing_quantiles:
         raise ValueError(
             "Response text is missing quantiles: " + ", ".join(missing_quantiles)
         )
 
-    interval = _extract_interval_from_text(response_text)
-    lower_bound = quantiles.get("p05") if "p05" in quantiles else (interval[0] if interval else None)
-    upper_bound = quantiles.get("p95") if "p95" in quantiles else (interval[1] if interval else None)
-    confidence_level = 0.9 if lower_bound is not None and upper_bound is not None else None
-
+    # The prompt asks for point_estimate == p50, and the structured path
+    # enforces it; the text path does too, so an unrelated narrative number
+    # ("around 1", "central estimates between -0.10 and 0") can never stand
+    # in for the elicited median.
     return BeliefEstimate(
         quantity_id=quantity_id,
-        point_estimate=point_estimate,
-        lower_bound=lower_bound,
-        upper_bound=upper_bound,
-        confidence_level=confidence_level,
+        point_estimate=quantiles["p50"],
+        lower_bound=quantiles["p05"],
+        upper_bound=quantiles["p95"],
+        confidence_level=0.9,
         quantiles=quantiles,
         reasoning_summary=response_text.strip(),
         raw_response=response_text,
@@ -85,26 +110,89 @@ def parse_belief_response(
 
 
 def _extract_payload(response_text: str) -> dict[str, Any] | None:
+    """Return the answer object, preferring one that carries a quantiles dict.
+
+    The whole text, a fenced block, and the first balanced block are tried
+    first, as before. When none of them is an answer (an object with a
+    ``quantiles`` dict), salvage paths look for one: a truncated object closed
+    up, any complete object embedded in surrounding text, and escaped JSON
+    inside a string literal. Salvaged objects are only accepted when they are
+    answer-shaped, and every number still has to pass the strict structured
+    contract, so salvage can recover a literal answer but never invent one.
+    """
     stripped = response_text.strip()
     if stripped.startswith("```"):
         match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", stripped, re.S)
         if match:
             stripped = match.group(1)
 
-    for candidate in (stripped, _first_braced_block(stripped)):
-        if not candidate:
-            continue
-        try:
-            parsed = json.loads(candidate)
-        except json.JSONDecodeError:
-            try:
-                parsed = ast.literal_eval(candidate)
-            except (ValueError, SyntaxError):
-                continue
-        if isinstance(parsed, dict):
-            return parsed
+    legacy = [_decode_object(stripped), _decode_object(_first_braced_block(stripped))]
+    for candidate in legacy:
+        answer = _answer_object(candidate)
+        if answer is not None:
+            return answer
+    for candidate in _salvaged_objects(stripped):
+        answer = _answer_object(candidate)
+        if answer is not None:
+            return answer
+    return next((candidate for candidate in legacy if candidate is not None), None)
 
+
+def _decode_object(text: str | None) -> dict[str, Any] | None:
+    if not text:
+        return None
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        try:
+            parsed = ast.literal_eval(text)
+        except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+            return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _answer_object(payload: Any, depth: int = 0) -> dict[str, Any] | None:
+    """Return ``payload`` if it holds a quantiles dict, unwrapping one level.
+
+    A wrapper such as ``{"They want ...": {<answer>}}`` holds the answer as
+    its only object value.
+    """
+    if not isinstance(payload, dict):
+        return None
+    if isinstance(payload.get("quantiles"), dict):
+        return payload
+    nested = [value for value in payload.values() if isinstance(value, dict)]
+    if depth < 2 and len(nested) == 1:
+        return _answer_object(nested[0], depth + 1)
     return None
+
+
+def _salvaged_objects(text: str, depth: int = 0):
+    completed = _complete_truncated_object(text)
+    if completed is not None:
+        try:
+            yield json.loads(completed)
+        except json.JSONDecodeError:
+            pass
+    for match in re.finditer(r"\{", text):
+        try:
+            candidate, _ = _JSON_DECODER.raw_decode(text, match.start())
+        except json.JSONDecodeError:
+            continue
+        yield candidate
+    if depth == 0:
+        # Escaped JSON inside a string literal: decode the literal, then look
+        # for the answer in the decoded text.
+        for literal in re.finditer(r'"(?:[^"\\]|\\.)*"', text, re.S):
+            if "quantiles" not in literal.group(0):
+                continue
+            try:
+                decoded = json.loads(literal.group(0))
+            except json.JSONDecodeError:
+                continue
+            if isinstance(decoded, str) and "{" in decoded:
+                yield _decode_object(_first_braced_block(decoded))
+                yield from _salvaged_objects(decoded, depth + 1)
 
 
 def _parse_structured_payload(
@@ -226,102 +314,126 @@ def _lookup_confidence(payload: dict[str, Any]) -> float | None:
 
 
 def _coerce_float(value: Any) -> float | None:
+    """Return a finite number only when the value *is* one bare number.
+
+    JSON numbers pass through. A string must be exactly one numeric token
+    (surrounding whitespace and thousands separators allowed); anything else
+    — ``"N/A (0)"``, ``"1%"``, ``"~0.3"``, ``"0.1-0.3"`` — is missing, not
+    rewritten. NaN and infinities are missing too.
+    """
     if value is None or isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        return float(value)
-
-    text = str(value).strip().replace(",", "")
-    text = re.sub(r"[^0-9eE+.\-]", "", text)
-    if not text:
+        try:
+            number = float(value)
+        except OverflowError:
+            return None
+    elif isinstance(value, str):
+        text = value.strip()
+        if _THOUSANDS_RE.fullmatch(text):
+            text = text.replace(",", "")
+        if not _NUMBER_RE.fullmatch(text):
+            return None
+        number = _to_float(text)
+    else:
         return None
-    try:
-        return float(text)
-    except ValueError:
-        return None
+    return number if math.isfinite(number) else None
 
 
-def _extract_point_estimate_from_text(
-    response_text: str,
-    *,
-    quantiles: dict[str, float],
-) -> float | None:
-    patterns = [
-        r"(?is)(?:point estimate|best estimate|central estimate)\D{0,40}([-+]?\d*\.?\d+)",
-        r"(?is)(?:point estimate|best estimate|central estimate).*?(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
-        r"(?is)(?:\bbeta\b|β|sigma|σ)\s*(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:about|around|roughly|approximately)\s*([-+]?\d*\.?\d+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, response_text)
-        if match:
-            return float(match.group(1))
-
-    if "p50" in quantiles:
-        return quantiles["p50"]
-
-    lines = [line.strip() for line in response_text.splitlines() if line.strip()]
-    if lines:
-        first_line_value = _extract_first_number(lines[0])
-        if first_line_value is not None:
-            return first_line_value
-
-    return _extract_first_number(response_text)
+def _to_float(token: str) -> float:
+    return float(token.replace("\u2212", "-"))
 
 
 def _extract_quantiles_from_text(response_text: str) -> tuple[dict[str, float], bool]:
     quantiles: dict[str, float] = {}
     for key, aliases in QUANTILE_ALIASES.items():
-        patterns = [
-            rf"(?i)(?:{'|'.join(re.escape(alias) for alias in aliases)})\D{{0,20}}([-+]?\d*\.?\d+)",
-            rf"(?i)(?:{'|'.join(re.escape(alias) for alias in aliases)}).*?(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
-        ]
-        for pattern in patterns:
+        # Aliases are tried in priority order, so the canonical label ("p50")
+        # wins over a looser one ("median") that prose may use earlier.
+        for alias in aliases:
+            pattern = (
+                rf"(?i)(?<![A-Za-z0-9_]){re.escape(alias)}(?![A-Za-z0-9_])"
+                rf"{_SEPARATOR}(?P<value>{_NUMBER}){_VALUE_END}"
+            )
             match = re.search(pattern, response_text)
             if match:
-                quantiles[key] = float(match.group(1))
+                value = _to_float(match.group("value"))
+                if math.isfinite(value):
+                    quantiles[key] = value
                 break
     return _sorted_quantiles(quantiles)
 
 
-def _extract_interval_from_text(response_text: str) -> tuple[float, float] | None:
-    patterns = [
-        r"\[\s*([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\s*\]",
-        r"(?i)(?:confidence|credible|uncertainty)\s+interval[^-\d+]*"
-        r"([-+]?\d*\.?\d+)\s*(?:to|–|—|-)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:90%\s*(?:ci|interval)|ci)\D{0,20}([-+]?\d*\.?\d+)\s*(?:to|–|—|-)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:between|from)\s*([-+]?\d*\.?\d+)\s*(?:and|to)\s*([-+]?\d*\.?\d+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, response_text)
-        if not match:
-            continue
-        lower = float(match.group(1))
-        upper = float(match.group(2))
-        return (lower, upper) if lower <= upper else (upper, lower)
-    return None
-
-
-def _extract_first_number(text: str) -> float | None:
-    match = re.search(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", text)
-    return float(match.group(0)) if match else None
-
-
 def _first_braced_block(text: str) -> str | None:
+    """Return the first balanced ``{...}`` block, ignoring braces inside strings."""
     start = text.find("{")
     if start == -1:
         return None
 
     depth = 0
+    in_string = False
+    escaped = False
     for index in range(start, len(text)):
         char = text[index]
-        if char == "{":
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char == "{":
             depth += 1
         elif char == "}":
             depth -= 1
             if depth == 0:
                 return text[start : index + 1]
     return None
+
+
+def _complete_truncated_object(text: str) -> str | None:
+    """Close a JSON object whose only defect is missing trailing closers.
+
+    Some responses (e.g. Gemini 3.5 Flash) end one ``}`` short of a complete
+    object. Closing the still-open ``{``/``[`` containers recovers the literal
+    answer without inventing any value. Completion is refused whenever the
+    text could have been cut mid-value — inside a string, or right after a
+    bare number, literal, or separator — because appending closers there
+    could silently change or truncate a number. (A dangling key still fails
+    to decode after completion.)
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    stack: list[str] = []
+    in_string = False
+    escaped = False
+    for char in text[start:]:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in "{[":
+            stack.append("}" if char == "{" else "]")
+        elif char in "}]":
+            if not stack or stack.pop() != char:
+                return None
+            if not stack:
+                return None  # a complete block exists; nothing to complete
+    if in_string or not stack:
+        return None
+
+    body = text[start:].rstrip()
+    if not body or body[-1] not in "\"}]":
+        return None
+    return body + "".join(reversed(stack))
 
 
 def _sorted_quantiles(quantiles: dict[str, float]) -> tuple[dict[str, float], bool]:

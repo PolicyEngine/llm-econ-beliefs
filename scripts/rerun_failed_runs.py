@@ -26,7 +26,11 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from run_v4_per_quantity import PROVIDER_FOR_MODEL
-from check_panel_grid import check_batch_directory
+from check_panel_grid import (
+    BATCH_PROMPT_VERSIONS,
+    LEGACY_PROVIDER_TAGS,
+    check_batch_directory,
+)
 
 from llm_econ_beliefs.experiment import (
     _record_from_parsed,
@@ -65,6 +69,60 @@ def invoke_once(provider: str, model_name: str, prompt: str):
     if provider == "anthropic":
         return run_anthropic_prompt_logged(prompt, model_name=model_name)
     return run_litellm_prompt_logged(prompt, model_name=model_name)
+
+
+def failed_cell_problems(
+    records: list[RunResult],
+    failed_positions: list[int],
+    *,
+    model_name: str,
+    prompt_version: str,
+    provider_tag: str,
+) -> list[str]:
+    """Explain why re-eliciting the failed cells would change what was asked.
+
+    Replacements resend each cell's stored prompt through today's runner for
+    the model, as a plain prompt without tools. That reproduces the original
+    elicitation only if every row of the (model, quantity) cell shares one
+    prompt text, the batch's prompt version and tool regime ``none``, and
+    was served under today's provider tag.
+    """
+    failed_cells = {
+        (records[index].model_name, records[index].quantity_id)
+        for index in failed_positions
+    }
+    problems: list[str] = []
+    for cell_model, quantity_id in sorted(failed_cells):
+        rows = [
+            record
+            for record in records
+            if record.model_name == cell_model and record.quantity_id == quantity_id
+        ]
+        label = f"{cell_model} / {quantity_id}"
+        if cell_model != model_name:
+            problems.append(f"{label}: rows are not for {model_name!r}")
+        prompts = {record.prompt for record in rows}
+        if len(prompts) != 1:
+            problems.append(f"{label}: {len(prompts)} distinct prompt texts")
+        versions = {record.prompt_version for record in rows}
+        if versions != {prompt_version}:
+            problems.append(
+                f"{label}: prompt versions {sorted(versions, key=str)}, "
+                f"expected {prompt_version!r}"
+            )
+        tool_regimes = {record.tool_regime for record in rows}
+        if tool_regimes != {"none"}:
+            problems.append(f"{label}: tool regimes {sorted(tool_regimes, key=str)}")
+        providers = {
+            LEGACY_PROVIDER_TAGS.get(record.provider, record.provider)
+            for record in rows
+        }
+        if providers != {provider_tag}:
+            problems.append(
+                f"{label}: provider tags {sorted(providers, key=str)}, "
+                f"but the runner writes {provider_tag!r}"
+            )
+    return problems
 
 
 def report_grid_errors(model_name: str, batch: str, errors: tuple[str, ...]) -> None:
@@ -120,6 +178,18 @@ def main() -> int:
             return 0
         report_grid_errors(args.model, args.batch, grid_result.errors)
         return 1
+    problems = failed_cell_problems(
+        records,
+        failed_positions,
+        model_name=args.model,
+        prompt_version=BATCH_PROMPT_VERSIONS[args.batch],
+        provider_tag=log_provider,
+    )
+    if problems:
+        print(f"{args.model} / {args.batch}: refusing to re-elicit failed runs:")
+        for problem in problems:
+            print(f"  {problem}")
+        return 2
     print(
         f"{args.model} / {args.batch}: re-eliciting {len(failed_positions)} failed runs"
     )
@@ -139,6 +209,7 @@ def main() -> int:
         failed = records[index]
         replacement = None
         last_error = failed.error
+        last_raw_response = failed.raw_response
         for attempt in range(1, args.attempts + 1):
             try:
                 batch_result = invoke_once(provider, failed.model_name, failed.prompt)
@@ -159,6 +230,7 @@ def main() -> int:
                 )
                 next_request_index += 1
                 raw_response = batch_result.outputs[0]
+                last_raw_response = raw_response if isinstance(raw_response, str) else None
                 parsed = parse_belief_response(
                     raw_response, quantity_id=failed.quantity_id
                 )
@@ -196,7 +268,9 @@ def main() -> int:
                 prompt_version=failed.prompt_version,
                 tool_regime=failed.tool_regime,
                 prompt=failed.prompt,
-                raw_response=None,
+                # Keep the last answer the model gave, so a refusal or
+                # malformed answer stays inspectable after replacement fails.
+                raw_response=last_raw_response,
                 parsed_ok=False,
                 error=last_error,
             )
