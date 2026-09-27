@@ -4,9 +4,12 @@ For a given model, spawns one subprocess per quantity (each doing 15 runs),
 then merges all per-quantity outputs into a single canonical batch dir
 matching what a normal cell run would produce.
 
-Reruns resume from the staging directory by default: quantities whose staged
-`runs.jsonl` already holds a full set of records are skipped, so an
-interrupted panel run picks up where it left off. Pass `--fresh` to discard
+Reruns resume from the staging directory by default: a quantity is skipped
+only when its staged `runs.jsonl` is the exact, fully parsed cell today's
+run would produce (same model, provider, prompt version, tool regime and
+prompt text), so an interrupted panel run picks up where it left off. Any
+other staged cell is moved to `<staging>.quarantine/` (keeping its paid
+request logs and raw answers) and re-elicited. Pass `--fresh` to discard
 staged results and re-elicit everything.
 
 Usage:
@@ -30,7 +33,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from check_panel_grid import check_run_files, validate_grid_rows
+from check_panel_grid import (
+    BATCH_PROMPT_VERSIONS,
+    CellIdentity,
+    expected_cell_identity,
+    load_jsonl_rows,
+    validate_cell_identity,
+    validate_grid_rows,
+)
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.experiment import (
@@ -157,13 +167,32 @@ def merge_per_quantity(
     *,
     expected_quantity_ids: Sequence[str] | None = None,
     n_runs: int = 15,
+    identity: CellIdentity | None = None,
 ) -> bool:
     """Validate staging and atomically publish canonical batch artifacts.
 
-    Production callers pass ``expected_quantity_ids`` so the exact grid is
-    checked before any target artifact is touched.  Returning ``False`` leaves
-    both the staging tree and the canonical target unchanged.
+    Production callers pass ``identity`` so every staged row is checked
+    against the exact grid, provider, tool regime and prompt text before any
+    target artifact is touched; the published prompt grid then describes the
+    prompts that were actually sent.  ``expected_quantity_ids`` alone checks
+    only the grid.  Returning ``False`` leaves both the staging tree and the
+    canonical target unchanged.
     """
+    tool_regime = "none"
+    if identity is not None:
+        if (
+            identity.model_name != model_name
+            or identity.prompt_version != prompt_version
+            or identity.n_runs != n_runs
+        ):
+            raise ValueError("identity disagrees with model, prompt version or n_runs")
+        if expected_quantity_ids is not None and tuple(
+            expected_quantity_ids
+        ) != identity.quantity_ids:
+            raise ValueError("identity disagrees with expected_quantity_ids")
+        expected_quantity_ids = identity.quantity_ids
+        tool_regime = identity.tool_regime
+
     all_records: list[RunResult] = []
     all_request_logs: list[RequestLog] = []
     next_request_index = 1
@@ -188,7 +217,16 @@ def merge_per_quantity(
         if expected_quantity_ids is not None
         else sorted({record.quantity_id for record in all_records})
     )
-    if expected_quantity_ids is not None:
+    if identity is not None:
+        identity_result = validate_cell_identity(
+            all_records, identity, require_parsed=False
+        )
+        if not identity_result.ok:
+            print("Staging does not match the expected cell; publication refused.")
+            for error in identity_result.errors:
+                print(f"  {error}")
+            return False
+    elif expected_quantity_ids is not None:
         grid_result = validate_grid_rows(
             (
                 {
@@ -225,7 +263,7 @@ def merge_per_quantity(
         quantity_ids=quantity_ids,
         n_runs=n_runs,
         prompt_version=prompt_version,
-        tool_regime="none",
+        tool_regime=tool_regime,
     )
     summaries = summarize_run_results(all_records, request_logs=all_request_logs)
 
@@ -311,13 +349,52 @@ def merge_per_quantity(
     return True
 
 
+CANONICAL_BATCH_FOR = {
+    "main": "elasticities-batch15",
+    "armington-clarify": "armington-clarify-batch15",
+    "ies-clarify": "ies-clarify-batch15",
+}
+
+
+def quarantine_cell(cell_dir: Path, staging_root: Path) -> Path:
+    """Move a stale staged cell out of staging without deleting it.
+
+    The cell holds paid request logs and raw answers, so it is kept, but as a
+    sibling of ``staging_root``: merge_per_quantity reads every subdirectory
+    of staging_root and must never publish it.
+    """
+    quarantine_root = staging_root.with_name(f"{staging_root.name}.quarantine")
+    quarantine_root.mkdir(parents=True, exist_ok=True)
+    stem = f"{cell_dir.name}-{time.strftime('%Y%m%dT%H%M%S')}"
+    destination = quarantine_root / stem
+    suffix = 1
+    while destination.exists():
+        suffix += 1
+        destination = quarantine_root / f"{stem}-{suffix}"
+    shutil.move(str(cell_dir), str(destination))
+    return destination
+
+
+def cell_problems(
+    cell_dir: Path, identity: CellIdentity, *, require_parsed: bool
+) -> tuple[str, ...]:
+    """Return why the runs in ``cell_dir`` do not match ``identity``."""
+    rows, read_errors = load_jsonl_rows([cell_dir / "runs.jsonl"])
+    result = validate_cell_identity(rows, identity, require_parsed=require_parsed)
+    return tuple(read_errors) + result.errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
-    parser.add_argument("--prompt-version", default="v4")
+    parser.add_argument(
+        "--prompt-version",
+        default=None,
+        help="optional; must equal the version implied by --batch",
+    )
     parser.add_argument(
         "--batch",
-        choices=["main", "armington-clarify", "ies-clarify"],
+        choices=list(CANONICAL_BATCH_FOR),
         default="main",
     )
     parser.add_argument("--per-quantity-timeout", type=int, default=900)
@@ -332,21 +409,31 @@ def main() -> int:
         print(f"Unknown model: {args.model}", file=sys.stderr)
         return 2
 
+    canonical_batch = CANONICAL_BATCH_FOR[args.batch]
+    prompt_version = BATCH_PROMPT_VERSIONS[canonical_batch]
+    # A mismatched override is how claude-opus-4.7's armington-clarify
+    # cell came to hold v4-tagged rows; the batch alone decides the version.
+    if args.prompt_version is not None and args.prompt_version != prompt_version:
+        print(
+            f"--prompt-version {args.prompt_version!r} disagrees with --batch "
+            f"{args.batch!r}, which elicits {prompt_version!r}",
+            file=sys.stderr,
+        )
+        return 2
+
     if args.batch == "main":
-        qids = [
-            q.id
-            for q in list_quantities()
-            # everything except simulation-facing sub-deciles/secondary:
-            # those are part of the registry and get included
-            if True
-        ]
-        target_dir = REPO_ROOT / "results" / f"{args.model}-elasticities-batch15"
+        qids = [q.id for q in list_quantities()]
     elif args.batch == "armington-clarify":
         qids = ["trade.armington_elasticity.import_domestic"]
-        target_dir = REPO_ROOT / "results" / f"{args.model}-armington-clarify-batch15"
-    elif args.batch == "ies-clarify":
+    else:
         qids = ["household.intertemporal_elasticity_of_substitution"]
-        target_dir = REPO_ROOT / "results" / f"{args.model}-ies-clarify-batch15"
+    target_dir = REPO_ROOT / "results" / f"{args.model}-{canonical_batch}"
+    identity = expected_cell_identity(
+        model_name=args.model,
+        runner=PROVIDER_FOR_MODEL[args.model],
+        prompt_version=prompt_version,
+        quantity_ids=qids,
+    )
 
     staging_root = REPO_ROOT / "results" / f"_perquantity_{args.model}_{args.batch}"
     if staging_root.exists() and args.fresh:
@@ -358,44 +445,38 @@ def main() -> int:
     successes = 0
     for i, qid in enumerate(qids, 1):
         sub = staging_root / qid.replace(".", "_")
-        staged_records = load_runs(sub / "runs.jsonl")
-        staged_grid = validate_grid_rows(
-            (
-                {
-                    "model_name": record.model_name,
-                    "prompt_version": record.prompt_version,
-                    "quantity_id": record.quantity_id,
-                    "run_index": record.run_index,
-                    "parsed_ok": record.parsed_ok,
-                }
-                for record in staged_records
-            ),
-            model_name=args.model,
-            prompt_version=args.prompt_version,
-            quantity_ids=[qid],
-            n_runs=15,
+        cell_identity = identity.restricted_to([qid])
+        if sub.exists():
             # A cell full of provider failures (e.g. upstream 429s) must
             # redo on resume, not skip as staged.
-            require_parsed=True,
-        )
-        if staged_grid.ok:
-            print(
-                f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid} "
-                "SKIP (exact staged grid)"
-            )
-            successes += 1
-            continue
-        if sub.exists():
-            shutil.rmtree(sub)  # partial cell from an interrupted run — redo cleanly
+            stale = cell_problems(sub, cell_identity, require_parsed=True)
+            if not stale:
+                print(
+                    f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid} "
+                    "SKIP (staged cell matches the expected identity)"
+                )
+                successes += 1
+                continue
+            moved_to = quarantine_cell(sub, staging_root)
+            print(f"  staged {qid} is not reusable; quarantined to {moved_to}:")
+            for error in stale:
+                print(f"    {error}")
         print(f"[{time.strftime('%H:%M:%S')}] {i}/{len(qids)} {qid}")
-        if run_one_quantity(
+        if not run_one_quantity(
             args.model,
             qid,
-            args.prompt_version,
+            prompt_version,
             sub,
             per_quantity_timeout=args.per_quantity_timeout,
         ):
-            successes += 1
+            continue
+        produced = cell_problems(sub, cell_identity, require_parsed=False)
+        if produced:
+            print(f"  child output for {qid} does not match the expected cell:")
+            for error in produced:
+                print(f"    {error}")
+            continue
+        successes += 1
 
     elapsed = time.time() - start
     print(f"\nPer-quantity phase done: {successes}/{len(qids)} in {elapsed:.0f}s")
@@ -411,25 +492,18 @@ def main() -> int:
         staging_root,
         target_dir,
         args.model,
-        args.prompt_version,
-        expected_quantity_ids=qids,
-        n_runs=15,
+        prompt_version,
+        n_runs=identity.n_runs,
+        identity=identity,
     )
     if not published:
         print("Preserved staging; canonical target was not published.")
         return 1
     shutil.rmtree(staging_root, ignore_errors=True)
-    parsed_grid = check_run_files(
-        [target_dir / "runs.jsonl"],
-        model_name=args.model,
-        prompt_version=args.prompt_version,
-        quantity_ids=qids,
-        n_runs=15,
-        require_parsed=True,
-    )
-    if not parsed_grid.ok:
+    unresolved = cell_problems(target_dir, identity, require_parsed=True)
+    if unresolved:
         print("Canonical grid contains unresolved runs.")
-        for error in parsed_grid.errors:
+        for error in unresolved:
             print(f"  {error}")
         return 1
     return 0

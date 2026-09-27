@@ -22,7 +22,14 @@ CELL_TIMEOUT_SECONDS = 2700  # 45 min — any single cell past this is SIGKILLed
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+from check_panel_grid import (
+    CellIdentity,
+    GridCheckResult,
+    check_canonical_cell,
+    expected_cell_identity,
+)
 from llm_econ_beliefs import (
     list_quantities,
     run_anthropic_experiment,
@@ -173,10 +180,19 @@ def count_records(output_dir: Path, expected_version: str) -> tuple[int, int]:
 
 
 def cell_already_complete(
-    output_dir: Path, expected_version: str, expected_runs: int
-) -> bool:
-    ok, total = count_records(output_dir, expected_version)
-    return total >= expected_runs
+    output_dir: Path, identity: CellIdentity
+) -> tuple[GridCheckResult, list[str]]:
+    """Check whether a canonical cell already holds exactly this cell.
+
+    A skippable cell must pass the exact grid, carry this runner's provider
+    tag and tool regime, and hold today's prompt text (or the April models'
+    disclosed original wording). Unparsed slots do not make a cell
+    re-elicitable here: this runner writes straight into results/, so
+    re-running would overwrite the archive; rerun_failed_runs.py replaces
+    them slot by slot. Returns the check and any quantities whose stored
+    prompt differs from today's builder.
+    """
+    return check_canonical_cell(output_dir, identity, require_parsed=False)
 
 
 def main() -> int:
@@ -230,6 +246,7 @@ def main() -> int:
 
     total_ok = 0
     total_runs = 0
+    unresolved_cells = 0
     start = time.time()
 
     for provider, model_name in models:
@@ -241,15 +258,38 @@ def main() -> int:
                 continue
 
             output_dir = results_root / f"{model_name}-{batch_key}"
-            expected_runs = len(quantity_ids) * 15
-            if args.skip_complete and cell_already_complete(
-                output_dir, batch_spec["prompt_version"], expected_runs
-            ):
-                print(
-                    f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
-                    f"SKIP (already complete under v={batch_spec['prompt_version']})"
+            if args.skip_complete:
+                complete, drifted = cell_already_complete(
+                    output_dir,
+                    expected_cell_identity(
+                        model_name=model_name,
+                        runner=provider,
+                        prompt_version=batch_spec["prompt_version"],
+                        quantity_ids=quantity_ids,
+                    ),
                 )
-                continue
+                if complete.ok:
+                    unparsed = count_records(output_dir, batch_spec["prompt_version"])
+                    print(
+                        f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
+                        f"SKIP (already complete under v={batch_spec['prompt_version']})"
+                    )
+                    if unparsed[0] != unparsed[1]:
+                        unresolved_cells += 1
+                        print(
+                            f"  UNRESOLVED: {unparsed[1] - unparsed[0]} unparsed slots; "
+                            "replace them with scripts/rerun_failed_runs.py"
+                        )
+                    if drifted:
+                        print(
+                            "  note: stored prompts differ from today's builder for "
+                            + ", ".join(drifted)
+                        )
+                    continue
+                if output_dir.exists():
+                    print(f"\n{model_name} / {batch_key} is not complete:")
+                    for error in complete.errors:
+                        print(f"  {error}")
 
             print(
                 f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
@@ -283,6 +323,9 @@ def main() -> int:
             f"({100.0 * total_ok / total_runs:.1f}%) in "
             f"{time.time() - start:.0f}s"
         )
+    if unresolved_cells:
+        print(f"{unresolved_cells} skipped cells still hold unparsed slots.")
+        return 1
     return 0
 
 

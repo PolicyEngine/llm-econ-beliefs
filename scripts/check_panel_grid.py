@@ -5,6 +5,11 @@ duplicate ``(model, prompt_version, quantity, run_index)`` keys as failures.
 Use ``--require-parsed`` when completeness also requires every expected slot
 to contain a successfully parsed response.
 
+``validate_cell_identity`` extends the grid with what was actually sent: the
+provider tag, tool regime and prompt text of every row.  The runners use it
+before reusing stored answers, so a cell elicited under a different prompt,
+provider or tool regime is re-elicited instead of republished.
+
 Usage:
     .venv/bin/python scripts/check_panel_grid.py \
         --models deepseek-v4-pro,qwen-3.7-max --require-parsed
@@ -13,12 +18,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import sys
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Mapping, Sequence
+from types import MappingProxyType
+from typing import Collection, Iterable, Mapping, Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +33,12 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.model_registry import MODEL_REGISTRY, PANEL_MODEL_IDS
+from llm_econ_beliefs.provider_tags import (
+    LITELLM_COMPLETION_PROVIDER,
+    OPENAI_CHAT_COMPLETIONS_PROVIDER,
+    provider_tag_for_runner,
+)
+from llm_econ_beliefs.runner import build_run_grid
 
 
 RUNS_PER_QUANTITY = 15
@@ -44,6 +57,36 @@ BATCH_PROMPT_VERSIONS = {
     "ies-clarify-batch15": "ies-clarify",
 }
 
+# Early revisions of scripts/rerun_failed_runs.py tagged replacement rows with
+# the bare runner key. The committed gpt-5.5, grok-4.3 and qwen-3.7-max
+# archives still hold such rows; each key names the same serving path as its
+# canonical tag.
+LEGACY_PROVIDER_TAGS = {
+    "openai": OPENAI_CHAT_COMPLETIONS_PROVIDER,
+    "litellm": LITELLM_COMPLETION_PROVIDER,
+}
+
+# The seven April models elicited before the April 21 clarifier revision keep
+# the original wording on the three sign-clarified quantities (disclosed in the
+# manuscript's Design section and pinned by scripts/verify_paper_prose.py).
+# This is the only stored prompt text allowed to differ from today's builder.
+SIGN_CLARIFIED_QUANTITIES = (
+    "labor_supply.income_elasticity.prime_age",
+    "tax.capital_gains_realizations.elasticity",
+    "tax.capital_gains_realizations.elasticity.net_of_tax_rate",
+)
+ORIGINAL_WORDING_MODELS = frozenset(
+    {
+        "claude-haiku-4.5",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite-preview",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "gpt-5.4-nano",
+        "grok-4.1-fast",
+    }
+)
+
 GridKey = tuple[str, str, str, int]
 
 
@@ -58,6 +101,45 @@ class GridCheckResult:
     @property
     def ok(self) -> bool:
         return not self.errors
+
+
+@dataclass(frozen=True)
+class CellIdentity:
+    """Everything stored runs must share to stand for one model/batch cell.
+
+    ``provider`` is a canonical artifact tag and ``prompts`` maps each
+    quantity id to the exact prompt text the elicitation sends.
+    """
+
+    model_name: str
+    provider: str
+    prompt_version: str
+    tool_regime: str
+    prompts: Mapping[str, str]
+    n_runs: int = RUNS_PER_QUANTITY
+
+    def __post_init__(self) -> None:
+        if not self.prompts:
+            raise ValueError("a cell identity needs at least one quantity")
+        object.__setattr__(self, "prompts", MappingProxyType(dict(self.prompts)))
+
+    @property
+    def quantity_ids(self) -> tuple[str, ...]:
+        return tuple(self.prompts)
+
+    def restricted_to(self, quantity_ids: Sequence[str]) -> CellIdentity:
+        """Return the identity of a sub-cell holding only ``quantity_ids``."""
+        unknown = [
+            quantity_id for quantity_id in quantity_ids if quantity_id not in self.prompts
+        ]
+        if unknown:
+            raise KeyError(f"quantities outside this cell: {unknown}")
+        return dataclasses.replace(
+            self,
+            prompts={
+                quantity_id: self.prompts[quantity_id] for quantity_id in quantity_ids
+            },
+        )
 
 
 def quantity_ids_for_batch(batch: str) -> list[str]:
@@ -173,6 +255,187 @@ def _format_key_problem(label: str, values: Sequence[object]) -> str:
     return f"{label}: {preview}{suffix}"
 
 
+def expected_cell_identity(
+    *,
+    model_name: str,
+    runner: str,
+    prompt_version: str,
+    quantity_ids: Sequence[str],
+    tool_regime: str = "none",
+    n_runs: int = RUNS_PER_QUANTITY,
+) -> CellIdentity:
+    """Build the identity a fresh elicitation of this cell would carry.
+
+    Prompts come from the same ``build_run_grid`` call the ``--exec-cell``
+    child makes, and ``runner`` is the provider key that child is given.
+    """
+    grid = build_run_grid(
+        model_names=[model_name],
+        quantity_ids=quantity_ids,
+        n_runs=1,
+        prompt_version=prompt_version,
+        tool_regime=tool_regime,
+    )
+    return CellIdentity(
+        model_name=model_name,
+        provider=provider_tag_for_runner(runner),
+        prompt_version=prompt_version,
+        tool_regime=tool_regime,
+        prompts={run.quantity_id: run.prompt for run in grid},
+        n_runs=n_runs,
+    )
+
+
+def _as_row(row: object) -> Mapping[str, object]:
+    if dataclasses.is_dataclass(row) and not isinstance(row, type):
+        return dataclasses.asdict(row)
+    return row  # type: ignore[return-value]
+
+
+def validate_cell_identity(
+    rows: Iterable[object],
+    identity: CellIdentity,
+    *,
+    require_parsed: bool,
+    exact_prompts: bool = True,
+    allowed_drift: Collection[str] = (),
+    accept_legacy_provider_tags: bool = False,
+) -> GridCheckResult:
+    """Check that rows are exactly the cell ``identity`` describes.
+
+    On top of the exact grid this rejects any row whose provider tag, tool
+    regime or prompt differs from the identity, and any quantity whose rows
+    carry more than one prompt text.  ``allowed_drift`` names quantities whose
+    stored prompt may differ from today's builder (an older, disclosed
+    wording); ``exact_prompts=False`` waives that comparison for every
+    quantity.  Either way a cell must be internally uniform.  Rows may be
+    mappings or ``RunResult``-like dataclasses.
+    """
+    rows = [_as_row(row) for row in rows]
+    grid = validate_grid_rows(
+        rows,
+        model_name=identity.model_name,
+        prompt_version=identity.prompt_version,
+        quantity_ids=identity.quantity_ids,
+        n_runs=identity.n_runs,
+        require_parsed=require_parsed,
+    )
+
+    wrong_provider: list[object] = []
+    wrong_tool_regime: list[object] = []
+    non_text_prompt: list[object] = []
+    wrong_prompt: list[object] = []
+    texts_by_quantity: dict[str, set[str]] = {}
+    for row in rows:
+        quantity_id = row.get("quantity_id")
+        slot = (quantity_id, row.get("run_index"))
+        provider = row.get("provider")
+        if accept_legacy_provider_tags and isinstance(provider, str):
+            provider = LEGACY_PROVIDER_TAGS.get(provider, provider)
+        if provider != identity.provider:
+            wrong_provider.append(slot)
+        if row.get("tool_regime") != identity.tool_regime:
+            wrong_tool_regime.append(slot)
+        prompt = row.get("prompt")
+        if not isinstance(prompt, str) or not prompt.strip():
+            non_text_prompt.append(slot)
+            continue
+        if not isinstance(quantity_id, str):
+            continue  # already reported as a malformed grid key
+        texts_by_quantity.setdefault(quantity_id, set()).add(prompt)
+        if (
+            exact_prompts
+            and quantity_id not in allowed_drift
+            and quantity_id in identity.prompts
+            and prompt != identity.prompts[quantity_id]
+        ):
+            wrong_prompt.append(slot)
+
+    mixed = sorted(
+        quantity_id for quantity_id, texts in texts_by_quantity.items() if len(texts) > 1
+    )
+    errors = list(grid.errors)
+    if wrong_provider:
+        errors.append(
+            _format_key_problem(f"provider is not {identity.provider!r}", wrong_provider)
+        )
+    if wrong_tool_regime:
+        errors.append(
+            _format_key_problem(
+                f"tool_regime is not {identity.tool_regime!r}", wrong_tool_regime
+            )
+        )
+    if non_text_prompt:
+        errors.append(_format_key_problem("prompt is missing or empty", non_text_prompt))
+    if wrong_prompt:
+        errors.append(
+            _format_key_problem("prompt differs from the current builder", wrong_prompt)
+        )
+    if mixed:
+        errors.append(_format_key_problem("more than one prompt text", mixed))
+    return GridCheckResult(
+        expected_count=grid.expected_count,
+        observed_count=grid.observed_count,
+        errors=tuple(errors),
+    )
+
+
+def documented_prompt_drift(model_name: str, prompt_version: str) -> frozenset[str]:
+    """Quantities whose archived prompt may predate today's builder text."""
+    if prompt_version == "v4" and model_name in ORIGINAL_WORDING_MODELS:
+        return frozenset(SIGN_CLARIFIED_QUANTITIES)
+    return frozenset()
+
+
+def drifted_prompt_quantities(
+    rows: Iterable[object], identity: CellIdentity
+) -> list[str]:
+    """Quantities whose stored prompt text differs from today's builder."""
+    drifted: set[str] = set()
+    for row in map(_as_row, rows):
+        quantity_id = row.get("quantity_id")
+        if (
+            isinstance(quantity_id, str)
+            and quantity_id in identity.prompts
+            and row.get("prompt") != identity.prompts[quantity_id]
+        ):
+            drifted.add(quantity_id)
+    return sorted(drifted)
+
+
+def check_canonical_cell(
+    directory: Path,
+    identity: CellIdentity,
+    *,
+    require_parsed: bool,
+) -> tuple[GridCheckResult, list[str]]:
+    """Check a committed ``results/<model>-<batch>`` directory's identity.
+
+    Stored prompts must equal today's builder text except where
+    ``documented_prompt_drift`` allows the seven April models' original
+    clarifier wording, and legacy provider tags are normalized.  Returns the
+    result and the quantities whose stored prompt differs from today's builder.
+    """
+    rows, read_errors = load_jsonl_rows([directory / "runs.jsonl"])
+    result = validate_cell_identity(
+        rows,
+        identity,
+        require_parsed=require_parsed,
+        allowed_drift=documented_prompt_drift(
+            identity.model_name, identity.prompt_version
+        ),
+        accept_legacy_provider_tags=True,
+    )
+    return (
+        GridCheckResult(
+            expected_count=result.expected_count,
+            observed_count=result.observed_count,
+            errors=tuple(read_errors) + result.errors,
+        ),
+        drifted_prompt_quantities(rows, identity),
+    )
+
+
 def load_jsonl_rows(paths: Iterable[Path]) -> tuple[list[dict[str, object]], list[str]]:
     """Read JSONL rows without modifying any input file."""
     rows: list[dict[str, object]] = []
@@ -181,19 +444,25 @@ def load_jsonl_rows(paths: Iterable[Path]) -> tuple[list[dict[str, object]], lis
         if not path.exists():
             errors.append(f"missing file: {path}")
             continue
-        with path.open() as handle:
-            for line_number, line in enumerate(handle, 1):
-                if not line.strip():
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError as exc:
-                    errors.append(f"{path}:{line_number}: invalid JSON: {exc.msg}")
-                    continue
-                if not isinstance(row, dict):
-                    errors.append(f"{path}:{line_number}: expected a JSON object")
-                    continue
-                rows.append(row)
+        try:
+            # Split on "\n" only, as iterating the file would; splitlines()
+            # would also break inside strings holding U+2028 and similar.
+            lines = path.read_text(encoding="utf-8").split("\n")
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"unreadable file: {path}: {exc}")
+            continue
+        for line_number, line in enumerate(lines, 1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                errors.append(f"{path}:{line_number}: invalid JSON: {exc.msg}")
+                continue
+            if not isinstance(row, dict):
+                errors.append(f"{path}:{line_number}: expected a JSON object")
+                continue
+            rows.append(row)
     return rows, errors
 
 

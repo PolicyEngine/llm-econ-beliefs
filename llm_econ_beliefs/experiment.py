@@ -314,10 +314,31 @@ def _run_batched_experiment(
                         batch_result=batch_result,
                     )
                 )
-            batch_records = []
+            # Parse each answer on its own: one refusal or malformed answer
+            # fails only its own run, and keeps its raw text as evidence,
+            # instead of discarding every valid sibling in the batch.
             for run, raw_response in zip(batch_runs, raw_responses, strict=True):
-                parsed = parse_belief_response(raw_response, quantity_id=run.quantity_id)
-                batch_records.append(
+                try:
+                    parsed = parse_belief_response(
+                        raw_response, quantity_id=run.quantity_id
+                    )
+                except Exception as exc:
+                    records.append(
+                        RunResult(
+                            provider=provider,
+                            model_name=run.model_name,
+                            quantity_id=run.quantity_id,
+                            run_index=run.run_index,
+                            prompt_version=run.prompt_version,
+                            tool_regime=run.tool_regime,
+                            prompt=run.prompt,
+                            raw_response=raw_response if isinstance(raw_response, str) else None,
+                            parsed_ok=False,
+                            error=str(exc),
+                        )
+                    )
+                    continue
+                records.append(
                     _record_from_parsed(
                         run,
                         parsed,
@@ -325,7 +346,6 @@ def _run_batched_experiment(
                         provider=provider,
                     )
                 )
-            records.extend(batch_records)
         except Exception as exc:
             for run in batch_runs:
                 records.append(

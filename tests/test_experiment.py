@@ -364,3 +364,38 @@ def test_run_anthropic_experiment_records_errors_per_batch(tmp_path: Path):
     errors = [record for record in records if not record.parsed_ok]
     assert len(errors) == 2
     assert all("provider blew up" in (record.error or "") for record in errors)
+
+
+def _answer(point: float) -> str:
+    return (
+        '{"interpretation": "t", "point_estimate": %s, '
+        '"quantiles": {"p05": %s, "p25": %s, "p50": %s, "p75": %s, "p95": %s}, '
+        '"citations": [], "reasoning_summary": "t"}'
+    ) % (point, point - 0.2, point - 0.1, point, point + 0.1, point + 0.2)
+
+
+def test_one_unparseable_answer_fails_only_its_own_run_and_keeps_its_text(tmp_path: Path):
+    # A refusal inside a batch of five used to discard all four valid
+    # siblings and every raw answer (audit 2026-09-25).
+    refusal = '{"point_estimate": "N/A (0)", "quantiles": {"p05": "N/A (0)"}}'
+    outputs = [_answer(0.5), _answer(0.6), refusal, _answer(0.7), _answer(0.8)]
+
+    def invoke_batch(prompt: str, model_name: str, n: int) -> ProviderBatchResult:
+        return ProviderBatchResult(outputs=outputs[:n], request_id="req_1", usage={})
+
+    records, summaries = run_openai_experiment(
+        quantity_ids=["household.annual_discount_factor"],
+        n_runs=5,
+        output_dir=tmp_path,
+        model_name="gpt-5.4-mini",
+        batch_size=5,
+        invoke_batch=invoke_batch,
+    )
+
+    assert [record.run_index for record in records] == [1, 2, 3, 4, 5]
+    assert [record.parsed_ok for record in records] == [True, True, False, True, True]
+    assert [record.raw_response for record in records] == outputs
+    failed = records[2]
+    assert failed.point_estimate is None
+    assert "missing" in (failed.error or "")
+    assert summaries[0]["n_successful_runs"] == 4

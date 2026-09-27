@@ -13,6 +13,7 @@ import pytest
 
 from llm_econ_beliefs.models import ProviderBatchResult, RunResult
 from llm_econ_beliefs.provider_tags import provider_tag_for_runner
+from llm_econ_beliefs.runner import build_run_grid
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +32,15 @@ QUANTITY = "trade.armington_elasticity.import_domestic"
 PROMPT_VERSION = "armington-clarify"
 
 
+def _builder_prompt(quantity_id: str, prompt_version: str) -> str:
+    return build_run_grid(
+        model_names=[MODEL],
+        quantity_ids=[quantity_id],
+        n_runs=1,
+        prompt_version=prompt_version,
+    )[0].prompt
+
+
 def _run(
     run_index: int,
     *,
@@ -38,15 +48,16 @@ def _run(
     model_name: str = MODEL,
     quantity_id: str = QUANTITY,
     prompt_version: str = PROMPT_VERSION,
+    provider: str = "openai_chat_completions",
 ) -> RunResult:
     return RunResult(
-        provider="openai_chat_completions",
+        provider=provider,
         model_name=model_name,
         quantity_id=quantity_id,
         run_index=run_index,
         prompt_version=prompt_version,
         tool_regime="none",
-        prompt="prompt",
+        prompt=_builder_prompt(quantity_id, prompt_version),
         raw_response="{}" if parsed_ok else None,
         parsed_ok=parsed_ok,
         point_estimate=1.0 if parsed_ok else None,
@@ -304,6 +315,7 @@ def test_rerun_logs_returned_request_before_parse_failure(
                 1,
                 parsed_ok=False,
                 model_name="test-litellm-model",
+                provider="litellm_completion",
             )
         ],
     )
@@ -375,6 +387,12 @@ def test_run_v4_new_models_rejects_exact_but_unparsed_grid(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setattr(run_v4_new_models, "REPO_ROOT", tmp_path)
+    # The skip also requires the stored cell's identity (provider, tool
+    # regime, one prompt text), which is read from disk.
+    _write_runs(
+        tmp_path / "results" / f"{MODEL}-armington-clarify-batch15" / "runs.jsonl",
+        [_run(run_index, parsed_ok=False) for run_index in range(1, 16)],
+    )
 
     def fake_check(*args, require_parsed=False, **kwargs):
         return SimpleNamespace(
@@ -413,3 +431,59 @@ def test_provider_runner_tags_are_canonical():
     assert provider_tag_for_runner("anthropic") == "anthropic"
     with pytest.raises(ValueError):
         provider_tag_for_runner("unknown")
+
+
+def test_rerun_archives_every_unparseable_attempt_and_pairs_the_final_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(rerun_failed_runs, "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(
+        rerun_failed_runs.PROVIDER_FOR_MODEL, "test-litellm-model", "litellm"
+    )
+    target_dir = tmp_path / "results" / "test-litellm-model-armington-clarify-batch15"
+    _write_runs(
+        target_dir / "runs.jsonl",
+        [
+            _run(
+                1,
+                parsed_ok=False,
+                model_name="test-litellm-model",
+                provider="litellm_completion",
+            )
+        ],
+    )
+    answers = iter(["refusal one", "refusal two", RuntimeError("429 rate limited")])
+
+    def invoke(*args):
+        answer = next(answers)
+        if isinstance(answer, Exception):
+            raise answer
+        return ProviderBatchResult(outputs=[answer], request_id="req", usage={})
+
+    monkeypatch.setattr(rerun_failed_runs, "invoke_once", invoke)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "rerun_failed_runs.py",
+            "--model",
+            "test-litellm-model",
+            "--batch",
+            "armington-clarify-batch15",
+            "--attempts",
+            "3",
+        ],
+    )
+
+    assert rerun_failed_runs.main() == 1
+    archived = [
+        json.loads(line)
+        for line in (target_dir / "failed-runs-archive.jsonl").read_text().splitlines()
+    ]
+    # The original failed record, then both paid answers that failed to parse.
+    assert [row["raw_response"] for row in archived] == [None, "refusal one", "refusal two"]
+    (final,) = [
+        json.loads(line) for line in (target_dir / "runs.jsonl").read_text().splitlines()
+    ]
+    assert final["raw_response"] is None
+    assert "429" in final["error"]
