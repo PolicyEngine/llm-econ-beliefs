@@ -2,6 +2,6 @@ Note: Prefix stability on the 13-quantity canonical subpanel. Rows compare poole
 
 | Runs used | Cells compared | Median abs change in pooled center | 90th pct abs change in pooled center | Median abs change in pooled width | 90th pct abs change in pooled width |
 | --- | --- | --- | --- | --- | --- |
-| 5 | 403 | 0.006 | 0.048 | 0.028 | 0.269 |
-| 10 | 403 | 0.003 | 0.025 | 0.01 | 0.134 |
+| 5 | 403 | 0.006 | 0.043 | 0.028 | 0.249 |
+| 10 | 403 | 0.002 | 0.023 | 0.01 | 0.13 |
 | 15 | 403 | 0 | 0 | 0 | 0 |
