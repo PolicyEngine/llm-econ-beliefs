@@ -58,7 +58,9 @@ def _check(rows, *, canonical: bool = False, require_parsed: bool = True):
         rows,
         IDENTITY,
         require_parsed=require_parsed,
-        exact_prompts=not canonical,
+        allowed_drift=(
+            check_panel_grid.documented_prompt_drift(MODEL, "v4") if canonical else ()
+        ),
         accept_legacy_provider_tags=canonical,
     )
 
@@ -170,8 +172,25 @@ def test_uniform_prompt_drift_passes_only_the_canonical_check(valid_rows):
     strict = _check(rows)
     assert not strict.ok
     assert any("differs from the current builder" in error for error in strict.errors)
-    assert _check(rows, canonical=True).ok
+    assert _check(rows, canonical=True).ok  # gpt-5.4 kept the original wording
     assert check_panel_grid.drifted_prompt_quantities(rows, IDENTITY) == [drifted]
+
+
+def test_undocumented_uniform_prompt_drift_fails_the_canonical_check(valid_rows):
+    # A consistent edit to any other builder text (the audit's Annual->Monthly
+    # repro) must not let a stored cell stand in for a fresh elicitation.
+    rows = deepcopy(valid_rows)
+    for row in rows:
+        if row["quantity_id"] == "household.annual_discount_factor":
+            row["prompt"] = row["prompt"].replace("Annual", "Monthly")
+    result = _check(rows, canonical=True)
+    assert not result.ok
+    assert any("differs from the current builder" in error for error in result.errors)
+
+
+def test_documented_drift_matches_the_prose_gate():
+    assert check_panel_grid.ORIGINAL_WORDING_MODELS == ORIGINAL_WORDING_MODELS
+    assert check_panel_grid.SIGN_CLARIFIED_QUANTITIES == SIGN_CLARIFIED_QUANTITIES
 
 
 @pytest.mark.parametrize("prompt", ["", "   ", None, 7])
@@ -265,7 +284,7 @@ def test_committed_main_cells_pass_the_canonical_identity_check(model_name: str)
         require_parsed=True,
     )
     assert result.ok, result.errors
-    # exact_prompts=False exists for exactly this disclosed wording split.
+    # The allowlist covers exactly this disclosed wording split.
     expected_drift = (
         sorted(SIGN_CLARIFIED_QUANTITIES) if model_name in ORIGINAL_WORDING_MODELS else []
     )

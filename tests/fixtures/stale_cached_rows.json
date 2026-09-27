@@ -31,7 +31,7 @@
     "rejected": "Response text is missing quantiles: p05, p25, p50, p75, p95"
   },
   "results/gemini-3.1-pro-preview-ies-clarify-batch15/runs.jsonl:1": {
-    "rejected": "Response text is missing quantiles: p50, p75, p95"
+    "rejected": "Response text is missing quantiles: p25, p50, p75, p95"
   },
   "results/gemini-3.1-pro-preview-ies-clarify-batch15/runs.jsonl:15": {
     "rejected": "Response text is missing quantiles: p05, p25, p50, p75, p95"

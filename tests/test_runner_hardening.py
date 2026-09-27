@@ -431,3 +431,59 @@ def test_provider_runner_tags_are_canonical():
     assert provider_tag_for_runner("anthropic") == "anthropic"
     with pytest.raises(ValueError):
         provider_tag_for_runner("unknown")
+
+
+def test_rerun_archives_every_unparseable_attempt_and_pairs_the_final_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(rerun_failed_runs, "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(
+        rerun_failed_runs.PROVIDER_FOR_MODEL, "test-litellm-model", "litellm"
+    )
+    target_dir = tmp_path / "results" / "test-litellm-model-armington-clarify-batch15"
+    _write_runs(
+        target_dir / "runs.jsonl",
+        [
+            _run(
+                1,
+                parsed_ok=False,
+                model_name="test-litellm-model",
+                provider="litellm_completion",
+            )
+        ],
+    )
+    answers = iter(["refusal one", "refusal two", RuntimeError("429 rate limited")])
+
+    def invoke(*args):
+        answer = next(answers)
+        if isinstance(answer, Exception):
+            raise answer
+        return ProviderBatchResult(outputs=[answer], request_id="req", usage={})
+
+    monkeypatch.setattr(rerun_failed_runs, "invoke_once", invoke)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "rerun_failed_runs.py",
+            "--model",
+            "test-litellm-model",
+            "--batch",
+            "armington-clarify-batch15",
+            "--attempts",
+            "3",
+        ],
+    )
+
+    assert rerun_failed_runs.main() == 1
+    archived = [
+        json.loads(line)
+        for line in (target_dir / "failed-runs-archive.jsonl").read_text().splitlines()
+    ]
+    # The original failed record, then both paid answers that failed to parse.
+    assert [row["raw_response"] for row in archived] == [None, "refusal one", "refusal two"]
+    (final,) = [
+        json.loads(line) for line in (target_dir / "runs.jsonl").read_text().splitlines()
+    ]
+    assert final["raw_response"] is None
+    assert "429" in final["error"]

@@ -184,12 +184,15 @@ def cell_already_complete(
 ) -> tuple[GridCheckResult, list[str]]:
     """Check whether a canonical cell already holds exactly this cell.
 
-    A skippable cell must pass the exact grid with every slot parsed, carry
-    this runner's provider tag and tool regime, and hold one prompt text per
-    quantity. Returns the check and any quantities whose stored prompt
-    differs from today's builder (the April models' disclosed wording).
+    A skippable cell must pass the exact grid, carry this runner's provider
+    tag and tool regime, and hold today's prompt text (or the April models'
+    disclosed original wording). Unparsed slots do not make a cell
+    re-elicitable here: this runner writes straight into results/, so
+    re-running would overwrite the archive; rerun_failed_runs.py replaces
+    them slot by slot. Returns the check and any quantities whose stored
+    prompt differs from today's builder.
     """
-    return check_canonical_cell(output_dir, identity, require_parsed=True)
+    return check_canonical_cell(output_dir, identity, require_parsed=False)
 
 
 def main() -> int:
@@ -243,6 +246,7 @@ def main() -> int:
 
     total_ok = 0
     total_runs = 0
+    unresolved_cells = 0
     start = time.time()
 
     for provider, model_name in models:
@@ -265,10 +269,17 @@ def main() -> int:
                     ),
                 )
                 if complete.ok:
+                    unparsed = count_records(output_dir, batch_spec["prompt_version"])
                     print(
                         f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
                         f"SKIP (already complete under v={batch_spec['prompt_version']})"
                     )
+                    if unparsed[0] != unparsed[1]:
+                        unresolved_cells += 1
+                        print(
+                            f"  UNRESOLVED: {unparsed[1] - unparsed[0]} unparsed slots; "
+                            "replace them with scripts/rerun_failed_runs.py"
+                        )
                     if drifted:
                         print(
                             "  note: stored prompts differ from today's builder for "
@@ -312,6 +323,9 @@ def main() -> int:
             f"({100.0 * total_ok / total_runs:.1f}%) in "
             f"{time.time() - start:.0f}s"
         )
+    if unresolved_cells:
+        print(f"{unresolved_cells} skipped cells still hold unparsed slots.")
+        return 1
     return 0
 
 

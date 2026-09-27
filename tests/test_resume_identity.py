@@ -131,7 +131,6 @@ def test_merge_refuses_one_row_with_a_changed_prompt(tmp_path):
     "corrupt",
     [
         pytest.param(lambda rows: [dict(rows[0], run_index=1) for _ in rows], id="duplicate-run-1"),
-        pytest.param(lambda rows: [dict(row, parsed_ok=False) for row in rows], id="all-unparsed"),
         pytest.param(lambda rows: [dict(row, model_name="gpt-5.4-mini") for row in rows], id="wrong-model"),
     ],
 )
@@ -152,3 +151,33 @@ def test_skip_complete_never_skips_a_cell_that_fails_the_exact_grid(tmp_path, co
     )
     assert not grid.ok
     assert not complete.ok
+
+
+def test_skip_complete_flags_unparsed_slots_without_overwriting_the_archive(
+    tmp_path, monkeypatch, capsys
+):
+    # Four April clarify cells hold disclosed unparsed slots. --skip-complete
+    # must neither call them complete (exit 0) nor re-elicit them in place.
+    results = tmp_path / "results"
+    output_dir = results / f"{MODEL}-elasticities-batch15"
+    rows = elicit_cell(tmp_path / "fresh", [QID])
+    rows[3] = dict(rows[3], parsed_ok=False, point_estimate=None)
+    write_rows(output_dir / "runs.jsonl", rows)
+    before = (output_dir / "runs.jsonl").read_bytes()
+    children = []
+    monkeypatch.setattr(run_v4_full_panel, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(
+        run_v4_full_panel, "list_quantities", lambda: [SimpleNamespace(id=QID)]
+    )
+    monkeypatch.setattr(
+        run_v4_full_panel, "run_cell_in_subprocess", lambda **kw: children.append(kw) or (0, 0)
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["run_v4_full_panel.py", "--skip-complete", "--only-model", MODEL, "--only-batch", "elasticities-batch15"],
+    )
+    assert run_v4_full_panel.main() == 1
+    assert children == []
+    assert (output_dir / "runs.jsonl").read_bytes() == before
+    assert "UNRESOLVED: 1 unparsed slots" in capsys.readouterr().out

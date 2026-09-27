@@ -25,7 +25,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Iterable, Mapping, Sequence
+from typing import Collection, Iterable, Mapping, Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +65,27 @@ LEGACY_PROVIDER_TAGS = {
     "openai": OPENAI_CHAT_COMPLETIONS_PROVIDER,
     "litellm": LITELLM_COMPLETION_PROVIDER,
 }
+
+# The seven April models elicited before the April 21 clarifier revision keep
+# the original wording on the three sign-clarified quantities (disclosed in the
+# manuscript's Design section and pinned by scripts/verify_paper_prose.py).
+# This is the only stored prompt text allowed to differ from today's builder.
+SIGN_CLARIFIED_QUANTITIES = (
+    "labor_supply.income_elasticity.prime_age",
+    "tax.capital_gains_realizations.elasticity",
+    "tax.capital_gains_realizations.elasticity.net_of_tax_rate",
+)
+ORIGINAL_WORDING_MODELS = frozenset(
+    {
+        "claude-haiku-4.5",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite-preview",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "gpt-5.4-nano",
+        "grok-4.1-fast",
+    }
+)
 
 GridKey = tuple[str, str, str, int]
 
@@ -277,16 +298,18 @@ def validate_cell_identity(
     *,
     require_parsed: bool,
     exact_prompts: bool = True,
+    allowed_drift: Collection[str] = (),
     accept_legacy_provider_tags: bool = False,
 ) -> GridCheckResult:
     """Check that rows are exactly the cell ``identity`` describes.
 
     On top of the exact grid this rejects any row whose provider tag, tool
     regime or prompt differs from the identity, and any quantity whose rows
-    carry more than one prompt text.  ``exact_prompts=False`` drops only the
-    comparison with today's builder text (canonical archives may hold an
-    older, disclosed wording); a cell must still be internally uniform.
-    Rows may be mappings or ``RunResult``-like dataclasses.
+    carry more than one prompt text.  ``allowed_drift`` names quantities whose
+    stored prompt may differ from today's builder (an older, disclosed
+    wording); ``exact_prompts=False`` waives that comparison for every
+    quantity.  Either way a cell must be internally uniform.  Rows may be
+    mappings or ``RunResult``-like dataclasses.
     """
     rows = [_as_row(row) for row in rows]
     grid = validate_grid_rows(
@@ -322,6 +345,7 @@ def validate_cell_identity(
         texts_by_quantity.setdefault(quantity_id, set()).add(prompt)
         if (
             exact_prompts
+            and quantity_id not in allowed_drift
             and quantity_id in identity.prompts
             and prompt != identity.prompts[quantity_id]
         ):
@@ -356,6 +380,13 @@ def validate_cell_identity(
     )
 
 
+def documented_prompt_drift(model_name: str, prompt_version: str) -> frozenset[str]:
+    """Quantities whose archived prompt may predate today's builder text."""
+    if prompt_version == "v4" and model_name in ORIGINAL_WORDING_MODELS:
+        return frozenset(SIGN_CLARIFIED_QUANTITIES)
+    return frozenset()
+
+
 def drifted_prompt_quantities(
     rows: Iterable[object], identity: CellIdentity
 ) -> list[str]:
@@ -380,18 +411,19 @@ def check_canonical_cell(
 ) -> tuple[GridCheckResult, list[str]]:
     """Check a committed ``results/<model>-<batch>`` directory's identity.
 
-    Canonical archives are checked for one prompt text per quantity rather
-    than today's builder text, because seven April models legitimately
-    carry the original clarifier wording, and legacy provider tags are
-    normalized.  Returns the result and the quantities whose stored prompt
-    differs from today's builder.
+    Stored prompts must equal today's builder text except where
+    ``documented_prompt_drift`` allows the seven April models' original
+    clarifier wording, and legacy provider tags are normalized.  Returns the
+    result and the quantities whose stored prompt differs from today's builder.
     """
     rows, read_errors = load_jsonl_rows([directory / "runs.jsonl"])
     result = validate_cell_identity(
         rows,
         identity,
         require_parsed=require_parsed,
-        exact_prompts=False,
+        allowed_drift=documented_prompt_drift(
+            identity.model_name, identity.prompt_version
+        ),
         accept_legacy_provider_tags=True,
     )
     return (

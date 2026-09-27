@@ -58,11 +58,12 @@ _SEPARATOR = (
     rf"{_FILLER}(?:\([^()\n]{{0,40}}\))?{_FILLER}"
     rf"(?::=|->|=>|[:=≈~]|\bis\b)?{_FILLER}"
 )
-# A value must end the numeric token: no trailing digit, decimal point, or
-# percent sign (a percent annotation changes the number's meaning), and no
-# digit or decimal point after a space — "0 .1" is a token split in two, not
-# a reading of 0.
-_VALUE_END = r"(?![\d.]|[ \t]*[\d.]|\s*%)"
+# A value must end the numeric token. Rejected continuations: a letter or
+# digit ("5th" is a label, not 5), a decimal fraction (".5"), a digit or
+# decimal point after a space ("0 .1" is a token split in two, not 0), a
+# thousands group ("12,500" is not 12), and a percent sign (which changes the
+# number's meaning). A sentence-ending full stop is fine.
+_VALUE_END = r"(?![\w%]|\.\d|[ \t]+[\d.]|,\d{3}(?!\d)|\s*%)"
 
 
 def parse_belief_response(
@@ -346,6 +347,10 @@ def _to_float(token: str) -> float:
 
 def _extract_quantiles_from_text(response_text: str) -> tuple[dict[str, float], bool]:
     quantiles: dict[str, float] = {}
+    # In an object cut off mid-answer, a number running into the end of the
+    # text may itself be cut ("1.2" of "1.25"); completion refuses it, and so
+    # does this fallback.
+    cut_object = "{" in response_text and _first_braced_block(response_text) is None
     for key, aliases in QUANTILE_ALIASES.items():
         # Aliases are tried in priority order, so the canonical label ("p50")
         # wins over a looser one ("median") that prose may use earlier.
@@ -357,7 +362,8 @@ def _extract_quantiles_from_text(response_text: str) -> tuple[dict[str, float], 
             match = re.search(pattern, response_text)
             if match:
                 value = _to_float(match.group("value"))
-                if math.isfinite(value):
+                runs_to_end = not response_text[match.end() :].strip()
+                if math.isfinite(value) and not (cut_object and runs_to_end):
                     quantiles[key] = value
                 break
     return _sorted_quantiles(quantiles)

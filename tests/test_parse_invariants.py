@@ -107,6 +107,7 @@ def test_text_and_json_agree_on_every_token(tokens):
             "{key} ≈ {value}",
             "{key} is {value}",
             "| {key} | {value} |",
+            "{key}: {value}.",
         ]
     ),
 )
@@ -297,20 +298,48 @@ def test_truncated_object_completion_never_changes_values(values, cut_inside_lis
     assert parsed.citations == ["a", "b"]
 
 
-@pytest.mark.parametrize(
-    "cut",
-    [
-        '{"quantiles": {"p05": -1, "p25": -0.5, "p50": 0, "p75": 0.5, "p95": 1.2',  # mid-number
-        '{"quantiles": {"p05": -1, "p25": -0.5, "p50": 0, "p75": 0.5, "p95": 1}, "reasoning_summary": "trunc',  # mid-string
-    ],
-)
-def test_truncation_that_may_have_cut_a_value_is_not_completed(cut):
-    # Completion is refused, so these reach the text fallback, which reads
-    # the literal tokens — and the p95 cut mid-number is still read as the
-    # literal text shows it, never extended or rounded by completion.
+def test_number_cut_off_at_the_end_of_an_unclosed_object_is_rejected():
+    # "1.2" may be the start of "1.25"; neither completion nor the text
+    # fallback may accept it.
+    cut = '{"quantiles": {"p05": -1, "p25": -0.5, "p50": 0, "p75": 0.5, "p95": 1.2'
+    with pytest.raises(ValueError, match="missing quantiles: p95"):
+        parse_belief_response(cut)
+
+
+def test_answer_cut_inside_a_later_string_keeps_its_complete_quantiles():
+    cut = (
+        '{"quantiles": {"p05": -1, "p25": -0.5, "p50": 0, "p75": 0.5, "p95": 1}, '
+        '"reasoning_summary": "trunc'
+    )
     parsed = parse_belief_response(cut)
-    assert parsed.interpretation is None
-    assert parsed.quantiles["p05"] == -1.0
+    assert parsed.interpretation is None  # text path
+    assert list(parsed.quantiles.values()) == [-1.0, -0.5, 0.0, 0.5, 1.0]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "\n".join(
+            f"| {key} | {label} | {value} |"
+            for key, label, value in zip(
+                QUANTILE_ORDER,
+                ("5th percentile", "25th percentile", "50th percentile", "75th percentile", "95th percentile"),
+                ("-0.40", "-0.20", "-0.10", "0.00", "0.10"),
+            )
+        ),
+        "p05: -0.4.\np25: -0.2.\np50: -0.1.\np75: 0.0.\np95: 0.1.",
+        "p05 (5th percentile): -0.4\np25: -0.2\np50: -0.1\np75: 0\np95: 0.1",
+    ],
+    ids=["label-column-table", "sentence-periods", "parenthetical-label"],
+)
+def test_ordinal_labels_and_full_stops_do_not_change_values(text):
+    parsed = parse_belief_response(text)
+    assert list(parsed.quantiles.values()) == [-0.4, -0.2, -0.1, 0.0, 0.1]
+
+
+def test_thousands_grouped_text_value_is_rejected_not_truncated():
+    with pytest.raises(ValueError, match="missing quantiles: p95"):
+        parse_belief_response("p05: 1\np25: 2\np50: 3\np75: 4\np95: 12,500")
 
 
 # --- Scalar coercion unit contract --------------------------------------------

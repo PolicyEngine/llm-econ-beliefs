@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -198,8 +199,6 @@ def main() -> int:
     # policy stays auditable (see results/failure-manifest.csv).
     archive_path = target_dir / "failed-runs-archive.jsonl"
     with archive_path.open("a") as handle:
-        from dataclasses import asdict
-
         for index in failed_positions:
             handle.write(json.dumps(asdict(records[index])) + "\n")
     print(f"archived {len(failed_positions)} failed records to {archive_path}")
@@ -209,8 +208,10 @@ def main() -> int:
         failed = records[index]
         replacement = None
         last_error = failed.error
-        last_raw_response = failed.raw_response
         for attempt in range(1, args.attempts + 1):
+            # The raw answer and error recorded for a failure always come
+            # from the same attempt.
+            last_raw_response = None
             try:
                 batch_result = invoke_once(provider, failed.model_name, failed.prompt)
                 # Record every completed provider request before inspecting or
@@ -256,6 +257,29 @@ def main() -> int:
                     f"  {failed.quantity_id} run {failed.run_index} "
                     f"attempt {attempt}: {last_error[:90]}"
                 )
+                if last_raw_response is not None and attempt < args.attempts:
+                    # A paid answer that failed to parse is evidence; keep it
+                    # even when a later attempt replaces the slot.
+                    with archive_path.open("a") as handle:
+                        handle.write(
+                            json.dumps(
+                                asdict(
+                                    RunResult(
+                                        provider=log_provider,
+                                        model_name=failed.model_name,
+                                        quantity_id=failed.quantity_id,
+                                        run_index=failed.run_index,
+                                        prompt_version=failed.prompt_version,
+                                        tool_regime=failed.tool_regime,
+                                        prompt=failed.prompt,
+                                        raw_response=last_raw_response,
+                                        parsed_ok=False,
+                                        error=last_error,
+                                    )
+                                )
+                            )
+                            + "\n"
+                        )
         if replacement is not None:
             records[index] = replacement
             fixed += 1
