@@ -200,10 +200,12 @@ def run_anthropic_prompt_logged(
 ) -> ProviderBatchResult:
     """Run one prompt through the Anthropic API and return one structured output.
 
-    Requests carry no sampling or thinking configuration: Claude Fable 5,
+    Requests carry no sampling configuration. Claude Fable 5,
     Opus 5, Opus 4.8, and Sonnet 5 reject non-default `temperature`/`top_p`,
     and each model keeps its own default thinking behavior (always-on for
     Fable 5, adaptive-on for Opus 5 and Sonnet 5, off for Opus 4.8).
+    Sonnet 5.5 explicitly uses adaptive thinking at high effort; the panel
+    models retain their original thinking defaults.
     Structured output is enforced with `output_config.format`, which mirrors
     the strict JSON-schema regime used on the OpenAI path.
     """
@@ -213,12 +215,20 @@ def run_anthropic_prompt_logged(
     if client is None:
         client = _anthropic_client(timeout_seconds)
     resolved_model_name = resolve_anthropic_model_name(model_name)
+    output_config: dict[str, Any] = {
+        "format": {"type": "json_schema", "schema": json_schema},
+    }
+    thinking_kwargs: dict[str, Any] = {}
+    if resolved_model_name == "claude-sonnet-5-5":
+        output_config["effort"] = "high"
+        thinking_kwargs["thinking"] = {"type": "adaptive"}
 
     with client.messages.stream(
         model=resolved_model_name,
         max_tokens=max_output_tokens,
-        output_config={"format": {"type": "json_schema", "schema": json_schema}},
+        output_config=output_config,
         messages=[{"role": "user", "content": prompt}],
+        **thinking_kwargs,
     ) as stream:
         response = stream.get_final_message()
 
