@@ -784,23 +784,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,glm-5.2,labor_supply.frisch_elasticity.prime_age,1,v4,none,True,0.5,,0.1,0.9,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 0.9}",False,,"{
-  ""{""interpretation"": ""Intensive-margin Frisch elasticity: percent change in annual hours worked by prime-age US workers (already employed) from a 1% change in net-of-tax wage, holding marginal utility of wealth fixed."",
-  ""point_estimate"": 0.4,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.25,
-    ""p50"": 0.4,
-    ""p75"": 0.6,
-    ""p95"": 0.9
-  },
-  ""citations"": [
-    ""Chetty (2012), Bounds on Elasticities with Optimization Frictions"",
-    ""Keane and Rogerson (2012), Micro and Macro Labor Supply Elasticities"",
-    ""Pistaferri (2003), Anticipated and Unanticipated Wage Changes, Wage Risk, and Intertemporal Labor Supply""
-  ],
-  ""reasoning_summary"": ""Micro evidence on intensive-margin annual hours for prime-age workers generally finds small-to-moderate Frisch elasticities, with men near 0.1-0.3 and women somewhat higher. Chetty's optimization-friction bounds argue against large intensive-margin responses, capping around 0.5, while macro calibrations that look higher usually embed extensive-margin effects. I place the median at 0.4 with substantial uncertainty, allowing for pooled-gender estimates and possible adjustment frictions pushing the truth higher.""
-}",,"{
+litellm_completion,glm-5.2,labor_supply.frisch_elasticity.prime_age,1,v4,none,True,0.4,"Intensive-margin Frisch elasticity: percent change in annual hours worked by prime-age US workers (already employed) from a 1% change in net-of-tax wage, holding marginal utility of wealth fixed.",0.1,0.9,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.6, ""p95"": 0.9}",False,"Chetty (2012), Bounds on Elasticities with Optimization Frictions | Keane and Rogerson (2012), Micro and Macro Labor Supply Elasticities | Pistaferri (2003), Anticipated and Unanticipated Wage Changes, Wage Risk, and Intertemporal Labor Supply","Micro evidence on intensive-margin annual hours for prime-age workers generally finds small-to-moderate Frisch elasticities, with men near 0.1-0.3 and women somewhat higher. Chetty's optimization-friction bounds argue against large intensive-margin responses, capping around 0.5, while macro calibrations that look higher usually embed extensive-margin effects. I place the median at 0.4 with substantial uncertainty, allowing for pooled-gender estimates and possible adjustment frictions pushing the truth higher.",,"{
   ""{""interpretation"": ""Intensive-margin Frisch elasticity: percent change in annual hours worked by prime-age US workers (already employed) from a 1% change in net-of-tax wage, holding marginal utility of wealth fixed."",
   ""point_estimate"": 0.4,
   ""quantiles"": {
