@@ -75,7 +75,7 @@ ANTHROPIC_MODEL_PRICING: dict[str, ModelPricing] = {
         0.20,
         10.00,
         source_url="https://platform.claude.com/docs/en/about-claude/pricing",
-        as_of_date="2026-09-28",
+        as_of_date="2026-10-03",
     ),
 }
 
