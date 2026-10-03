@@ -68,6 +68,15 @@ ANTHROPIC_MODEL_PRICING: dict[str, ModelPricing] = {
         source_url=ANTHROPIC_PRICING_SOURCE_URL,
         as_of_date=ANTHROPIC_PRICING_AS_OF,
     ),
+    # Default model of `run_anthropic_experiment`; not a panel model. Priced
+    # so ad hoc runs log costs instead of nulls.
+    "claude-sonnet-5-5": ModelPricing(
+        2.00,
+        0.20,
+        10.00,
+        source_url="https://platform.claude.com/docs/en/about-claude/pricing",
+        as_of_date="2026-09-28",
+    ),
 }
 
 
