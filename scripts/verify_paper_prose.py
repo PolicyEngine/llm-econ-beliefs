@@ -573,12 +573,21 @@ def verify_benchmark_counts() -> None:
         in PAPER,
         f"got {frisch}",
     )
-    trio = {count_for("capital gains"), count_for("wage"), count_for("single mother")}
+    capital_gains = count_for("capital gains")
     check(
-        "capital-gains/wage/single-mother in-range counts",
-        len(trio) == 1
-        and f"{spaced(next(iter(trio)))} lie inside for capital gains realizations" in PAPER,
-        f"got {trio}",
+        "capital-gains in-range count",
+        capital_gains == frisch
+        and "benchmark range for the Frisch elasticity and for capital gains realizations"
+        in PAPER,
+        f"got {capital_gains}",
+    )
+    pair = {count_for("wage"), count_for("single mother")}
+    check(
+        "wage/single-mother in-range counts",
+        len(pair) == 1
+        and f"{spaced(next(iter(pair)))} lie inside for the uncompensated wage elasticity"
+        in PAPER,
+        f"got {pair}",
     )
     check(
         "income-elasticity in-range count",
@@ -810,7 +819,7 @@ def verify_income_sign_counts() -> None:
     negative = sum(1 for c in centers if c < 0)
     check(
         "income-elasticity sign count in CSV",
-        negative == len(centers) - 1 and len(centers) == n_models,
+        negative == len(centers) and len(centers) == n_models,
         f"{negative} negative of {len(centers)}",
     )
     check(
@@ -998,7 +1007,7 @@ def verify_prompt_identity() -> None:
     check(
         "A9 band counts by wording group",
         (revised_ordinary, revised_banded, original_ordinary, original_banded)
-        == (14, 23, 5, 6),
+        == (15, 24, 5, 6),
         f"got revised {revised_ordinary}/{revised_banded}, "
         f"original {original_ordinary}/{original_banded}",
     )
@@ -1133,8 +1142,8 @@ def verify_wording_comparison_prose() -> None:
     worst_ltcg = ltcg_total + original_ordinary
     check(
         "extreme-flip split arithmetic",
-        (ordinary_total, ltcg_total, original_ordinary) == (19, 10, 5)
-        and (worst_ordinary, worst_ltcg) == (14, 15),
+        (ordinary_total, ltcg_total, original_ordinary) == (20, 10, 5)
+        and (worst_ordinary, worst_ltcg) == (15, 15),
         f"got {ordinary_total}/{ltcg_total}/{original_ordinary}",
     )
     check(

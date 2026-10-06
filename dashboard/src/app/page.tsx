@@ -173,15 +173,23 @@ export default function Home() {
 
           {geminiRuns.length > 0 ? (
             <FindingCard
-              title="A near-zero mean can hide two camps"
+              title={
+                geminiNegative === geminiRuns.length
+                  ? "Correction: Gemini 3.5 Flash has no sign split"
+                  : "Gemini 3.5 Flash splits on capital-gains sign"
+              }
               href={
                 capGains
                   ? `/quantities/${slugForQuantity(capGains.quantityId)}`
                   : "/quantities"
               }
-              body={`Gemini 3.5 Flash's capital-gains runs split ${geminiNegative} negative to ${
-                geminiRuns.length - geminiNegative
-              } positive — a bimodal answer that averages to nearly zero without any run saying zero.`}
+              body={
+                geminiNegative === geminiRuns.length
+                  ? `All ${geminiRuns.length} of Gemini 3.5 Flash's capital-gains runs are negative. An earlier version showed a positive cluster that a parser sign error created; the paper's correction note has the details.`
+                  : `Gemini 3.5 Flash's capital-gains runs split ${geminiNegative} negative to ${
+                      geminiRuns.length - geminiNegative
+                    } positive.`
+              }
             >
               <svg
                 viewBox="0 0 100 16"
