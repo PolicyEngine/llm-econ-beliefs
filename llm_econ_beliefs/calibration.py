@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from bisect import bisect_right
 from dataclasses import dataclass
 from statistics import fmean, pvariance
 from typing import Sequence
@@ -9,7 +10,6 @@ from typing import Sequence
 from .distributions import (
     MixtureDistribution,
     PiecewiseDistribution,
-    empirical_cdf,
     empirical_quantile,
 )
 
@@ -55,9 +55,26 @@ class EmpiricalCDFCalibrator:
         return cls(tuple(pits))
 
     def map_probability(self, probability: float) -> float:
-        """Map an uncalibrated CDF value through the empirical PIT CDF."""
+        """Map an uncalibrated CDF value through the empirical PIT CDF.
+
+        This is the exact generalized inverse of ``inverse_probability``:
+        ``G(u) = sup{p in [0, 1] : Q(p) <= u}``, where ``Q`` linearly
+        interpolates the sorted PITs. ``G`` is nondecreasing and
+        right-continuous, and ``G(Q(p)) >= p`` for every level ``p``, so a
+        calibrated distribution's CDF and quantile function agree.
+        """
         probability = min(max(probability, 0.0), 1.0)
-        return empirical_cdf(self.sorted_pits, probability)
+        pits = self.sorted_pits
+        if probability < pits[0]:
+            return 0.0
+        if probability >= pits[-1]:
+            return 1.0
+        # Here len(pits) >= 2 and pits[0] <= probability < pits[-1]. Take the
+        # last knot at or below the value, so ties resolve to the right.
+        index = bisect_right(pits, probability) - 1
+        left, right = pits[index], pits[index + 1]
+        fraction = (probability - left) / (right - left)
+        return (index + fraction) / (len(pits) - 1)
 
     def inverse_probability(self, probability: float) -> float:
         """Map a target quantile level back to the uncalibrated probability scale."""
@@ -81,7 +98,20 @@ class CalibratedDistribution:
     base_distribution: PiecewiseDistribution | MixtureDistribution
     calibrator: EmpiricalCDFCalibrator
 
+    @property
+    def lower_support(self) -> float:
+        return self.base_distribution.lower_support
+
+    @property
+    def upper_support(self) -> float:
+        return self.base_distribution.upper_support
+
     def cdf(self, value: float) -> float:
+        # Below the base support the calibrated distribution has no mass, even
+        # when calibration observations fell below it (PIT 0): that mass sits
+        # at the lower support point, keeping the CDF a proper distribution.
+        if value < self.base_distribution.lower_support:
+            return 0.0
         return self.calibrator.map_probability(self.base_distribution.cdf(value))
 
     def quantile(self, probability: float) -> float:

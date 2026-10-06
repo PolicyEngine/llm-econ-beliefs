@@ -13,6 +13,7 @@ import pytest
 
 from llm_econ_beliefs.models import ProviderBatchResult, RunResult
 from llm_econ_beliefs.provider_tags import provider_tag_for_runner
+from llm_econ_beliefs.runner import build_run_grid
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +32,17 @@ QUANTITY = "trade.armington_elasticity.import_domestic"
 PROMPT_VERSION = "armington-clarify"
 
 
+def _prompt(quantity_id: str = QUANTITY, prompt_version: str = PROMPT_VERSION) -> str:
+    """The exact prompt a new run of this slot would send."""
+    (run,) = build_run_grid(
+        model_names=[MODEL],
+        quantity_ids=[quantity_id],
+        n_runs=1,
+        prompt_version=prompt_version,
+    )
+    return run.prompt
+
+
 def _run(
     run_index: int,
     *,
@@ -46,7 +58,7 @@ def _run(
         run_index=run_index,
         prompt_version=prompt_version,
         tool_regime="none",
-        prompt="prompt",
+        prompt=_prompt(quantity_id, prompt_version),
         raw_response="{}" if parsed_ok else None,
         parsed_ok=parsed_ok,
         point_estimate=1.0 if parsed_ok else None,

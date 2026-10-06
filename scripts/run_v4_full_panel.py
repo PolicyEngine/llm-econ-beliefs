@@ -22,6 +22,13 @@ CELL_TIMEOUT_SECONDS = 2700  # 45 min — any single cell past this is SIGKILLed
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from check_panel_grid import (
+    load_jsonl_rows,
+    validate_grid_rows,
+    validate_request_identity,
+)
 
 from llm_econ_beliefs import (
     list_quantities,
@@ -172,11 +179,43 @@ def count_records(output_dir: Path, expected_version: str) -> tuple[int, int]:
     return ok, total
 
 
-def cell_already_complete(
-    output_dir: Path, expected_version: str, expected_runs: int
-) -> bool:
-    ok, total = count_records(output_dir, expected_version)
-    return total >= expected_runs
+def cell_resume_status(
+    output_dir: Path,
+    *,
+    provider: str,
+    model_name: str,
+    prompt_version: str,
+    quantity_ids: list[str],
+) -> tuple[str, tuple[str, ...]]:
+    """Classify an existing cell for ``--skip-complete``.
+
+    Returns ``("complete", ())`` only when the cell holds exactly one record
+    per expected slot and every record answers the request a new run would
+    send (same prompt bytes, provider path, and tool regime). A full grid
+    whose requests differ is ``"conflict"``: it is neither reused nor silently
+    overwritten. Anything else is ``"incomplete"`` and runs.
+    """
+    rows, read_errors = load_jsonl_rows([output_dir / "runs.jsonl"])
+    if read_errors or not rows:
+        return "incomplete", read_errors
+    grid = validate_grid_rows(
+        rows,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        quantity_ids=quantity_ids,
+    )
+    if not grid.ok:
+        return "incomplete", grid.errors
+    identity = validate_request_identity(
+        rows,
+        provider=provider,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        quantity_ids=quantity_ids,
+    )
+    if not identity.ok:
+        return "conflict", identity.errors
+    return "complete", ()
 
 
 def main() -> int:
@@ -241,15 +280,31 @@ def main() -> int:
                 continue
 
             output_dir = results_root / f"{model_name}-{batch_key}"
-            expected_runs = len(quantity_ids) * 15
-            if args.skip_complete and cell_already_complete(
-                output_dir, batch_spec["prompt_version"], expected_runs
-            ):
-                print(
-                    f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
-                    f"SKIP (already complete under v={batch_spec['prompt_version']})"
+            if args.skip_complete:
+                status, problems = cell_resume_status(
+                    output_dir,
+                    provider=provider,
+                    model_name=model_name,
+                    prompt_version=batch_spec["prompt_version"],
+                    quantity_ids=quantity_ids,
                 )
-                continue
+                if status == "complete":
+                    print(
+                        f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
+                        f"SKIP (exact grid of current requests under "
+                        f"v={batch_spec['prompt_version']})"
+                    )
+                    continue
+                if status == "conflict":
+                    print(
+                        f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
+                        "REFUSED: the existing cell answers different requests; "
+                        "move it aside to re-elicit.",
+                        file=sys.stderr,
+                    )
+                    for problem in problems:
+                        print(f"  {problem}", file=sys.stderr)
+                    continue
 
             print(
                 f"\n[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "

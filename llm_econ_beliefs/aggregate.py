@@ -40,19 +40,28 @@ def aggregate_beliefs(
     lower_support: float | None = None,
     upper_support: float | None = None,
 ) -> AggregatedBelief:
-    """Pool repeated runs using the law of total variance on the raw scale."""
+    """Pool repeated runs using the law of total variance on the raw scale.
+
+    The reported center is the mean of the run-level point estimates (each the
+    run's elicited median), as the paper defines it. The spread decomposes the
+    equal-weight mixture of run distributions exactly:
+    ``Var(X) = E[Var(X | run)] + Var(E[X | run])``, so the between-run term is
+    the population variance of the run *means* and ``total_sd`` equals the
+    mixture's standard deviation whenever every run has all five quantiles.
+    """
     if not estimates:
         raise ValueError("At least one estimate is required")
 
     points = [estimate.point_estimate for estimate in estimates]
     point_estimate = fmean(points)
 
-    between_run_var = pvariance(points) if len(points) > 1 else 0.0
+    moments = [_run_moments_raw(estimate, lower_support, upper_support) for estimate in estimates]
+    run_means = [mean for mean, _ in moments]
+    between_run_var = pvariance(run_means) if len(run_means) > 1 else 0.0
     within_vars = [
         variance
-        for estimate in estimates
-        if (variance := _within_variance_raw(estimate, lower_support, upper_support)) is not None
-        and math.isfinite(variance)
+        for _, variance in moments
+        if variance is not None and math.isfinite(variance)
     ]
     within_run_var = fmean(within_vars) if within_vars else 0.0
     total_var = between_run_var + within_run_var
@@ -540,11 +549,18 @@ def _within_variance_transformed(
     return sigma * sigma
 
 
-def _within_variance_raw(
+def _run_moments_raw(
     estimate: BeliefEstimate,
     lower_support: float | None,
     upper_support: float | None,
-) -> float | None:
+) -> tuple[float, float | None]:
+    """Return one run's predictive (mean, variance) on the raw scale.
+
+    With all five quantiles these are the moments of the reconstructed
+    piecewise-uniform distribution. Otherwise the run is treated as a normal
+    centered on its point estimate with the variance its stated interval
+    implies (None when it states none).
+    """
     if has_full_quantiles(estimate):
         distribution = distribution_from_belief_estimate(
             estimate,
@@ -552,8 +568,12 @@ def _within_variance_raw(
             upper_support=upper_support,
         )
         if distribution is not None:
-            return distribution.variance()
+            return distribution.mean(), distribution.variance()
 
+    return estimate.point_estimate, _interval_variance(estimate)
+
+
+def _interval_variance(estimate: BeliefEstimate) -> float | None:
     if (
         estimate.lower_bound is None
         or estimate.upper_bound is None

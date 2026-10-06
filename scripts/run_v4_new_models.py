@@ -23,7 +23,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from llm_econ_beliefs import list_quantities
-from check_panel_grid import check_batch_directory
+from check_panel_grid import check_batch_directory, check_resumable_batch_directory
 from run_v4_full_panel import NEW_MODELS_JULY_2026, count_records
 from run_v4_per_quantity import PROVIDER_FOR_MODEL
 
@@ -106,6 +106,25 @@ def main() -> int:
                 batch=batch_key,
             )
             if grid_result.ok:
+                # An exact grid is reused only if it answers the current
+                # requests; a grid built from other prompts or another
+                # provider path is reported, never skipped or overwritten.
+                identity = check_resumable_batch_directory(
+                    REPO_ROOT / "results",
+                    provider=PROVIDER_FOR_MODEL[model_name],
+                    model_name=model_name,
+                    batch=batch_key,
+                )
+                if not identity.ok:
+                    print(
+                        f"[{time.strftime('%H:%M:%S')}] {model_name} / {batch_key} "
+                        "REFUSED: existing grid answers different requests",
+                        file=sys.stderr,
+                    )
+                    for error in identity.errors:
+                        print(f"  {error}", file=sys.stderr)
+                    first_failure = first_failure or 1
+                    continue
                 parsed_grid = check_batch_directory(
                     REPO_ROOT / "results",
                     model_name=model_name,

@@ -1,9 +1,27 @@
-"""Parse structured or semi-structured LLM belief responses."""
+"""Parse structured or semi-structured LLM belief responses.
+
+Parsing contract (enforced by ``tests/test_parse.py`` and
+``tests/test_parse_properties.py``):
+
+- A successful parse carries all five elicited quantiles, and its point
+  estimate is the elicited median (``p50``) on both the JSON and the text path.
+- Every accepted number is finite and is read exactly as written, including
+  its sign and exponent. A value with an annotation (``"1%"``, ``"N/A (0)"``,
+  ``"~0.3"``) is not a number: it is treated as missing, so a refusal or a
+  unit-ambiguous answer fails the run instead of becoming a belief.
+- JSON cut off after a complete value but before its closing brackets is read
+  structurally once the missing brackets are appended; nothing else is
+  repaired.
+
+The one intended transformation is the running-max repair that makes
+disordered quantiles monotone, flagged on the result as ``quantiles_repaired``.
+"""
 
 from __future__ import annotations
 
 import ast
 import json
+import math
 import re
 from typing import Any, Sequence
 
@@ -33,6 +51,25 @@ QUANTILE_ALIASES = {
     "p95": ("p95", "q95", "95th percentile", "95th quantile"),
 }
 
+# A decimal literal with an optional sign and exponent. Leading-dot (".1") and
+# trailing-dot ("1.") forms are both accepted, as Python's float() does.
+NUMBER_PATTERN = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
+_STRICT_NUMBER = re.compile(rf"{NUMBER_PATTERN}")
+_THOUSANDS_NUMBER = re.compile(r"[-+]?\d{1,3}(?:,\d{3})+(?:\.\d*)?")
+# U+2212 MINUS SIGN is the typographic minus some models emit in prose.
+_UNICODE_MINUS = "−"
+# Text-path labels must stand alone ("p5" must not match inside "p50", nor
+# "5th percentile" inside "95th percentile"), and the separator between a
+# label and its value may not contain a digit, sign, decimal point, letter, or
+# newline, so it can never swallow part of the number or reach another line.
+_LABEL_LEFT = r"(?<![A-Za-z0-9_])"
+_LABEL_RIGHT = r"(?![A-Za-z0-9_])"
+_TEXT_SEPARATOR = r"[ \t\"'*`|:=≈~]{0,12}"
+# A value must end the token: "0.5%" (unit-ambiguous) and "5th" (a label) are
+# not values. A following period is allowed only as punctuation ("0.3."), not
+# as the start of more digits.
+_VALUE_END = r"(?![A-Za-z0-9_%]|\.\d)"
+
 
 def parse_belief_response(
     response_text: str,
@@ -52,31 +89,23 @@ def parse_belief_response(
         )
 
     quantiles, quantiles_repaired = _extract_quantiles_from_text(response_text)
-    point_estimate = _extract_point_estimate_from_text(response_text, quantiles=quantiles)
-    if point_estimate is None:
-        raise ValueError("Could not parse a point estimate from the response")
     # Same quantile-complete contract as the structured path: the pooled
     # analysis is a mixture over the five quantiles, so a response without
-    # all five is a failed run, not a parsed one.
-    missing_quantiles = [
-        key for key in ("p05", "p25", "p50", "p75", "p95") if quantiles.get(key) is None
-    ]
+    # all five is a failed run, not a parsed one. The point estimate is the
+    # elicited median, as on the structured path; narrative numbers elsewhere
+    # in the text never override it.
+    missing_quantiles = [key for key in QUANTILE_ORDER if quantiles.get(key) is None]
     if missing_quantiles:
         raise ValueError(
             "Response text is missing quantiles: " + ", ".join(missing_quantiles)
         )
 
-    interval = _extract_interval_from_text(response_text)
-    lower_bound = quantiles.get("p05") if "p05" in quantiles else (interval[0] if interval else None)
-    upper_bound = quantiles.get("p95") if "p95" in quantiles else (interval[1] if interval else None)
-    confidence_level = 0.9 if lower_bound is not None and upper_bound is not None else None
-
     return BeliefEstimate(
         quantity_id=quantity_id,
-        point_estimate=point_estimate,
-        lower_bound=lower_bound,
-        upper_bound=upper_bound,
-        confidence_level=confidence_level,
+        point_estimate=quantiles["p50"],
+        lower_bound=quantiles["p05"],
+        upper_bound=quantiles["p95"],
+        confidence_level=0.9,
         quantiles=quantiles,
         reasoning_summary=response_text.strip(),
         raw_response=response_text,
@@ -91,20 +120,75 @@ def _extract_payload(response_text: str) -> dict[str, Any] | None:
         if match:
             stripped = match.group(1)
 
-    for candidate in (stripped, _first_braced_block(stripped)):
-        if not candidate:
-            continue
-        try:
-            parsed = json.loads(candidate)
-        except json.JSONDecodeError:
-            try:
-                parsed = ast.literal_eval(candidate)
-            except (ValueError, SyntaxError):
-                continue
-        if isinstance(parsed, dict):
-            return parsed
+    fallback: dict[str, Any] | None = None
+    for candidate in _payload_candidates(stripped):
+        parsed = _load_object(candidate)
+        if parsed is not None:
+            parsed = _unwrap_payload(parsed)
+            if _has_belief_keys(parsed):
+                return parsed
+            fallback = fallback if fallback is not None else parsed
 
-    return None
+    # Some responses deliver the JSON answer as an escaped string literal
+    # (``"{\n  \"point_estimate\": ...}"``), sometimes inside a malformed
+    # outer object. Decode each string literal and read the object inside it.
+    if '\\"' in stripped:
+        for decoded in _decoded_string_literals(stripped):
+            for candidate in _payload_candidates(decoded):
+                parsed = _load_object(candidate)
+                if parsed is not None:
+                    parsed = _unwrap_payload(parsed)
+                    if _has_belief_keys(parsed):
+                        return parsed
+
+    # An object without belief fields still routes to the structured path,
+    # which rejects it; it is never mined as free text.
+    return fallback
+
+
+def _payload_candidates(text: str) -> tuple[str | None, ...]:
+    return (text, _first_braced_block(text), _close_truncated_json(text))
+
+
+def _load_object(candidate: str | None) -> dict[str, Any] | None:
+    if not candidate:
+        return None
+    try:
+        parsed = json.loads(candidate)
+    except json.JSONDecodeError:
+        try:
+            parsed = ast.literal_eval(candidate)
+        except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+            return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _has_belief_keys(payload: dict[str, Any]) -> bool:
+    return any(key in payload for key in ("quantiles", *POINT_KEYS, *QUANTILE_ORDER))
+
+
+def _unwrap_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    """Descend into a single wrapper key (``{"answer": {...}}``) when the top
+    level carries no belief fields but exactly one nested object does."""
+    if _has_belief_keys(payload):
+        return payload
+    nested = [
+        value
+        for value in payload.values()
+        if isinstance(value, dict) and _has_belief_keys(value)
+    ]
+    return nested[0] if len(nested) == 1 else payload
+
+
+def _decoded_string_literals(text: str):
+    decoder = json.JSONDecoder()
+    for match in re.finditer(r'(?<!\\)"', text):
+        try:
+            value, _ = decoder.raw_decode(text, match.start())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, str) and "{" in value:
+            yield value
 
 
 def _parse_structured_payload(
@@ -124,9 +208,7 @@ def _parse_structured_payload(
     # class as a missing point estimate. Inkling is the only panel model
     # that ever omitted them (9 runs); every such slot re-ran as a fresh
     # draw under the standard replacement policy.
-    missing_quantiles = [
-        key for key in ("p05", "p25", "p50", "p75", "p95") if quantiles.get(key) is None
-    ]
+    missing_quantiles = [key for key in QUANTILE_ORDER if quantiles.get(key) is None]
     if missing_quantiles:
         raise ValueError(
             "Structured response is missing quantiles: " + ", ".join(missing_quantiles)
@@ -212,11 +294,10 @@ def _lookup_confidence(payload: dict[str, Any]) -> float | None:
         if key not in payload:
             continue
         value = payload[key]
-        if isinstance(value, str) and value.endswith("%"):
-            value = value[:-1]
-        try:
-            numeric = float(value)
-        except (TypeError, ValueError):
+        if isinstance(value, str) and value.strip().endswith("%"):
+            value = value.strip()[:-1]
+        numeric = _coerce_float(value)
+        if numeric is None:
             continue
         if numeric > 1:
             numeric /= 100
@@ -226,102 +307,122 @@ def _lookup_confidence(payload: dict[str, Any]) -> float | None:
 
 
 def _coerce_float(value: Any) -> float | None:
+    """Return a finite float for a bare numeric value, else None.
+
+    Strings must be a complete numeric literal (optionally with standard
+    thousands separators); any other content — a unit, an annotation, a
+    refusal — makes the value missing rather than silently changing its
+    meaning.
+    """
     if value is None or isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        return float(value)
-
-    text = str(value).strip().replace(",", "")
-    text = re.sub(r"[^0-9eE+.\-]", "", text)
-    if not text:
-        return None
-    try:
-        return float(text)
-    except ValueError:
+        try:
+            numeric = float(value)
+        except OverflowError:
+            return None
+        return numeric if math.isfinite(numeric) else None
+    if not isinstance(value, str):
         return None
 
-
-def _extract_point_estimate_from_text(
-    response_text: str,
-    *,
-    quantiles: dict[str, float],
-) -> float | None:
-    patterns = [
-        r"(?is)(?:point estimate|best estimate|central estimate)\D{0,40}([-+]?\d*\.?\d+)",
-        r"(?is)(?:point estimate|best estimate|central estimate).*?(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
-        r"(?is)(?:\bbeta\b|β|sigma|σ)\s*(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:about|around|roughly|approximately)\s*([-+]?\d*\.?\d+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, response_text)
-        if match:
-            return float(match.group(1))
-
-    if "p50" in quantiles:
-        return quantiles["p50"]
-
-    lines = [line.strip() for line in response_text.splitlines() if line.strip()]
-    if lines:
-        first_line_value = _extract_first_number(lines[0])
-        if first_line_value is not None:
-            return first_line_value
-
-    return _extract_first_number(response_text)
+    text = value.strip().replace(_UNICODE_MINUS, "-")
+    if _THOUSANDS_NUMBER.fullmatch(text):
+        text = text.replace(",", "")
+    if not _STRICT_NUMBER.fullmatch(text):
+        return None
+    numeric = float(text)
+    return numeric if math.isfinite(numeric) else None
 
 
 def _extract_quantiles_from_text(response_text: str) -> tuple[dict[str, float], bool]:
+    text = response_text.replace(_UNICODE_MINUS, "-")
     quantiles: dict[str, float] = {}
     for key, aliases in QUANTILE_ALIASES.items():
         patterns = [
-            rf"(?i)(?:{'|'.join(re.escape(alias) for alias in aliases)})\D{{0,20}}([-+]?\d*\.?\d+)",
-            rf"(?i)(?:{'|'.join(re.escape(alias) for alias in aliases)}).*?(?:=|≈|~)\s*([-+]?\d*\.?\d+)",
+            # A JSON-style quoted key is the most specific anchor, so it wins
+            # over a bare label that may appear earlier in prose.
+            rf'"{re.escape(key)}"\s*:\s*"?\s*({NUMBER_PATTERN}){_VALUE_END}',
+            rf"(?i){_LABEL_LEFT}(?:{'|'.join(re.escape(alias) for alias in aliases)})"
+            rf"{_LABEL_RIGHT}{_TEXT_SEPARATOR}({NUMBER_PATTERN}){_VALUE_END}",
         ]
         for pattern in patterns:
-            match = re.search(pattern, response_text)
+            match = re.search(pattern, text)
             if match:
-                quantiles[key] = float(match.group(1))
-                break
+                value = _coerce_float(match.group(1))
+                if value is not None:
+                    quantiles[key] = value
+                    break
     return _sorted_quantiles(quantiles)
 
 
-def _extract_interval_from_text(response_text: str) -> tuple[float, float] | None:
-    patterns = [
-        r"\[\s*([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\s*\]",
-        r"(?i)(?:confidence|credible|uncertainty)\s+interval[^-\d+]*"
-        r"([-+]?\d*\.?\d+)\s*(?:to|–|—|-)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:90%\s*(?:ci|interval)|ci)\D{0,20}([-+]?\d*\.?\d+)\s*(?:to|–|—|-)\s*([-+]?\d*\.?\d+)",
-        r"(?i)(?:between|from)\s*([-+]?\d*\.?\d+)\s*(?:and|to)\s*([-+]?\d*\.?\d+)",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, response_text)
-        if not match:
+def _scan_json_brackets(text: str, start: int) -> tuple[int | None, list[str], bool, str | None]:
+    """Scan JSON-like text from ``start``, respecting string literals.
+
+    Returns ``(end, open_stack, in_string, last_token_char)`` where ``end`` is
+    the index just past the bracket that closes the opening one (None when the
+    text ends first), ``open_stack`` lists the closers still owed, and
+    ``last_token_char`` is the last non-whitespace character outside a string
+    (a closing quote counts).
+    """
+    stack: list[str] = []
+    in_string = False
+    escaped = False
+    last_token_char: str | None = None
+    for index in range(start, len(text)):
+        char = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+                last_token_char = '"'
             continue
-        lower = float(match.group(1))
-        upper = float(match.group(2))
-        return (lower, upper) if lower <= upper else (upper, lower)
-    return None
-
-
-def _extract_first_number(text: str) -> float | None:
-    match = re.search(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", text)
-    return float(match.group(0)) if match else None
+        if char == '"':
+            in_string = True
+        elif char in "{[":
+            stack.append("}" if char == "{" else "]")
+        elif char in "}]":
+            if not stack or stack[-1] != char:
+                # Mismatched brackets: not JSON, and nothing to complete.
+                return None, [], False, char
+            stack.pop()
+            if not stack:
+                return index + 1, stack, False, char
+        if not char.isspace():
+            last_token_char = char
+    return None, stack, in_string, last_token_char
 
 
 def _first_braced_block(text: str) -> str | None:
     start = text.find("{")
     if start == -1:
         return None
+    end, _, _, _ = _scan_json_brackets(text, start)
+    if end is None:
+        return None
+    return text[start:end]
 
-    depth = 0
-    for index in range(start, len(text)):
-        char = text[index]
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start : index + 1]
-    return None
+
+def _close_truncated_json(text: str) -> str | None:
+    """Append the closing brackets owed by JSON cut off after a complete value.
+
+    Only text that stops outside a string, right after a closed string, a
+    closed object/array, or a ``true``/``false``/``null`` literal is completed.
+    Text that stops inside a string, after a separator, or after a bare number
+    (which may itself be truncated) is left alone and fails structured parsing.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    end, stack, in_string, last_token_char = _scan_json_brackets(text, start)
+    if end is not None or not stack or in_string:
+        return None
+    body = text[start:].rstrip()
+    if last_token_char not in ('"', "}", "]") and not body.endswith(("true", "false", "null")):
+        return None
+    return body + "".join(reversed(stack))
 
 
 def _sorted_quantiles(quantiles: dict[str, float]) -> tuple[dict[str, float], bool]:

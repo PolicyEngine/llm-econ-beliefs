@@ -76,7 +76,13 @@ class BeliefEstimate:
 
 @dataclass
 class AggregatedBelief:
-    """Pooled summary across repeated runs."""
+    """Pooled summary across repeated runs.
+
+    ``point_estimate`` is the mean of the run-level point estimates (medians).
+    ``within_run_sd`` is the root mean within-run variance, ``between_run_sd``
+    the standard deviation of the run means, and ``total_sd`` the square root
+    of their sum: the equal-weight mixture's standard deviation.
+    """
 
     point_estimate: float
     confidence_level: float

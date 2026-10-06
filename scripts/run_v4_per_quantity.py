@@ -5,9 +5,10 @@ then merges all per-quantity outputs into a single canonical batch dir
 matching what a normal cell run would produce.
 
 Reruns resume from the staging directory by default: quantities whose staged
-`runs.jsonl` already holds a full set of records are skipped, so an
-interrupted panel run picks up where it left off. Pass `--fresh` to discard
-staged results and re-elicit everything.
+`runs.jsonl` already holds a full, parsed set of records that answer exactly
+the current request (same prompt bytes, provider path, and tool regime) are
+skipped, so an interrupted panel run picks up where it left off. Pass
+`--fresh` to discard staged results and re-elicit everything.
 
 Usage:
     python3 scripts/run_v4_per_quantity.py --model claude-sonnet-4.6
@@ -23,6 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from dataclasses import asdict
 from pathlib import Path
 from typing import Sequence
 
@@ -30,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from check_panel_grid import check_run_files, validate_grid_rows
+from check_panel_grid import check_run_files, validate_resumable_rows
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.experiment import (
@@ -157,6 +159,7 @@ def merge_per_quantity(
     *,
     expected_quantity_ids: Sequence[str] | None = None,
     n_runs: int = 15,
+    provider: str | None = None,
 ) -> bool:
     """Validate staging and atomically publish canonical batch artifacts.
 
@@ -189,17 +192,16 @@ def merge_per_quantity(
         else sorted({record.quantity_id for record in all_records})
     )
     if expected_quantity_ids is not None:
-        grid_result = validate_grid_rows(
-            (
-                {
-                    "model_name": record.model_name,
-                    "prompt_version": record.prompt_version,
-                    "quantity_id": record.quantity_id,
-                    "run_index": record.run_index,
-                    "parsed_ok": record.parsed_ok,
-                }
-                for record in all_records
-            ),
+        # Publication pairs these answers with a freshly built prompt grid, so
+        # every staged record must answer exactly that grid's request: same
+        # prompt bytes, provider path, and tool regime, not only the same slot.
+        provider = provider if provider is not None else PROVIDER_FOR_MODEL.get(model_name)
+        if provider is None:
+            print(f"No provider known for {model_name}; publication refused.")
+            return False
+        grid_result = validate_resumable_rows(
+            (asdict(record) for record in all_records),
+            provider=provider,
             model_name=model_name,
             prompt_version=prompt_version,
             quantity_ids=quantity_ids,
@@ -359,17 +361,12 @@ def main() -> int:
     for i, qid in enumerate(qids, 1):
         sub = staging_root / qid.replace(".", "_")
         staged_records = load_runs(sub / "runs.jsonl")
-        staged_grid = validate_grid_rows(
-            (
-                {
-                    "model_name": record.model_name,
-                    "prompt_version": record.prompt_version,
-                    "quantity_id": record.quantity_id,
-                    "run_index": record.run_index,
-                    "parsed_ok": record.parsed_ok,
-                }
-                for record in staged_records
-            ),
+        # Reuse staged answers only when they answer exactly the request this
+        # run would send now (prompt bytes, provider path, tool regime); an
+        # edited prompt or a different provider invalidates the stage.
+        staged_grid = validate_resumable_rows(
+            (asdict(record) for record in staged_records),
+            provider=PROVIDER_FOR_MODEL[args.model],
             model_name=args.model,
             prompt_version=args.prompt_version,
             quantity_ids=[qid],

@@ -26,6 +26,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from llm_econ_beliefs import list_quantities
 from llm_econ_beliefs.model_registry import MODEL_REGISTRY, PANEL_MODEL_IDS
+from llm_econ_beliefs.provider_tags import provider_tag_for_runner
+from llm_econ_beliefs.runner import build_run_grid
 
 
 RUNS_PER_QUANTITY = 15
@@ -164,6 +166,130 @@ def validate_grid_rows(
         expected_count=len(expected),
         observed_count=observed_count,
         errors=tuple(errors),
+    )
+
+
+def validate_request_identity(
+    rows: Iterable[Mapping[str, object]],
+    *,
+    provider: str,
+    model_name: str,
+    prompt_version: str,
+    quantity_ids: Sequence[str],
+    n_runs: int = RUNS_PER_QUANTITY,
+    tool_regime: str = "none",
+) -> GridCheckResult:
+    """Check that each record answers exactly the request a new run would send.
+
+    A record is reusable only if its provider path, tool regime, and prompt
+    bytes equal those of the freshly built prompt grid for its
+    ``(quantity, run_index)`` slot. ``provider`` is the runner key
+    (``openai``/``anthropic``/``litellm``); records may carry either that key
+    or its canonical artifact tag. Grid-key problems (missing, duplicate,
+    unexpected slots) are reported by :func:`validate_grid_rows`, not here.
+    """
+    accepted_providers = {provider, provider_tag_for_runner(provider)}
+    expected = {
+        (run.quantity_id, run.run_index): run
+        for run in build_run_grid(
+            model_names=[model_name],
+            quantity_ids=quantity_ids,
+            n_runs=n_runs,
+            prompt_version=prompt_version,
+            tool_regime=tool_regime,
+        )
+    }
+    mismatched: list[tuple[tuple[object, object], tuple[str, ...]]] = []
+    observed_count = 0
+    for row in rows:
+        observed_count += 1
+        slot = (row.get("quantity_id"), row.get("run_index"))
+        run = expected.get(slot)
+        if run is None or row.get("model_name") != model_name:
+            continue
+        fields = []
+        if row.get("provider") not in accepted_providers:
+            fields.append("provider")
+        if row.get("tool_regime") != run.tool_regime:
+            fields.append("tool_regime")
+        if row.get("prompt_version") != run.prompt_version:
+            fields.append("prompt_version")
+        if row.get("prompt") != run.prompt:
+            fields.append("prompt")
+        if fields:
+            mismatched.append((slot, tuple(fields)))
+
+    errors = []
+    if mismatched:
+        errors.append(
+            _format_key_problem("request identity differs from the prompt grid", mismatched)
+        )
+    return GridCheckResult(
+        expected_count=len(expected),
+        observed_count=observed_count,
+        errors=tuple(errors),
+    )
+
+
+def validate_resumable_rows(
+    rows: Iterable[Mapping[str, object]],
+    *,
+    provider: str,
+    model_name: str,
+    prompt_version: str,
+    quantity_ids: Sequence[str],
+    n_runs: int = RUNS_PER_QUANTITY,
+    tool_regime: str = "none",
+    require_parsed: bool = False,
+) -> GridCheckResult:
+    """Exact-grid plus request-identity check: may these records be reused?"""
+    materialized = list(rows)
+    grid = validate_grid_rows(
+        materialized,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        quantity_ids=quantity_ids,
+        n_runs=n_runs,
+        require_parsed=require_parsed,
+    )
+    identity = validate_request_identity(
+        materialized,
+        provider=provider,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        quantity_ids=quantity_ids,
+        n_runs=n_runs,
+        tool_regime=tool_regime,
+    )
+    return GridCheckResult(
+        expected_count=grid.expected_count,
+        observed_count=grid.observed_count,
+        errors=grid.errors + identity.errors,
+    )
+
+
+def check_resumable_batch_directory(
+    results_root: Path,
+    *,
+    provider: str,
+    model_name: str,
+    batch: str,
+    require_parsed: bool = False,
+) -> GridCheckResult:
+    """Grid and request-identity check for one canonical batch directory."""
+    rows, read_errors = load_jsonl_rows([results_root / f"{model_name}-{batch}" / "runs.jsonl"])
+    result = validate_resumable_rows(
+        rows,
+        provider=provider,
+        model_name=model_name,
+        prompt_version=BATCH_PROMPT_VERSIONS[batch],
+        quantity_ids=quantity_ids_for_batch(batch),
+        require_parsed=require_parsed,
+    )
+    return GridCheckResult(
+        expected_count=result.expected_count,
+        observed_count=result.observed_count,
+        errors=tuple(read_errors) + result.errors,
     )
 
 
