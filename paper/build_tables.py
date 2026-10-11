@@ -526,6 +526,8 @@ def main() -> int:
 
     country_rows = build_country_table()
     if country_rows:
+        with (RESULTS_DIR / "correlates-country.csv").open() as handle:
+            first_outcome = next(csv.DictReader(handle))
         write_table_bundle(
             stem="correlates-country",
             rows=country_rows,
@@ -539,9 +541,9 @@ def main() -> int:
                 "confounded with the serving path (every Chinese-lab model "
                 "ran through OpenRouter JSON mode) and with elicitation "
                 "wave, and co-varies with completion budget and reasoning "
-                "configuration; prompts are English-language, and the group "
-                "sizes (5 versus 20) put a floor near 0.02-0.05 on "
-                "attainable p-values."
+                "configuration; prompts are English-language, and the groups "
+                f"are small ({first_outcome['china_n']} Chinese-lab versus "
+                f"{first_outcome['us_n']} US-lab models)."
             ),
         )
 

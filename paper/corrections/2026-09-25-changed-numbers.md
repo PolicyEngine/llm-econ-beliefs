@@ -3411,6 +3411,9 @@ New: `this branch (regenerated)`
 ## `paper/tables/correlates-country.md` (Markdown)
 
 ```diff
+@@ -1 +1 @@
+-Note: US-lab versus Chinese-lab medians with exact group-label permutation p-values on the difference in medians, and Holm and Benjamini-Hochberg adjustment over the four-outcome family (* = the top-rate row is a derived transform of the ETI row and mirrors its adjusted values rather than entering the family). Exploratory: lab country is perfectly confounded with the serving path (every Chinese-lab model ran through OpenRouter JSON mode) and with elicitation wave, and co-varies with completion budget and reasoning configuration; prompts are English-language, and the group sizes (5 versus 20) put a floor near 0.02-0.05 on attainable p-values.
++Note: US-lab versus Chinese-lab medians with exact group-label permutation p-values on the difference in medians, and Holm and Benjamini-Hochberg adjustment over the four-outcome family (* = the top-rate row is a derived transform of the ETI row and mirrors its adjusted values rather than entering the family). Exploratory: lab country is perfectly confounded with the serving path (every Chinese-lab model ran through OpenRouter JSON mode) and with elicitation wave, and co-varies with completion budget and reasoning configuration; prompts are English-language, and the groups are small (7 Chinese-lab versus 24 US-lab models).
 @@ -5,5 +5,5 @@
 -| Implied optimal top rate (%) | 35.843 (24) | 32.942 (7) | -2.901 | 0.126 | 0.209* | 0.139* |
 -| ETI pooled median | 0.421 (24) | 0.479 (7) | +0.058 | 0.105 | 0.209 | 0.139 |
