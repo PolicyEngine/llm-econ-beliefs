@@ -1,4 +1,10 @@
+import inspect
+
+import pytest
+from hypothesis import given, settings, strategies as st
+
 from llm_econ_beliefs import RequestLog, estimate_request_cost, lookup_model_pricing
+from llm_econ_beliefs.experiment import run_anthropic_experiment
 
 
 def test_lookup_model_pricing_supports_snapshot_names():
@@ -104,6 +110,64 @@ def test_lookup_model_pricing_supports_anthropic_panel_names():
     assert opus is not None and opus.output_per_million_usd == 25.00
     assert sonnet is not None and sonnet.output_per_million_usd == 10.00
     assert lookup_model_pricing("anthropic", "unknown-model") is None
+
+
+def test_lookup_model_pricing_supports_claude_sonnet_55():
+    pricing = lookup_model_pricing("anthropic", "claude-sonnet-5-5")
+
+    assert pricing is not None
+    assert pricing.input_per_million_usd == 2.00
+    assert pricing.cached_input_per_million_usd == 0.20
+    assert pricing.output_per_million_usd == 10.00
+
+
+def test_anthropic_experiment_default_model_has_pricing():
+    default = inspect.signature(run_anthropic_experiment).parameters["model_name"].default
+
+    assert lookup_model_pricing("anthropic", default) is not None
+
+
+@settings(max_examples=200, derandomize=True, database=None)
+@given(
+    prompt_tokens=st.integers(min_value=0, max_value=10_000_000),
+    cached_tokens=st.integers(min_value=0, max_value=10_000_000),
+    completion_tokens=st.integers(min_value=0, max_value=10_000_000),
+)
+def test_claude_sonnet_55_cost_is_the_sum_of_its_priced_parts(
+    prompt_tokens: int, cached_tokens: int, completion_tokens: int
+):
+    enriched = estimate_request_cost(
+        RequestLog(
+            provider="anthropic",
+            model_name="claude-sonnet-5-5",
+            quantity_id="household.annual_discount_factor",
+            request_index=1,
+            prompt_version="v4",
+            tool_regime="none",
+            batch_size=1,
+            prompt_tokens=prompt_tokens,
+            cached_prompt_tokens=cached_tokens,
+            completion_tokens=completion_tokens,
+        )
+    )
+
+    cached = min(cached_tokens, prompt_tokens)
+    assert enriched.estimated_input_cost_usd == pytest.approx(
+        (prompt_tokens - cached) * 2.00 / 1_000_000
+    )
+    assert enriched.estimated_cached_input_cost_usd == pytest.approx(
+        cached * 0.20 / 1_000_000
+    )
+    assert enriched.estimated_output_cost_usd == pytest.approx(
+        completion_tokens * 10.00 / 1_000_000
+    )
+    assert enriched.estimated_tool_cost_usd == 0.0
+    assert enriched.estimated_total_cost_usd == pytest.approx(
+        enriched.estimated_input_cost_usd
+        + enriched.estimated_cached_input_cost_usd
+        + enriched.estimated_output_cost_usd
+    )
+    assert enriched.estimated_total_cost_usd >= 0.0
 
 
 def test_estimate_request_cost_fills_anthropic_costs():

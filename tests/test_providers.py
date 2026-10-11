@@ -10,6 +10,8 @@ from llm_econ_beliefs import (
     run_anthropic_prompt_logged,
 )
 from llm_econ_beliefs.providers import (
+    ANTHROPIC_MODEL_ALIASES,
+    DEFAULT_BELIEF_JSON_SCHEMA,
     run_litellm_prompt_logged,
 )
 
@@ -277,20 +279,22 @@ def test_resolve_litellm_model_name_supports_july_2026_additions():
     assert resolve_litellm_model_name("gemini-3.5-flash") == "gemini/gemini-3.5-flash"
 
 
-def test_run_anthropic_prompt_logged_uses_structured_output_without_sampling_params():
+@pytest.mark.parametrize("model_name", sorted(ANTHROPIC_MODEL_ALIASES))
+def test_run_anthropic_prompt_logged_uses_structured_output_without_sampling_params(model_name):
     client = _FakeAnthropicClient(_FakeAnthropicMessage())
 
     result = run_anthropic_prompt_logged(
         "hello",
-        model_name="claude-opus-4.8",
+        model_name=model_name,
         client=client,
     )
 
     kwargs = client.messages.kwargs
-    assert kwargs["model"] == "claude-opus-4-8"
+    assert kwargs["model"] == ANTHROPIC_MODEL_ALIASES[model_name]
     assert "temperature" not in kwargs
     assert "top_p" not in kwargs
     assert "thinking" not in kwargs
+    assert "effort" not in kwargs["output_config"]
     assert kwargs["output_config"]["format"]["type"] == "json_schema"
     assert kwargs["messages"] == [{"role": "user", "content": "hello"}]
     assert result.outputs == ['{"point_estimate": 0.5}']
@@ -300,7 +304,25 @@ def test_run_anthropic_prompt_logged_uses_structured_output_without_sampling_par
     assert result.usage["total_tokens"] == 1050
 
 
-def test_run_anthropic_prompt_logged_reads_text_after_thinking_blocks():
+def test_run_anthropic_prompt_logged_sonnet_55_uses_adaptive_thinking_and_explicit_effort():
+    client = _FakeAnthropicClient(_FakeAnthropicMessage())
+
+    run_anthropic_prompt_logged("hello", model_name="claude-sonnet-5-5", client=client)
+
+    kwargs = client.messages.kwargs
+    assert kwargs["model"] == "claude-sonnet-5-5"
+    assert kwargs["thinking"] == {"type": "adaptive"}
+    assert kwargs["output_config"] == {
+        "effort": "high",
+        "format": {"type": "json_schema", "schema": DEFAULT_BELIEF_JSON_SCHEMA},
+    }
+    assert kwargs["max_tokens"] == 32000
+    assert kwargs["messages"] == [{"role": "user", "content": "hello"}]
+    assert not {"temperature", "top_p", "top_k", "tool_choice", "tools"} & kwargs.keys()
+
+
+@pytest.mark.parametrize("model_name", ["claude-fable-5", "claude-sonnet-5-5"])
+def test_run_anthropic_prompt_logged_reads_text_after_thinking_blocks(model_name):
     message = _FakeAnthropicMessage(
         content=[
             _FakeAnthropicBlock("thinking"),
@@ -311,14 +333,15 @@ def test_run_anthropic_prompt_logged_reads_text_after_thinking_blocks():
 
     result = run_anthropic_prompt_logged(
         "hello",
-        model_name="claude-fable-5",
+        model_name=model_name,
         client=client,
     )
 
     assert result.outputs == ['{"point_estimate": 0.9}']
 
 
-def test_run_anthropic_prompt_logged_raises_on_refusal():
+@pytest.mark.parametrize("model_name", ["claude-fable-5", "claude-sonnet-5-5"])
+def test_run_anthropic_prompt_logged_raises_on_refusal(model_name):
     message = _FakeAnthropicMessage(
         stop_reason="refusal",
         stop_details=_FakeAnthropicStopDetails("declined by policy"),
@@ -328,19 +351,20 @@ def test_run_anthropic_prompt_logged_raises_on_refusal():
     with pytest.raises(RuntimeError, match="declined by policy"):
         run_anthropic_prompt_logged(
             "hello",
-            model_name="claude-fable-5",
+            model_name=model_name,
             client=client,
         )
 
 
-def test_run_anthropic_prompt_logged_raises_on_truncation():
+@pytest.mark.parametrize("model_name", ["claude-sonnet-5", "claude-sonnet-5-5"])
+def test_run_anthropic_prompt_logged_raises_on_truncation(model_name):
     message = _FakeAnthropicMessage(stop_reason="max_tokens")
     client = _FakeAnthropicClient(message)
 
     with pytest.raises(RuntimeError, match="truncated"):
         run_anthropic_prompt_logged(
             "hello",
-            model_name="claude-sonnet-5",
+            model_name=model_name,
             client=client,
         )
 

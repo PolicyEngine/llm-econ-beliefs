@@ -186,7 +186,7 @@ def run_anthropic_experiment(
     quantity_ids: Sequence[str],
     n_runs: int,
     output_dir: str | Path,
-    model_name: str = "claude-sonnet-5",
+    model_name: str = "claude-sonnet-5-5",
     prompt_version: str = "v2",
     tool_regime: str = "none",
     max_workers: int = 4,

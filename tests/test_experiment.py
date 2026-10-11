@@ -366,6 +366,38 @@ def test_run_anthropic_experiment_records_errors_per_batch(tmp_path: Path):
     assert all("provider blew up" in (record.error or "") for record in errors)
 
 
+def test_run_anthropic_experiment_default_model_is_current_and_priced(tmp_path: Path):
+    seen_models: list[str] = []
+
+    def fake_invoke_batch(prompt: str, model_name: str, n: int) -> ProviderBatchResult:
+        seen_models.append(model_name)
+        return ProviderBatchResult(
+            outputs=[
+                '{"interpretation": "t", "point_estimate": 0.5, '
+                '"quantiles": {"p05": 0.3, "p25": 0.4, "p50": 0.5, "p75": 0.6, "p95": 0.7}, '
+                '"citations": [], "reasoning_summary": "t"}'
+            ],
+            request_id="msg_x",
+            usage={"input_tokens": 700, "output_tokens": 350, "total_tokens": 1050},
+        )
+
+    records, summaries = run_anthropic_experiment(
+        quantity_ids=["household.annual_discount_factor"],
+        n_runs=2,
+        output_dir=tmp_path,
+        prompt_version="v4",
+        max_workers=1,
+        invoke_batch=fake_invoke_batch,
+    )
+
+    assert seen_models == ["claude-sonnet-5-5", "claude-sonnet-5-5"]
+    assert all(record.model_name == "claude-sonnet-5-5" for record in records)
+    expected_per_request = 700 * 2.00 / 1_000_000 + 350 * 10.00 / 1_000_000
+    assert abs(
+        summaries[0]["usage_estimated_total_cost_usd_total"] - 2 * expected_per_request
+    ) < 1e-12
+
+
 def _answer(point: float) -> str:
     return (
         '{"interpretation": "t", "point_estimate": %s, '
