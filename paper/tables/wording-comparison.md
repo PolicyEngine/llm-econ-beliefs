@@ -10,7 +10,7 @@ Note: Same four models (the April premium tier), same quantities, same repeated-
 | Claude Sonnet 4.6 | Capital gains realizations elasticity (net-of-tax-rate convention) | 4.6 | 3.367 | -1.233 | 8.871 | 7.647 |
 | Gemini 3.1 Pro | Income elasticity of labor supply | -0.05 | -0.073 | -0.023 | 0.241 | 0.315 |
 | Gemini 3.1 Pro | Capital gains realizations elasticity | -0.67 | -0.709 | -0.039 | 0.997 | 0.997 |
-| Gemini 3.1 Pro | Capital gains realizations elasticity (net-of-tax-rate convention) | 0.373 | 2.077 | 1.703 | 4.832 | 4.598 |
+| Gemini 3.1 Pro | Capital gains realizations elasticity (net-of-tax-rate convention) | 0.373 | 2.077 | 1.703 | 4.793 | 4.598 |
 | Grok 4.20 | Income elasticity of labor supply | -0.095 | -0.107 | -0.011 | 0.522 | 0.577 |
 | Grok 4.20 | Capital gains realizations elasticity | -0.553 | -0.473 | 0.08 | 1.762 | 1.807 |
 | Grok 4.20 | Capital gains realizations elasticity (net-of-tax-rate convention) | 0.67 | 0.65 | -0.02 | 1.854 | 1.901 |

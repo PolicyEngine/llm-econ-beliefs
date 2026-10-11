@@ -16996,7 +16996,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,kimi-k2.6,tax.capital_gains_realizations.elasticity,14,v4,none,True,0.7,,0.7,0.7,0.9,"{""p05"": 0.7, ""p25"": 0.7, ""p50"": 0.7, ""p75"": 0.7, ""p95"": 0.7}",True,,"{
+litellm_completion,kimi-k2.6,tax.capital_gains_realizations.elasticity,14,v4,none,True,-0.25,,-0.7,0.05,0.9,"{""p05"": -0.7, ""p25"": -0.4, ""p50"": -0.25, ""p75"": -0.1, ""p95"": 0.05}",False,,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the capital-gains marginal tax rate for U.S. individuals."",
   ""point_estimate"": -0.25,
   ""quantiles"": {

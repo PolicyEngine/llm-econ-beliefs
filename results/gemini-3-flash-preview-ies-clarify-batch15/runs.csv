@@ -677,20 +677,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3-flash-preview,household.intertemporal_elasticity_of_substitution,15,ies-clarify,none,True,0.5,,0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}",,"{
-  ""interpretation"": ""The elasticity of the growth rate of U.S. nondurable consumption with respect to the real interest rate for an annual representative-household macro calibration."",
-  ""point_estimate"": 0.5,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.3,
-    ""p50"": 0.5,
-    ""p75"": 0.8,
-    ""p95"": 1.5
-  },
-  ""citations"": [
-    ""Hall (1988), 'Intertemporal Substitution in Consumption'"",
-    ""Attanasio and Weber (1995), 'Is Consumption Growth Consistent with Intertemporal Optimization?'"",
-    ""Havranek (2015), 'Measuring Intertemporal Substitution: The Importance of Publication Bias'""",,"{
+litellm_completion,gemini-3-flash-preview,household.intertemporal_elasticity_of_substitution,15,ies-clarify,none,True,0.5,The elasticity of the growth rate of U.S. nondurable consumption with respect to the real interest rate for an annual representative-household macro calibration.,0.1,1.5,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.8, ""p95"": 1.5}","Hall (1988), 'Intertemporal Substitution in Consumption' | Attanasio and Weber (1995), 'Is Consumption Growth Consistent with Intertemporal Optimization?' | Havranek (2015), 'Measuring Intertemporal Substitution: The Importance of Publication Bias'",,,"{
   ""interpretation"": ""The elasticity of the growth rate of U.S. nondurable consumption with respect to the real interest rate for an annual representative-household macro calibration."",
   ""point_estimate"": 0.5,
   ""quantiles"": {

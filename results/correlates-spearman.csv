@@ -1,11 +1,11 @@
 predictor,outcome,n_models,spearman_rho,raw_p,holm_adjusted_p,bh_adjusted_p,family_size,is_derived
-Tax within-$1 (domain-matched),"Mean |center|, labor-and-tax",28,0.08514716666010344,0.6653167341632918,1.0,0.760361981900905,8,False
-Tax within-$1 (domain-matched),"Mean |center|, macro-and-trade",28,0.23572897265064005,0.22663866806659666,1.0,0.4532773361331933,8,False
-Tax within-$1 (domain-matched),Avg interval-width rank (1 = tightest),28,-0.27443467055234627,0.15809209539523023,0.9485525723713814,0.4215789210539473,8,False
+Tax within-$1 (domain-matched),"Mean |center|, labor-and-tax",28,0.0741957625880644,0.704314784260787,1.0,0.8049311820123279,8,False
+Tax within-$1 (domain-matched),"Mean |center|, macro-and-trade",28,0.2372672597164746,0.22308884555772213,1.0,0.44617769111544425,8,False
+Tax within-$1 (domain-matched),Avg interval-width rank (1 = tightest),28,-0.25359441563225327,0.19264036798160092,1.0,0.44617769111544425,8,False
 Tax within-$1 (domain-matched),ETI pooled median,28,-0.42031764993051185,0.026198690065496726,0.1887905604719764,0.1047947602619869,8,False
 Tax within-$1 (domain-matched),"Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test",28,0.42031764993051185,0.026198690065496726,0.1887905604719764,0.1047947602619869,8,True
-Overall within-$1 (leaderboard headline),"Mean |center|, labor-and-tax",28,0.02079912424740011,0.9154542272886356,1.0,0.9154542272886356,8,False
-Overall within-$1 (leaderboard headline),"Mean |center|, macro-and-trade",28,0.11548987411056376,0.5545222738863057,1.0,0.7393630318484076,8,False
-Overall within-$1 (leaderboard headline),Avg interval-width rank (1 = tightest),28,-0.18004949760951985,0.35703214839258035,1.0,0.5712514374281286,8,False
+Overall within-$1 (leaderboard headline),"Mean |center|, labor-and-tax",28,0.014230979748221127,0.9419029048547573,1.0,0.9419029048547573,8,False
+Overall within-$1 (leaderboard headline),"Mean |center|, macro-and-trade",28,0.11824278200233504,0.5458227088645567,1.0,0.727763611819409,8,False
+Overall within-$1 (leaderboard headline),Avg interval-width rank (1 = tightest),28,-0.16671229751397384,0.39378031098445077,1.0,0.6300484975751213,8,False
 Overall within-$1 (leaderboard headline),ETI pooled median,28,-0.42726153404084494,0.02359882005899705,0.1887905604719764,0.1047947602619869,8,False
 Overall within-$1 (leaderboard headline),"Implied optimal top rate (%) — derived, monotone transform of ETI — not an additional test",28,0.42726153404084494,0.02359882005899705,0.1887905604719764,0.1047947602619869,8,True
