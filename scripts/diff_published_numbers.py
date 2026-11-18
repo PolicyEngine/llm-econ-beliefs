@@ -2,8 +2,10 @@
 
 Compares, cell by cell, every CSV under ``results/`` (top-level artifacts and
 each experiment's ``summary.csv``) and ``paper/tables/``, and line by line
-every Markdown table under ``paper/tables/``. Rows are matched by position;
-a changed header or row count is reported as a structural change. Numeric
+every Markdown table under ``paper/tables/``. Rows are matched by identity
+(the first column when unique, else the leading non-numeric cells), falling
+back to position; a changed header or row count is reported as a structural
+change. Numeric
 cells are compared as floats (so ``0.10`` and ``0.1`` are equal); everything
 else is compared as text.
 
@@ -23,7 +25,7 @@ from pathlib import Path
 
 def published_csvs(root: Path) -> list[Path]:
     paths = set((root / "results").glob("*.csv"))
-    paths |= set((root / "results").glob("*/summary.csv"))
+    paths |= set((root / "results").rglob("summary.csv"))
     paths |= set((root / "paper" / "tables").glob("*.csv"))
     return sorted(path.relative_to(root) for path in paths)
 
@@ -70,18 +72,22 @@ def diff_csv(old: Path, new: Path) -> tuple[list[str], list[tuple[str, str, str,
         return notes, changes
     if len(old_rows) != len(new_rows):
         notes.append(f"row count changed: {len(old_rows)} -> {len(new_rows)}")
-    old_labels = [_row_label(old_header, row) for row in old_rows]
-    new_labels = [_row_label(new_header, row) for row in new_rows]
-    if (
-        len(set(old_labels)) == len(old_labels)
-        and set(old_labels) == set(new_labels)
-        and old_labels != new_labels
+    # Same rows in a new order (tables sorted by a value that moved): match
+    # by row identity, and say the order changed. The first column (model,
+    # quantity, outcome) is the identity when it is unique; otherwise the
+    # leading non-numeric cells are.
+    for identity in (
+        lambda row: row[0] if row else "",
+        lambda row: _row_label(old_header, row),
     ):
-        # Same rows in a new order (tables sorted by a value that moved):
-        # match by row identity, and say the order changed.
-        notes.append("row order changed; rows matched by identity")
-        by_label = dict(zip(new_labels, new_rows))
-        new_rows = [by_label[label] for label in old_labels]
+        old_keys = [identity(row) for row in old_rows]
+        new_keys = [identity(row) for row in new_rows]
+        if len(set(old_keys)) == len(old_keys) and set(old_keys) == set(new_keys):
+            if old_keys != new_keys:
+                notes.append("row order changed; rows matched by identity")
+                by_key = dict(zip(new_keys, new_rows))
+                new_rows = [by_key[key] for key in old_keys]
+            break
     for index, (old_row, new_row) in enumerate(zip(old_rows, new_rows), 2):
         for column, old_value, new_value in zip(old_header, old_row, new_row):
             if old_value == new_value:
@@ -110,17 +116,18 @@ def main(argv: list[str] | None = None) -> int:
         "",
     ]
     total_cells = 0
-    changed_files = 0
+    changed_csvs = 0
+    changed_markdown = 0
     for relative in sorted(set(published_csvs(args.old_root)) | set(published_csvs(args.new_root))):
         old, new = args.old_root / relative, args.new_root / relative
         if not old.exists() or not new.exists():
             lines += [f"## `{relative}`", "", "only in " + ("new" if new.exists() else "old"), ""]
-            changed_files += 1
+            changed_csvs += 1
             continue
         notes, changes = diff_csv(old, new)
         if not notes and not changes:
             continue
-        changed_files += 1
+        changed_csvs += 1
         total_cells += len(changes)
         lines += [f"## `{relative}` ({len(changes)} cells)", ""]
         lines += [f"- {note}" for note in notes]
@@ -138,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
         new_lines = new.read_text().splitlines() if new.exists() else []
         if old_lines == new_lines:
             continue
-        changed_files += 1
+        changed_markdown += 1
         lines += [f"## `{relative}` (Markdown)", "", "```diff"]
         lines += [
             line
@@ -147,7 +154,11 @@ def main(argv: list[str] | None = None) -> int:
         ]
         lines += ["```", ""]
 
-    lines.insert(5, f"{changed_files} files changed; {total_cells} CSV cells changed.\n")
+    lines.insert(
+        5,
+        f"{total_cells} cells changed across {changed_csvs} CSV files; "
+        f"{changed_markdown} Markdown tables changed (shown as line diffs).\n",
+    )
     report = "\n".join(lines) + "\n"
     if args.output:
         args.output.write_text(report)

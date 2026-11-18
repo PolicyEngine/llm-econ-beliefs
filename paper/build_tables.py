@@ -2153,7 +2153,11 @@ def write_markdown(path: Path, rows: list[dict[str, object]], *, note: str) -> N
     lines.append("| " + " | ".join(headers) + " |")
     lines.append("| " + " | ".join("---" for _ in headers) + " |")
     for row in rows:
-        cells = [format_markdown_cell(header, row[header]) for header in headers]
+        # Escape literal pipes ("Mean |center|") so Pandoc keeps the cell whole.
+        cells = [
+            format_markdown_cell(header, row[header]).replace("|", "\\|")
+            for header in headers
+        ]
         lines.append("| " + " | ".join(cells) + " |")
     path.write_text("\n".join(lines) + "\n")
 

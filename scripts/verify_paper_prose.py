@@ -471,6 +471,16 @@ def verify_correlates() -> None:
         and f"$p = {float(width['permutation_p']):.3f}$" in PAPER,
         f"got {width['china_median']} vs {width['us_median']}, p {width['permutation_p']}",
     )
+    labor_center = country["Mean |center|, labor-and-tax"]
+    check(
+        "country labor-and-tax center medians and p",
+        f"`{float(labor_center['china_median']):.3f}` versus "
+        f"`{float(labor_center['us_median']):.3f}`, "
+        f"$p = {float(labor_center['permutation_p']):.3f}$" in PAPER
+        and f"centers $p = {float(labor_center['permutation_p']):.3f}$" in PAPER,
+        f"got {labor_center['china_median']} vs {labor_center['us_median']}, "
+        f"p {labor_center['permutation_p']}",
+    )
     check(
         "country rows disclose the confound",
         all("confounded" in r["disclosure"] for r in country.values()),
@@ -1274,7 +1284,265 @@ def verify_wording_comparison_tables() -> None:
     )
 
 
+PRE_CORRECTION_COMMIT = "22b4cee"  # origin/main before the d339 correction
+QUANTILE_KEYS = ("p05", "p25", "p50", "p75", "p95")
+
+
+def _correction_note() -> str:
+    start = PAPER.find("## Correction (")
+    end = PAPER.find("\n## ", start + 1)
+    return PAPER[start:end] if start >= 0 else ""
+
+
+def _git_show(path: str) -> str | None:
+    import subprocess
+
+    result = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "show", f"{PRE_CORRECTION_COMMIT}:{path}"],
+        capture_output=True,
+    )
+    return result.stdout.decode("utf-8") if result.returncode == 0 else None
+
+
+def _pooled_center(rows: list[dict], skip: int | None = None) -> float:
+    from statistics import fmean
+
+    return fmean(
+        row["point_estimate"]
+        for index, row in enumerate(rows, 1)
+        if row.get("parsed_ok") and row.get("run_index", index) != skip
+    )
+
+
+def verify_correction_note() -> None:
+    """Recompute every count and number the dated correction note states.
+
+    The run census compares each runs.jsonl with the pre-correction commit, so
+    this needs git history and stays in the local gate (CI clones are shallow).
+    """
+    from collections import Counter
+
+    sys.path.insert(0, str(REPO_ROOT))
+    from llm_econ_beliefs.model_registry import MODEL_REGISTRY_BY_ID, PANEL_MODEL_IDS
+
+    note = _correction_note()
+    check("correction note present", bool(note))
+    if not note:
+        return
+    results = REPO_ROOT / "results"
+    kinds: dict[tuple[bool, str], list[tuple[str, str, float | None, float | None]]] = {}
+    old_repairs = new_repairs = 0
+    for path in sorted(results.glob("*/runs.jsonl")):
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        old_text = _git_show(relative)
+        if old_text is None:
+            check("pre-correction runs readable from git", False, relative)
+            return
+        main_panel = path.parent.name.endswith("-elasticities-batch15")
+        new_lines = path.read_bytes().decode("utf-8").split("\n")
+        for old_line, new_line in zip(old_text.split("\n"), new_lines):
+            if not new_line.strip():
+                continue
+            new = json.loads(new_line)
+            old = json.loads(old_line)
+            if main_panel:
+                old_repairs += bool(old.get("quantiles_repaired"))
+                new_repairs += bool(new.get("quantiles_repaired"))
+            if old_line == new_line:
+                continue
+            old_q, new_q = old.get("quantiles") or {}, new.get("quantiles") or {}
+            old_p, new_p = old.get("point_estimate"), new.get("point_estimate")
+            if old_q == new_q and old_p == new_p:
+                continue  # text fields only
+            if old_q == new_q:
+                kind = "prose"
+            elif any(
+                old_q.get(k) is not None and old_q.get(k) == -new_q.get(k, 0) != 0
+                for k in QUANTILE_KEYS
+            ):
+                kind = "sign"
+            else:
+                kind = "other"
+            kinds.setdefault((main_panel, kind), []).append(
+                (new["model_name"], new["quantity_id"], old_p, new_p)
+            )
+    sign = kinds.get((True, "sign"), [])
+    prose = kinds.get((True, "prose"), [])
+    changed = sign + prose + kinds.get((True, "other"), [])
+    flips = sum(1 for _, _, a, b in changed if a and b and (a < 0) != (b < 0))
+    by_model = Counter(model for model, *_ in changed)
+    labels = {m: MODEL_REGISTRY_BY_ID[m].display_label for m in by_model}
+    singles = sorted(labels[m] for m, n in by_model.items() if n == 1)
+    multi = [(labels[m], n) for m, n in by_model.most_common() if n > 1]
+    breakdown = ", ".join(f"{n} for `{name}`" for name, n in multi)
+    singles_text = ", ".join(f"`{name}`" for name in singles[:-1]) + f", and `{singles[-1]}`"
+    check(
+        "correction run census",
+        f"changes {len(changed)} main-panel runs ({breakdown}, and 1 each for {singles_text})"
+        in note
+        and f"{len(sign)} had lost a minus sign, {flips} of which change the sign" in note
+        and f"{len(prose)} carried a point estimate read from prose" in note
+        and not kinds.get((True, "other")),
+        f"got {len(changed)} changed ({dict(by_model)}), sign {len(sign)}, flips {flips}, "
+        f"prose {len(prose)}, other {len(kinds.get((True, 'other'), []))}",
+    )
+    check(
+        "correction quantile-repair counts",
+        f"quantile repairs fall from {old_repairs} to {new_repairs}" in note,
+        f"got {old_repairs} -> {new_repairs}",
+    )
+    clarify_prose = kinds.get((False, "prose"), [])
+    check(
+        "correction clarify-probe prose runs",
+        len(clarify_prose) == 2
+        and {model for model, *_ in clarify_prose} == {"gemini-3.5-flash"}
+        and "changed two `Gemini 3.5 Flash` Armington clarify-probe runs" in note
+        and not kinds.get((False, "sign"))
+        and not kinds.get((False, "other")),
+        f"got {[(m, q) for m, q, *_ in clarify_prose]}",
+    )
+
+    # Centers: which moved, through which defect, and the ones the note quotes.
+    sign_cells = {(m, q) for m, q, *_ in sign}
+    moved: list[tuple[str, str, float, float]] = []
+    for path in sorted(results.glob("*-elasticities-batch15/summary.csv")):
+        old_text = _git_show(path.relative_to(REPO_ROOT).as_posix()) or ""
+        old_rows = {
+            (r["model_name"], r["quantity_id"]): r
+            for r in csv.DictReader(old_text.splitlines())
+        }
+        with path.open() as handle:
+            for row in csv.DictReader(handle):
+                old = old_rows[(row["model_name"], row["quantity_id"])]
+                a, b = float(old["pooled_point_estimate"]), float(row["pooled_point_estimate"])
+                if a != b:
+                    moved.append((row["model_name"], row["quantity_id"], a, b))
+    through_sign = [c for c in moved if (c[0], c[1]) in sign_cells]
+    k3 = next(
+        (c for c in moved if c[0] == "kimi-k3" and c[1].endswith("net_of_tax_rate")), None
+    )
+    rest = [c for c in moved if (c[0], c[1]) not in sign_cells and c is not k3]
+    largest_rest = max(abs(b - a) for _, _, a, b in rest)
+    check(
+        "correction moved-center counts",
+        f"{len(moved)} main-panel centers move, {len(through_sign)} of them through a lost sign"
+        in note
+        and k3 is not None
+        and f"from `{k3[2]:.3f}` to `{k3[3]:.3f}` and {len(rest)} other centers by at most "
+        f"`{largest_rest:.3f}`" in note,
+        f"got {len(moved)} moved, {len(through_sign)} via sign, K3 {k3}, "
+        f"{len(rest)} others max {largest_rest:.4f}",
+    )
+    quoted = {
+        ("gemini-3.5-flash", "tax.capital_gains_realizations.elasticity"): "`{b:.2f}` for capital gains",
+        ("gemini-3.5-flash", "labor_supply.income_elasticity.prime_age"): "`{b:.3f}` for the income elasticity",
+        ("inkling", "tax.capital_gains_realizations.elasticity"): "`Inkling` from `{a:.3f}` to `{b:.3f}`",
+        ("kimi-k2.6", "tax.capital_gains_realizations.elasticity"): "`Kimi K2.6` from `{a:.3f}` to `{b:.3f}`",
+    }
+    centers = {(m, q): (a, b) for m, q, a, b in moved}
+    for cell, template in quoted.items():
+        a, b = centers.get(cell, (float("nan"), float("nan")))
+        check(f"correction quotes {cell[0]} {cell[1].split('.')[1]}", template.format(a=a, b=b) in note, f"got {a} -> {b}")
+    check(
+        "Gemini 3.5 Flash sign-sensitive runs all negative",
+        all(
+            row["point_estimate"] < 0
+            for row in (
+                json.loads(line)
+                for line in (results / "gemini-3.5-flash-elasticities-batch15" / "runs.jsonl")
+                .read_text()
+                .splitlines()
+                if line.strip()
+            )
+            if row["quantity_id"]
+            in ("tax.capital_gains_realizations.elasticity", "labor_supply.income_elasticity.prime_age")
+        )
+        and "all 30 of its runs on the two sign-sensitive quantities are negative" in note,
+    )
+
+    # Clarify-probe center in Table A7, before and after.
+    old_clarify = [
+        json.loads(line)
+        for line in (_git_show("results/gemini-3.5-flash-armington-clarify-batch15/runs.jsonl") or "").splitlines()
+        if line.strip()
+    ]
+    new_clarify = [
+        json.loads(line)
+        for line in (results / "gemini-3.5-flash-armington-clarify-batch15" / "runs.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
+    check(
+        "correction A7 clarified center",
+        f"from `{_pooled_center(old_clarify):.3f}` to `{_pooled_center(new_clarify):.3f}`" in note,
+    )
+
+    # Table 7 contrasts before and after.
+    def country_p(text: str, outcome: str) -> float:
+        return float(next(r for r in csv.DictReader(text.splitlines()) if r["outcome"] == outcome)["permutation_p"])
+
+    old_country = _git_show("results/correlates-country.csv") or ""
+    new_country = (results / "correlates-country.csv").read_text()
+    width, center = "Avg interval-width rank (1 = tightest)", "Mean |center|, labor-and-tax"
+    check(
+        "correction Table 7 p-values",
+        f"from raw $p = {country_p(old_country, width):.3f}$ and ${country_p(old_country, center):.3f}$ "
+        f"to ${country_p(new_country, width):.3f}$ and ${country_p(new_country, center):.3f}$"
+        in note,
+    )
+
+    # Sample counts, open items and the changed-numbers ledger.
+    quantities = 26
+    check(
+        "correction sample counts",
+        f"11,310 successful main-panel runs, the count for the 29-model panel (29 × {quantities} × 15)" in note
+        and f"holds {len(PANEL_MODEL_IDS) * quantities * 15:,} ({len(PANEL_MODEL_IDS)} × {quantities} × 15)" in note
+        and 29 * quantities * 15 == 11_310,
+    )
+    stale = json.loads((REPO_ROOT / "tests" / "fixtures" / "stale_cached_rows.json").read_text())
+    main_stale = [key for key in stale if "-elasticities-batch15/" in key]
+    check(
+        "correction open-item row counts",
+        len(stale) == 9 and len(main_stale) == 1
+        and "Nine retained rows do not reparse" in note
+        and "The other eight are clarify-probe rows" in note
+        and f"The other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse" in note,
+        f"got {len(stale)} stale rows, {len(main_stale)} main-panel",
+    )
+
+    def cell_rows(directory: str, quantity: str | None = None) -> list[dict]:
+        rows = [
+            json.loads(line)
+            for line in (results / directory / "runs.jsonl").read_text().splitlines()
+            if line.strip()
+        ]
+        return [r for r in rows if quantity is None or r["quantity_id"] == quantity]
+
+    ies = cell_rows("gemini-3.5-flash-elasticities-batch15", "household.intertemporal_elasticity_of_substitution")
+    inkling = cell_rows("inkling-armington-clarify-batch15")
+    pro_ies = cell_rows("gemini-3.1-pro-preview-ies-clarify-batch15")
+    check(
+        "correction open-item effects",
+        f"from `{_pooled_center(ies):.3f}` to `{_pooled_center(ies, skip=2):.3f}`" in note
+        and f"from `{_pooled_center(inkling):.3f}` to `{_pooled_center(inkling, skip=13):.3f}`" in note
+        and f"rests on {sum(1 for r in pro_ies if r.get('parsed_ok'))} parsed runs, from "
+        f"`{_pooled_center(pro_ies):.3f}` to `{_pooled_center(pro_ies, skip=15):.3f}`".replace("rests on 4", "rests on four")
+        in note
+        and "point_estimate" not in next(r for r in inkling if r["run_index"] == 13)["raw_response"]
+        and "point_estimate" not in next(r for r in pro_ies if r["run_index"] == 15)["raw_response"],
+    )
+    ledger = (REPO_ROOT / "paper" / "corrections" / "2026-09-25-changed-numbers.md").read_text()
+    match = re.search(r"(\d+) cells changed across (\d+) CSV files; (\d+) Markdown tables", ledger)
+    check(
+        "correction ledger counts",
+        match is not None
+        and f"({int(match[1]):,} cells across {match[2]} CSV files, plus line diffs for {match[3]} Markdown tables)"
+        in note,
+        f"ledger says {match.groups() if match else None}",
+    )
+
+
 def main() -> int:
+    verify_correction_note()
     verify_superlatives()
     verify_top_rate()
     verify_stability()

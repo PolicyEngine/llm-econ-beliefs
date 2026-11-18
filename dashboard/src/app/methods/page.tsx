@@ -74,7 +74,7 @@ export default function MethodsPage() {
             prompts. 26 U.S.-scoped quantities: 9 headline elasticities in
             two subpanels, 4 calibration parameters, a capital-gains
             convention sibling, and 12 simulation-facing coefficients.
-            12,090 successful runs at a 100 percent parse rate, with every
+            12,090 successful runs, every one accepted as parsed at collection, with every
             cell verified against the exact 15-run grid; failed slots re-ran as fresh independent draws,
             each traced in the{" "}
             <a

@@ -1,9 +1,9 @@
 # Changed published numbers
 
-Old: `origin/main (published; results/ and paper/ identical to 959a9d0)`  
+Old: `22b4cee (origin/main before the correction; results/ and paper/ identical to 959a9d0)`  
 New: `this branch (regenerated)`
 
-138 files changed; 2762 CSV cells changed.
+2784 cells changed across 120 CSV files; 19 Markdown tables changed (shown as line diffs).
 
 ## `paper/tables/armington-clarify-delta.csv` (7 cells)
 
@@ -441,8 +441,9 @@ New: `this branch (regenerated)`
 | 12 | Income elasticity of labor supply / Grok 4.20 / Gemini 3.5 Flash | Mean pooled 90% width | 0.377 | 0.373 |
 | 12 | Income elasticity of labor supply / Grok 4.20 / Gemini 3.5 Flash | Spread / mean width | 0.312 | 0.284 |
 
-## `paper/tables/resampling-stability.csv` (74 cells)
+## `paper/tables/resampling-stability.csv` (58 cells)
 
+- row order changed; rows matched by identity
 | line | row | column | old | new |
 |---|---|---|---|---|
 | 2 | Claude Fable 5 / 3% / [6.62, 8.08] | Avg width rank (mean) | 7.44 | 7.53 |
@@ -456,26 +457,16 @@ New: `this branch (regenerated)`
 | 6 | Claude Sonnet 5 / 2% / [9.69, 11.08] | Avg width rank (mean) | 10.34 | 10.52 |
 | 6 | Claude Sonnet 5 / 2% / [9.69, 11.08] | Avg width rank 90% interval | [9.69, 11.08] | [9.84, 11.31] |
 | 7 | Gemini 3.1 Pro / 2% / [10.30, 11.69] | Avg width rank (mean) | 11.06 | 11.05 |
-| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Model | Claude Opus 4.8 | Gemini 3.5 Flash |
-| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Median center MC SE | 0.0 | 0.0038 |
-| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Median relative width MC SE | 1% | 2% |
-| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Avg width rank (mean) | 11.4 | 11.25 |
-| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Avg width rank 90% interval | [10.69, 12.08] | [10.54, 11.85] |
-| 9 | Inkling / 4% / [10.85, 13.39] | Model | Inkling | Claude Opus 4.8 |
-| 9 | Inkling / 4% / [10.85, 13.39] | Median center MC SE | 0.0137 | 0.0 |
-| 9 | Inkling / 4% / [10.85, 13.39] | Median relative width MC SE | 4% | 1% |
-| 9 | Inkling / 4% / [10.85, 13.39] | Avg width rank (mean) | 12.37 | 11.57 |
-| 9 | Inkling / 4% / [10.85, 13.39] | Avg width rank 90% interval | [10.85, 13.39] | [10.92, 12.23] |
-| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Model | Gemini 3 Flash | Inkling |
-| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Median center MC SE | 0.0 | 0.0137 |
-| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Median relative width MC SE | 1% | 4% |
-| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Avg width rank (mean) | 13.11 | 11.71 |
-| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Avg width rank 90% interval | [12.38, 13.77] | [10.46, 12.85] |
-| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Model | Gemini 3.5 Flash | Gemini 3 Flash |
-| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Median center MC SE | 0.0104 | 0.0 |
-| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Median relative width MC SE | 3% | 1% |
-| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Avg width rank (mean) | 13.48 | 13.21 |
-| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Avg width rank 90% interval | [12.84, 14.08] | [12.46, 13.92] |
+| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Avg width rank (mean) | 11.4 | 11.57 |
+| 8 | Claude Opus 4.8 / 1% / [10.69, 12.08] | Avg width rank 90% interval | [10.69, 12.08] | [10.92, 12.23] |
+| 9 | Inkling / 4% / [10.85, 13.39] | Avg width rank (mean) | 12.37 | 11.71 |
+| 9 | Inkling / 4% / [10.85, 13.39] | Avg width rank 90% interval | [10.85, 13.39] | [10.46, 12.85] |
+| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Avg width rank (mean) | 13.11 | 13.21 |
+| 10 | Gemini 3 Flash / 1% / [12.38, 13.77] | Avg width rank 90% interval | [12.38, 13.77] | [12.46, 13.92] |
+| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Median center MC SE | 0.0104 | 0.0038 |
+| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Median relative width MC SE | 3% | 2% |
+| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Avg width rank (mean) | 13.48 | 11.25 |
+| 11 | Gemini 3.5 Flash / 3% / [12.84, 14.08] | Avg width rank 90% interval | [12.84, 14.08] | [10.54, 11.85] |
 | 12 | Claude Opus 5 / 3% / [12.85, 14.46] | Avg width rank (mean) | 13.67 | 13.78 |
 | 12 | Claude Opus 5 / 3% / [12.85, 14.46] | Avg width rank 90% interval | [12.85, 14.46] | [13.00, 14.62] |
 | 13 | GPT-5.6 Terra / 3% / [12.69, 14.69] | Avg width rank (mean) | 13.73 | 13.82 |
@@ -484,16 +475,10 @@ New: `this branch (regenerated)`
 | 14 | Gemini 3.1 Flash-Lite / 5% / [12.92, 14.85] | Avg width rank 90% interval | [12.92, 14.85] | [13.08, 15.08] |
 | 15 | Claude Sonnet 4.6 / 1% / [13.46, 15.23] | Avg width rank (mean) | 14.27 | 14.36 |
 | 15 | Claude Sonnet 4.6 / 1% / [13.46, 15.23] | Avg width rank 90% interval | [13.46, 15.23] | [13.53, 15.38] |
-| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Model | GPT-5.5 | GPT-5.4 |
-| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Median center MC SE | 0.0047 | 0.0 |
-| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Median relative width MC SE | 2% | 3% |
-| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Avg width rank (mean) | 15.4 | 15.58 |
-| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Avg width rank 90% interval | [14.85, 16.00] | [14.62, 16.31] |
-| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Model | GPT-5.4 | GPT-5.5 |
-| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Median center MC SE | 0.0 | 0.0047 |
-| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Median relative width MC SE | 3% | 2% |
-| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Avg width rank (mean) | 15.49 | 15.59 |
-| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Avg width rank 90% interval | [14.54, 16.23] | [15.07, 16.23] |
+| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Avg width rank (mean) | 15.4 | 15.59 |
+| 16 | GPT-5.5 / 2% / [14.85, 16.00] | Avg width rank 90% interval | [14.85, 16.00] | [15.07, 16.23] |
+| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Avg width rank (mean) | 15.49 | 15.58 |
+| 17 | GPT-5.4 / 3% / [14.54, 16.23] | Avg width rank 90% interval | [14.54, 16.23] | [14.62, 16.31] |
 | 18 | GPT-5.6 Sol / 3% / [16.69, 18.31] | Avg width rank (mean) | 17.57 | 17.67 |
 | 18 | GPT-5.6 Sol / 3% / [16.69, 18.31] | Avg width rank 90% interval | [16.69, 18.31] | [16.77, 18.38] |
 | 19 | MiniMax M3 / 9% / [16.38, 19.38] | Avg width rank (mean) | 18.04 | 18.18 |
@@ -1969,6 +1954,49 @@ New: `this branch (regenerated)`
 | 2 | gemini-3.6-flash / household.intertemporal_elasticity_of_substitution / Intertemporal elasticity of substitution | between_run_sd | 0.04346134936801766 | 0.045357070991069164 |
 | 2 | gemini-3.6-flash / household.intertemporal_elasticity_of_substitution / Intertemporal elasticity of substitution | total_sd | 0.6747255872245809 | 0.6748503486370556 |
 
+## `results/glm-5.2-8k-pilot-archive/elasticities-batch15/summary.csv` (38 cells)
+
+| line | row | column | old | new |
+|---|---|---|---|---|
+| 2 | glm-5.2 / household.intertemporal_elasticity_of_substitution / Intertemporal elasticity of substitution | between_run_sd | 0.03399346342395189 | 0.050501375118791436 |
+| 2 | glm-5.2 / household.intertemporal_elasticity_of_substitution / Intertemporal elasticity of substitution | total_sd | 0.7027437052566019 | 0.7037354251500425 |
+| 3 | glm-5.2 / household.relative_risk_aversion.crra / Coefficient of relative risk aversion | between_run_sd | 0.28674417556808757 | 0.3955340974204654 |
+| 3 | glm-5.2 / household.relative_risk_aversion.crra / Coefficient of relative risk aversion | total_sd | 6.376848043682884 | 6.382665271829803 |
+| 4 | glm-5.2 / labor_supply.extensive_margin.single_mothers / Employment participation elasticity of single mothers | between_run_sd | 0.16172679294277606 | 0.17800508419705321 |
+| 4 | glm-5.2 / labor_supply.extensive_margin.single_mothers / Employment participation elasticity of single mothers | total_sd | 0.720553517944519 | 0.7243808574684085 |
+| 5 | glm-5.2 / labor_supply.frisch_elasticity.prime_age / Frisch elasticity of labor supply | between_run_sd | 0.0679869268479038 | 0.061655066476504754 |
+| 5 | glm-5.2 / labor_supply.frisch_elasticity.prime_age / Frisch elasticity of labor supply | total_sd | 1.269145409101906 | 1.2688219711387585 |
+| 7 | glm-5.2 / labor_supply.marshallian_wage_elasticity.prime_age / Uncompensated wage elasticity of labor supply | between_run_sd | 0.038586123009300755 | 0.039706093850804425 |
+| 7 | glm-5.2 / labor_supply.marshallian_wage_elasticity.prime_age / Uncompensated wage elasticity of labor supply | total_sd | 0.6072391175091846 | 0.6073113129469377 |
+| 8 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.all / Substitution elasticity of labor supply in a tax-benefit simulation | between_run_sd | 0.02211083193570266 | 0.01974729236010739 |
+| 8 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.all / Substitution elasticity of labor supply in a tax-benefit simulation | total_sd | 0.629050813836918 | 0.6289721719246055 |
+| 9 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_1 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 1 | between_run_sd | 0.04422166387140533 | 0.043618058186948215 |
+| 9 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_1 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 1 | total_sd | 0.6351130575207325 | 0.635071315111758 |
+| 10 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_10 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 10 | between_run_sd | 0.062489110162402606 | 0.06268668563224215 |
+| 10 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_10 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 10 | total_sd | 0.6379885154399986 | 0.6380078976783908 |
+| 11 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_2 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 2 | between_run_sd | 0.03858612300930075 | 0.03461849216820398 |
+| 11 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_2 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 2 | total_sd | 0.6319355924898957 | 0.6317057417553419 |
+| 12 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_4 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 4 | between_run_sd | 0.023228335186912454 | 0.022351149610006397 |
+| 12 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_4 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 4 | total_sd | 0.6299495239920242 | 0.6299177891686432 |
+| 13 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_5 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 5 | between_run_sd | 0.03480740661921763 | 0.03048103235347079 |
+| 13 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_5 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 5 | total_sd | 0.6320934035673315 | 0.631869930136821 |
+| 14 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_6 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 6 | between_run_sd | 0.044 | 0.03772084599027734 |
+| 14 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_6 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 6 | total_sd | 0.6335979622582272 | 0.6331928932008002 |
+| 16 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_8 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 8 | between_run_sd | 0.024494897427831775 | 0.020596884877734957 |
+| 16 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.primary.decile_8 / Primary-earner substitution elasticity in a tax-benefit simulation, decile 8 | total_sd | 0.6302276583813892 | 0.6300881946644895 |
+| 17 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.secondary / Secondary-earner substitution elasticity in a tax-benefit simulation | between_run_sd | 0.09030811456096045 | 0.0863899428302984 |
+| 17 | glm-5.2 / labor_supply.policy_response.substitution_elasticity.secondary / Secondary-earner substitution elasticity in a tax-benefit simulation | total_sd | 0.6402773650275845 | 0.6397364854636113 |
+| 18 | glm-5.2 / production.capital_labor_substitution / Elasticity of substitution between capital and labor | between_run_sd | 0.08096638534327415 | 0.08271713849015816 |
+| 18 | glm-5.2 / production.capital_labor_substitution / Elasticity of substitution between capital and labor | total_sd | 1.2525182550233218 | 1.2526326471121176 |
+| 19 | glm-5.2 / production.capital_share / Capital share in production | between_run_sd | 0.009428090415820616 | 0.009545941546018413 |
+| 19 | glm-5.2 / production.capital_share / Capital share in production | total_sd | 0.11143302672208291 | 0.11144305970115662 |
+| 20 | glm-5.2 / tax.capital_gains_realizations.elasticity / Capital gains realizations elasticity | between_run_sd | 0.16996731711975946 | 0.16102536032149303 |
+| 20 | glm-5.2 / tax.capital_gains_realizations.elasticity / Capital gains realizations elasticity | total_sd | 1.37066133672764 | 1.3695812417588735 |
+| 21 | glm-5.2 / tax.elasticity_of_taxable_income.top_earners / Elasticity of taxable income | between_run_sd | 0.0 | 0.004942727542112293 |
+| 21 | glm-5.2 / tax.elasticity_of_taxable_income.top_earners / Elasticity of taxable income | total_sd | 0.6746210510353202 | 0.6746391576654557 |
+| 22 | glm-5.2 / trade.armington_elasticity.import_domestic / Armington elasticity | between_run_sd | 0.4714045207910317 | 0.4771020738677299 |
+| 22 | glm-5.2 / trade.armington_elasticity.import_domestic / Armington elasticity | total_sd | 2.7178655330158548 | 2.7188595444086885 |
+
 ## `results/glm-5.2-armington-clarify-batch15/summary.csv` (2 cells)
 
 | line | row | column | old | new |
@@ -3423,8 +3451,8 @@ New: `this branch (regenerated)`
 +| Implied optimal top rate (%) | 35.843 (24) | 32.942 (7) | -2.901 | 0.126 | 0.237* | 0.139* |
 +| ETI pooled median | 0.421 (24) | 0.479 (7) | +0.058 | 0.105 | 0.237 | 0.139 |
 +| Avg interval-width rank (1 = tightest) | 13.865 (24) | 20.462 (7) | +6.596 | 0.055 | 0.222 | 0.139 |
-+| Mean |center|, labor-and-tax | 0.368 (24) | 0.334 (7) | -0.034 | 0.079 | 0.237 | 0.139 |
-+| Mean |center|, macro-and-trade | 1.162 (24) | 1.038 (7) | -0.124 | 0.168 | 0.237 | 0.168 |
++| Mean \|center\|, labor-and-tax | 0.368 (24) | 0.334 (7) | -0.034 | 0.079 | 0.237 | 0.139 |
++| Mean \|center\|, macro-and-trade | 1.162 (24) | 1.038 (7) | -0.124 | 0.168 | 0.237 | 0.168 |
 ```
 
 ## `paper/tables/correlates-model-summary.md` (Markdown)
@@ -3684,15 +3712,15 @@ New: `this branch (regenerated)`
 -| Tax within-$1 (domain-matched) | Mean |center|, labor-and-tax | 28 | 0.085 | 0.665 | 1.000 | 0.760 | 8 | no |
 -| Tax within-$1 (domain-matched) | Mean |center|, macro-and-trade | 28 | 0.236 | 0.227 | 1.000 | 0.453 | 8 | no |
 -| Tax within-$1 (domain-matched) | Avg interval-width rank (1 = tightest) | 28 | -0.274 | 0.158 | 0.949 | 0.422 | 8 | no |
-+| Tax within-$1 (domain-matched) | Mean |center|, labor-and-tax | 28 | 0.074 | 0.704 | 1.000 | 0.805 | 8 | no |
-+| Tax within-$1 (domain-matched) | Mean |center|, macro-and-trade | 28 | 0.237 | 0.223 | 1.000 | 0.446 | 8 | no |
++| Tax within-$1 (domain-matched) | Mean \|center\|, labor-and-tax | 28 | 0.074 | 0.704 | 1.000 | 0.805 | 8 | no |
++| Tax within-$1 (domain-matched) | Mean \|center\|, macro-and-trade | 28 | 0.237 | 0.223 | 1.000 | 0.446 | 8 | no |
 +| Tax within-$1 (domain-matched) | Avg interval-width rank (1 = tightest) | 28 | -0.254 | 0.193 | 1.000 | 0.446 | 8 | no |
 @@ -10,3 +10,3 @@
 -| Overall within-$1 (leaderboard headline) | Mean |center|, labor-and-tax | 28 | 0.021 | 0.915 | 1.000 | 0.915 | 8 | no |
 -| Overall within-$1 (leaderboard headline) | Mean |center|, macro-and-trade | 28 | 0.115 | 0.555 | 1.000 | 0.739 | 8 | no |
 -| Overall within-$1 (leaderboard headline) | Avg interval-width rank (1 = tightest) | 28 | -0.180 | 0.357 | 1.000 | 0.571 | 8 | no |
-+| Overall within-$1 (leaderboard headline) | Mean |center|, labor-and-tax | 28 | 0.014 | 0.942 | 1.000 | 0.942 | 8 | no |
-+| Overall within-$1 (leaderboard headline) | Mean |center|, macro-and-trade | 28 | 0.118 | 0.546 | 1.000 | 0.728 | 8 | no |
++| Overall within-$1 (leaderboard headline) | Mean \|center\|, labor-and-tax | 28 | 0.014 | 0.942 | 1.000 | 0.942 | 8 | no |
++| Overall within-$1 (leaderboard headline) | Mean \|center\|, macro-and-trade | 28 | 0.118 | 0.546 | 1.000 | 0.728 | 8 | no |
 +| Overall within-$1 (leaderboard headline) | Avg interval-width rank (1 = tightest) | 28 | -0.167 | 0.394 | 1.000 | 0.630 | 8 | no |
 ```
 

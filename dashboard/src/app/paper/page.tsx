@@ -98,7 +98,7 @@ export default function PaperPage(): ReactNode {
                 color: "var(--muted-foreground)",
               }}
             >
-              31-model panel · 2026-08-08 · Max Ghenis, PolicyEngine
+              31-model panel · corrected 2026-09-27 · Max Ghenis, PolicyEngine
             </span>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
