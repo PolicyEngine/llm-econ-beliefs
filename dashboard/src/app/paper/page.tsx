@@ -7,7 +7,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 // Bump on every manuscript revision, in lockstep everywhere this page
 // links the render (tests/test_paper_embed.py locks the lockstep).
-const PAPER_VERSION = "n31-corrected-20260927";
+const PAPER_VERSION = "n31-corrected-20261118";
 
 const STANDALONE_HREF = `${basePath}/paper/web/index.html?v=${PAPER_VERSION}`;
 const PDF_HREF = `${basePath}/paper/web/index.pdf?v=${PAPER_VERSION}`;
@@ -88,7 +88,7 @@ export default function PaperPage(): ReactNode {
             matches the live site — the 31-model panel with capability
             correlates pinned to PolicyBench release dashboard-data-20260805
             — and every number in it is verified against the committed
-            tables by a 131-check prose gate.
+            tables by a 149-check prose gate.
           </p>
           <p className="mt-3">
             <span

@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.23">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>How Large Language Models Answer Questions About Economic Elasticities</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -30,13 +33,13 @@ ul.task-list li input[type="checkbox"] {
 <script src="paper_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="paper_files/libs/quarto-html/anchor.min.js"></script>
 <link href="paper_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="paper_files/libs/quarto-html/quarto-syntax-highlighting-226bd0f977fa82dfae4534cac220d79a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="paper_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="paper_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="paper_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="paper_files/libs/bootstrap/bootstrap-be9206a58a27969b3ea3001da8f26fef.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="paper_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -49,7 +52,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -99,11 +102,11 @@ window.Quarto = {
 </div>
 <section id="correction-2026-09-27" class="level2">
 <h2 class="anchored" data-anchor-id="correction-2026-09-27">Correction (2026-09-27)</h2>
-<p>This version corrects three errors in the paper as previously posted and flags one open item. <code>paper/corrections/2026-09-25-changed-numbers.md</code> lists every changed table cell (2,762 cells across 138 files).</p>
-<p><strong>Sign artifact.</strong> When a response did not parse as JSON, the published parser fell back to reading the quantiles out of the text with a pattern that treated a minus sign as separator filler and kept only the digits. Reparsing every retained raw answer with the corrected parser changes 45 main-panel runs (37 for <code>Gemini 3.5 Flash</code>, 4 for <code>Inkling</code>, and 1 each for <code>GLM-5.2</code>, <code>Kimi K2.6</code>, <code>Kimi K3</code>, and <code>MiniMax M3</code>); 11 of them change sign, and panel-wide quantile repairs fall from 27 to 7. The Gemini 3.5 Flash bimodality finding is withdrawn: all 30 of its runs on the two sign-sensitive quantities are negative, with corrected centers of <code>-0.55</code> for capital gains realizations and <code>-0.030</code> for the income elasticity (published: <code>+0.010</code> and <code>+0.011</code>). Two other capital-gains centers move, <code>Inkling</code> from <code>-0.367</code> to <code>-0.480</code> and <code>Kimi K2.6</code> from <code>-0.390</code> to <code>-0.453</code>. Downstream, capital-gains centers lie inside the review band for 31 of 31 models (Table 3), Gemini 3.5 Flash’s implied-tau row in Appendix Table A9 receives a band, and the US-lab versus Chinese-lab width and center contrasts in Table 7 move from raw <span class="math inline">\(p = 0.029\)</span> and <span class="math inline">\(0.027\)</span> to <span class="math inline">\(0.055\)</span> and <span class="math inline">\(0.079\)</span>.</p>
-<p><strong>Between-run variance.</strong> The between-run term of the Appendix Table A15 decomposition, and the post-hoc run-consistency correlates built on it, used the variance of run medians in place of the variance of run means. Both now use run means. The reported center, the mean of run medians, is unchanged, and the headline pooled intervals do not depend on this term. A cell in which a run lacks full quantiles falls back to a normal approximation built from the total SD, so a few clarify-probe intervals in Appendix Tables A7 and A8 move slightly.</p>
+<p>This version corrects four errors in the paper as previously posted and flags two open items. <code>paper/corrections/2026-09-25-changed-numbers.md</code> lists every changed table cell (2,784 cells across 120 CSV files, plus line diffs for 19 Markdown tables).</p>
+<p><strong>Parser fallback.</strong> When a response did not parse as JSON, the published parser fell back to reading numbers out of the text, with two defects. It treated a minus sign as separator filler and kept only the digits, and it took the point estimate from the first number after words such as “around” or “roughly” in the prose, ahead of the stated median. Reparsing every retained raw answer in the results directories with the corrected parser changes 45 main-panel runs (37 for <code>Gemini 3.5 Flash</code>, 4 for <code>Inkling</code>, and 1 each for <code>GLM-5.2</code>, <code>Kimi K2.6</code>, <code>Kimi K3</code>, and <code>MiniMax M3</code>): 20 had lost a minus sign, 11 of which change the sign of their point estimate, and 25 carried a point estimate read from prose. Panel-wide quantile repairs fall from 27 to 7, and 23 main-panel centers move, 5 of them through a lost sign. The Gemini 3.5 Flash bimodality finding is withdrawn: all 30 of its runs on the two sign-sensitive quantities are negative, with corrected centers of <code>-0.55</code> for capital gains realizations and <code>-0.030</code> for the income elasticity (published: <code>+0.010</code> and <code>+0.011</code>). Two other capital-gains centers move through a lost sign, <code>Inkling</code> from <code>-0.367</code> to <code>-0.480</code> and <code>Kimi K2.6</code> from <code>-0.390</code> to <code>-0.453</code>. The prose defect moves <code>Kimi K3</code>’s net-of-tax-rate capital-gains center from <code>0.850</code> to <code>0.717</code> and 17 other centers by at most <code>0.053</code>. It also changed two <code>Gemini 3.5 Flash</code> Armington clarify-probe runs, moving that model’s clarified center in Appendix Table A7 from <code>1.387</code> to <code>1.453</code>. Downstream, capital-gains centers lie inside the review band for 31 of 31 models (Table 3), Gemini 3.5 Flash’s implied-tau row in Appendix Table A9 receives a band, and the US-lab versus Chinese-lab width and center contrasts in Table 7 move from raw <span class="math inline">\(p = 0.029\)</span> and <span class="math inline">\(0.027\)</span> to <span class="math inline">\(0.055\)</span> and <span class="math inline">\(0.079\)</span>.</p>
+<p><strong>Between-run variance.</strong> The between-run term of the Appendix Table A15 decomposition, and the post-hoc run-consistency correlates built on it, used the variance of run medians in place of the variance of run means. Both now use run means. The reported center, the mean of run medians, is unchanged, and the headline pooled intervals do not depend on this term. A cell in which a run lacks full quantiles falls back to a normal approximation built from the total SD, so a few clarify-probe intervals in Appendix Tables A7 and A8 move slightly, as does one interval in Appendix Table A18.</p>
 <p><strong>Sample count.</strong> The Data section stated 11,310 successful main-panel runs, the count for the 29-model panel (29 × 26 × 15). The 31-model panel holds 12,090 (31 × 26 × 15), as the abstract already stated.</p>
-<p><strong>Open item.</strong> One main-panel run, <code>Gemini 3.5 Flash</code> on the intertemporal elasticity of substitution (run 2), wrote its numbers with spaces inside them (“0 .1”, “0 .5”, “1 .0”); the published parser stored its quantiles as <code>[0, 0, 1, 1, 2]</code>, and the corrected parser rejects the run. It is retained as originally parsed and listed in <code>tests/fixtures/stale_cached_rows.json</code> pending a methodology call, alongside eight clarify-probe rows (<code>Gemini 3 Flash</code>, <code>Gemini 3.1 Pro</code>, <code>Inkling</code>) the corrected parser also rejects for missing quantiles. Dropping the run would move that cell’s center from <code>0.987</code> to <code>0.986</code>. The other 12,089 main-panel runs reparse to their stored values.</p>
+<p><strong>Open items.</strong> Nine retained rows do not reparse under the corrected parser. They are kept as originally parsed and listed in <code>tests/fixtures/stale_cached_rows.json</code> pending a methodology call. One is a main-panel run, <code>Gemini 3.5 Flash</code> on the intertemporal elasticity of substitution (run 2), which wrote its numbers with spaces inside them (“0 .1”, “0 .5”, “1 .0”); the published parser stored its quantiles as <code>[0, 0, 1, 1, 2]</code>. Dropping it would move that cell’s center from <code>0.987</code> to <code>0.986</code>. The other eight are clarify-probe rows (<code>Gemini 3 Flash</code>, <code>Gemini 3.1 Pro</code>, <code>Inkling</code>) that lack full quantiles. Two of them state no point estimate at all, so their stored center is a number read from prose, the defect above: <code>Inkling</code>’s Armington run 13 and <code>Gemini 3.1 Pro</code>’s IES run 15. Dropping them would move <code>Inkling</code>’s clarified center in Appendix Table A7 from <code>1.480</code> to <code>1.529</code>, and <code>Gemini 3.1 Pro</code>’s clarified IES center in Appendix Table A8, which rests on four parsed runs, from <code>0.625</code> to <code>0.500</code>. The other 12,089 main-panel runs reparse to their stored values. Separately, Appendix Tables A18 and A19 read the superseded April 19 elicitations from git history, and those were not reparsed. The corrected parser changes 3 and rejects 5 of the 15 <code>Gemini 3.1 Pro</code> net-of-tax-rate runs there, so that model’s rows in both tables still carry the published parser’s reading; the other sign-clarified April 19 cells reparse unchanged.</p>
 </section>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
@@ -253,9 +256,9 @@ F_{mk}(x) = \frac{1}{R} \sum_{r=1}^{R} G_{mkr}(x),
 <li>31 models from ten organizations (11 elicited April 2026, 18 elicited July 2026 in four waves, 2 elicited August 2026)</li>
 <li>26 quantities (9 canonical elasticities plus 1 capital-gains convention sibling, 3 preference/macro objects, 1 TFP persistence, and 12 PolicyEngine simulation-facing coefficients)</li>
 <li>15 runs per model-quantity cell</li>
-<li>12,090 successful main-panel runs at 100% parse rate across all cells, verified by an exact-grid checker (<code>scripts/check_panel_grid.py</code>) that every cell holds exactly 15 parsed runs</li>
+<li>12,090 successful main-panel runs, every one accepted as parsed at collection, verified by an exact-grid checker (<code>scripts/check_panel_grid.py</code>) that every cell holds exactly 15 parsed runs; under the corrected parser 12,089 reparse (see the correction note)</li>
 </ul>
-<p>Success rates are uniformly 100% under v4: every planned run for every model-quantity cell parsed cleanly into structured JSON. Under the earlier v3 panel a single model (<code>grok-4.20</code>) had a 12% structured-output failure rate that affected 38 runs; that failure mode did not recur in the v4 rerun. In the July 2026 extension, 58 runs (2.3% of the extension) initially failed on infrastructure errors — empty responses from <code>gpt-5.5</code> exhausting its completion budget on reasoning, missing forced tool calls from <code>grok-4.3</code>, three <code>claude-sonnet-5</code> responses exceeding a 32,000-token output cap, one transient schema-compilation error, and one safety-classifier false positive. I re-elicited those slots as fresh independent draws under the identical prompts. A per-cell manifest (<code>results/failure-manifest.csv</code>) records every replaced slot with its error class and replacement request IDs, and the re-elicitation script now archives failed records before replacing them (this archiving postdates the July round, whose audit trail is the manifest plus the retained request logs; because the July replacement happened in place, a per-slot include-versus-exclude sensitivity is not reconstructible for that round). The failures are infrastructure artifacts, not content, but two caveats keep the claim honest: truncation-type failures correlate with response length, so replacement is not provably independent of elicited values; and the two <code>gpt-5.5</code> capital-gains cells failed in full at the original 1,200-token budget and reran entirely at an 8,000-token budget, a disclosed within-cell protocol change. All other affected cells replaced at most 5 of 15 runs — under identical settings for the <code>claude-sonnet-5</code> and <code>grok-4.3</code> slots, and at the same raised 8,000-token budget for the two partially affected <code>gpt-5.5</code> cells.</p>
+<p>Every planned v4 run for every model-quantity cell was accepted as parsed at collection. Not every accepted answer was clean JSON: some were read from text by the parser fallback that the correction note describes, and one of those does not reparse under the corrected parser. Under the earlier v3 panel a single model (<code>grok-4.20</code>) had a 12% structured-output failure rate that affected 38 runs; that failure mode did not recur in the v4 rerun. In the July 2026 extension, 58 runs (2.3% of the extension) initially failed on infrastructure errors — empty responses from <code>gpt-5.5</code> exhausting its completion budget on reasoning, missing forced tool calls from <code>grok-4.3</code>, three <code>claude-sonnet-5</code> responses exceeding a 32,000-token output cap, one transient schema-compilation error, and one safety-classifier false positive. I re-elicited those slots as fresh independent draws under the identical prompts. A per-cell manifest (<code>results/failure-manifest.csv</code>) records every replaced slot with its error class and replacement request IDs, and the re-elicitation script now archives failed records before replacing them (this archiving postdates the July round, whose audit trail is the manifest plus the retained request logs; because the July replacement happened in place, a per-slot include-versus-exclude sensitivity is not reconstructible for that round). The failures are infrastructure artifacts, not content, but two caveats keep the claim honest: truncation-type failures correlate with response length, so replacement is not provably independent of elicited values; and the two <code>gpt-5.5</code> capital-gains cells failed in full at the original 1,200-token budget and reran entirely at an 8,000-token budget, a disclosed within-cell protocol change. All other affected cells replaced at most 5 of 15 runs — under identical settings for the <code>claude-sonnet-5</code> and <code>grok-4.3</code> slots, and at the same raised 8,000-token budget for the two partially affected <code>gpt-5.5</code> cells.</p>
 <p>The five Chinese-lab models required a longer recovery. Their OpenRouter elicitation hit an account credit ceiling partway through the first pass, and two later passes ran through local network outages that returned DNS failures; every failed slot was re-elicited as a fresh independent draw under the identical prompt, and the re-elicitation script archived all replaced records — <code>4,168</code> failure records across the five final-panel model directories (<code>failed-runs-archive.jsonl</code> per directory; the archived <code>glm-5.2</code> pilot described below holds <code>151</code> more; the later <code>grok-4.5</code>, <code>kimi-k3</code>, and <code>claude-opus-5</code> additions archived <code>1</code>, <code>5</code>, and <code>2</code> re-elicited slots under the same protocol; and the August additions archived <code>220</code> records for <code>qwen3.8-max</code> and <code>1,349</code> for <code>inkling</code>, almost all transport failures from local network outages during their elicitation day, plus nine <code>inkling</code> responses that parsed but omitted the elicited quantiles — a failure mode no earlier panel model produced, now rejected by the parser and re-elicited like any other failed slot) — before an exact-grid checker verified 15 parsed runs in every cell. Two disclosures from that recovery: <code>glm-5.2</code> returned empty, no-JSON-content responses — consistent with reasoning exhausting its 8,000-token completion budget, the failure class the larger budget eliminated — in 109 of its first 390 draws, so its entire main panel reran fresh under a single 16,000-token protocol (the mixed-budget first pass is retained as a pilot archive and enters no analysis), and <code>kimi-k2.6</code>’s full 390-run main panel was re-elicited after a network-outage pass replaced its first draws — its published cell therefore comes entirely from the final pass. The failure classes are infrastructure artifacts (credit exhaustion, DNS resolution, empty reasoning-exhausted responses), not content, with the same caveat as above: truncation-type failures correlate with response length, so replacement is not provably independent of elicited values.</p>
 <p>Tracked API cost at the model-total level for the April panel, sorted by decreasing spend:</p>
 <ul>
@@ -1653,25 +1656,25 @@ F_{mk}(x) = \frac{1}{R} \sum_{r=1}^{R} G_{mkr}(x),
 <tbody>
 <tr class="odd">
 <td>Tax within-$1 (domain-matched)</td>
-<td>Mean</td>
-<td>center</td>
-<td>, labor-and-tax</td>
+<td>Mean |center|, labor-and-tax</td>
 <td>28</td>
 <td>0.074</td>
 <td>0.704</td>
 <td>1.000</td>
 <td>0.805</td>
+<td>8</td>
+<td>no</td>
 </tr>
 <tr class="even">
 <td>Tax within-$1 (domain-matched)</td>
-<td>Mean</td>
-<td>center</td>
-<td>, macro-and-trade</td>
+<td>Mean |center|, macro-and-trade</td>
 <td>28</td>
 <td>0.237</td>
 <td>0.223</td>
 <td>1.000</td>
 <td>0.446</td>
+<td>8</td>
+<td>no</td>
 </tr>
 <tr class="odd">
 <td>Tax within-$1 (domain-matched)</td>
@@ -1708,25 +1711,25 @@ F_{mk}(x) = \frac{1}{R} \sum_{r=1}^{R} G_{mkr}(x),
 </tr>
 <tr class="even">
 <td>Overall within-$1 (leaderboard headline)</td>
-<td>Mean</td>
-<td>center</td>
-<td>, labor-and-tax</td>
+<td>Mean |center|, labor-and-tax</td>
 <td>28</td>
 <td>0.014</td>
 <td>0.942</td>
 <td>1.000</td>
 <td>0.942</td>
+<td>8</td>
+<td>no</td>
 </tr>
 <tr class="odd">
 <td>Overall within-$1 (leaderboard headline)</td>
-<td>Mean</td>
-<td>center</td>
-<td>, macro-and-trade</td>
+<td>Mean |center|, macro-and-trade</td>
 <td>28</td>
 <td>0.118</td>
 <td>0.546</td>
 <td>1.000</td>
 <td>0.728</td>
+<td>8</td>
+<td>no</td>
 </tr>
 <tr class="even">
 <td>Overall within-$1 (leaderboard headline)</td>
@@ -1816,21 +1819,21 @@ F_{mk}(x) = \frac{1}{R} \sum_{r=1}^{R} G_{mkr}(x),
 <td>0.139</td>
 </tr>
 <tr class="even">
-<td>Mean</td>
-<td>center</td>
-<td>, labor-and-tax</td>
+<td>Mean |center|, labor-and-tax</td>
 <td>0.368 (24)</td>
 <td>0.334 (7)</td>
 <td>-0.034</td>
 <td>0.079</td>
+<td>0.237</td>
+<td>0.139</td>
 </tr>
 <tr class="odd">
-<td>Mean</td>
-<td>center</td>
-<td>, macro-and-trade</td>
+<td>Mean |center|, macro-and-trade</td>
 <td>1.162 (24)</td>
 <td>1.038 (7)</td>
 <td>-0.124</td>
+<td>0.168</td>
+<td>0.237</td>
 <td>0.168</td>
 </tr>
 </tbody>
@@ -5981,13 +5984,14 @@ F_{mk}(x) = \frac{1}{R} \sum_{r=1}^{R} G_{mkr}(x),
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
