@@ -1790,7 +1790,7 @@ def verify_correction_note() -> None:
 
     replay_exact = replay_main = 0
     replay_rejected: list[str] = []
-    for path in sorted(results.glob("*/runs.jsonl")):
+    for path in sorted(results.rglob("runs.jsonl")):
         relative = path.relative_to(REPO_ROOT).as_posix()
         for number, line in enumerate(path.read_text().splitlines(), 1):
             if not line.strip():

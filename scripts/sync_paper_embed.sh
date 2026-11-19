@@ -13,12 +13,15 @@ for marker in 'id="TOC"' 'id="refs"' 'class="header-section-number"'; do
     exit 1
   fi
 done
-# The PDF needs the same config and must come from the same manuscript:
-# resolved references leave one cite.ref-* link target per reference, and its
-# numbered sections and subsections pair one to one with the HTML's.
+# The PDF needs the same config: resolved references leave one cite.ref-* link
+# target per reference. Its numbered sections and subsections must also pair
+# one to one with the HTML's, which rejects a PDF whose numbered outline
+# differs. A PDF from another version with the same outline still passes, and
+# only paper.qmd's time is compared below, so render both outputs after any
+# change to the manuscript or the tables it includes.
 for output in paper/paper.html paper/paper.pdf; do
   if [ ! "$output" -nt paper/paper.qmd ]; then
-    echo "$output is older than paper/paper.qmd: render again before syncing" >&2
+    echo "$output is missing or not newer than paper/paper.qmd: render again before syncing" >&2
     exit 1
   fi
 done

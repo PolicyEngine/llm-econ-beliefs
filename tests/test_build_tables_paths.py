@@ -13,6 +13,8 @@ import csv
 import io
 from pathlib import Path
 
+import pytest
+
 from paper import build_tables
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,8 +39,31 @@ def test_resolve_source_dir_points_into_this_checkout() -> None:
         "/elsewhere/llm-econ-beliefs/results/gpt-5.4-elasticities-batch15",
         "C:\\elsewhere\\llm-econ-beliefs\\results\\gpt-5.4-elasticities-batch15",
         "results/gpt-5.4-elasticities-batch15",
+        "results/gpt-5.4-elasticities-batch15/",
+        # A "results" substring elsewhere, or a results/ directory above the
+        # checkout, must not move the anchor.
+        "/elsewhere/old-results/llm-econ-beliefs/results/gpt-5.4-elasticities-batch15",
+        "/ci/results/llm-econ-beliefs/results/gpt-5.4-elasticities-batch15",
     ):
         assert build_tables.resolve_source_dir(recorded) == str(results / "gpt-5.4-elasticities-batch15")
+    assert build_tables.resolve_source_dir(
+        "/elsewhere/llm-econ-beliefs/results/glm-5.2-8k-pilot-archive/elasticities-batch15"
+    ) == str(results / "glm-5.2-8k-pilot-archive" / "elasticities-batch15")
+    assert build_tables.resolve_source_dir("/elsewhere/llm-econ-beliefs/results/x-results/y") == str(
+        results / "x-results" / "y"
+    )
+
+
+@pytest.mark.parametrize(
+    "recorded",
+    [
+        "/elsewhere/llm-econ-beliefs/gpt-5.4-elasticities-batch15",
+        "C:\\elsewhere\\llm-econ-beliefs\\gpt-5.4-elasticities-batch15",
+    ],
+)
+def test_resolve_source_dir_refuses_paths_it_cannot_place(recorded: str) -> None:
+    with pytest.raises(ValueError):
+        build_tables.resolve_source_dir(recorded)
 
 
 def test_comparison_rows_resolve_to_existing_run_directories() -> None:

@@ -68,7 +68,8 @@ def test_synced_pdf_applied_the_project_config() -> None:
     # one cite.ref-* named destination per reference and numbered sections
     # leave section.N destinations; a render without _quarto.yml has neither.
     # Its numbered sections and subsections pair one to one with the HTML's,
-    # so a PDF from an older manuscript with a different outline fails too.
+    # so a PDF whose numbered outline differs fails too. One from another
+    # version with the same numbered outline is not caught here.
     pdf = WEB / "index.pdf"
     assert pdf.read_bytes() == (REPO_ROOT / "paper" / "paper.pdf").read_bytes()
     streams = _inflated_pdf_streams(pdf)

@@ -1639,12 +1639,19 @@ def resolve_source_dir(source_dir: str) -> str:
     The comparison CSV records each directory as an absolute path into the
     checkout that generated it. Read as written, a build from any other
     checkout (a worktree, CI, a fresh clone) would load that checkout's runs.
+    The run directory is everything from the last path component named
+    ``results`` on, so a checkout whose own path has a ``results`` directory
+    still resolves. An absolute path with no such component cannot be placed
+    in this checkout and raises rather than being read as written.
     """
-    marker = source_dir.replace("\\", "/").rfind("results/")
-    if marker >= 0:
-        return str(REPO_ROOT / source_dir.replace("\\", "/")[marker:])
-    path = Path(source_dir)
-    return str(path if path.is_absolute() else REPO_ROOT / path)
+    normalized = source_dir.replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part]
+    if "results" in parts:
+        start = len(parts) - 1 - parts[::-1].index("results")
+        return str(REPO_ROOT.joinpath(*parts[start:]))
+    if normalized.startswith("/") or re.match(r"[A-Za-z]:/", normalized):
+        raise ValueError(f"run directory {source_dir!r} has no results/ component")
+    return str(REPO_ROOT / normalized)
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
