@@ -200,8 +200,9 @@ calibration to `results/top-rate-calibration.json`, which
 `results/correlates-*.csv`, which `build_tables.py` in turn reformats
 into `paper/tables/`. Starting from the committed artifacts, the
 sequence above is a fixed point — `git status` stays clean — and
-`verify_paper_prose.py` then asserts every pinned number in
-`paper/paper.qmd` against the regenerated tables.
+`verify_paper_prose.py` then checks the numbers it pins in
+`paper/paper.qmd` against the regenerated tables and run data. It covers
+many of the paper's numbers, not all of them.
 
 Two tables (Table 4 and Appendix A13) calibrate a Pareto tail from
 PolicyEngine US microdata. Point `POLICYENGINE_US_REPO` at a

@@ -1,9 +1,14 @@
-"""Assert that paper prose matches the committed tables.
+"""Assert that paper prose matches the committed tables and run data.
 
-Every check reads a number or a model-name superlative from
-``paper/tables/*.csv`` and asserts the corresponding claim in
-``paper/paper.qmd``. Run after any table regeneration; a nonzero exit
-means the prose and the committed build have desynchronized.
+Most checks read a number or a model-name superlative from
+``paper/tables/*.csv`` and assert the corresponding claim in
+``paper/paper.qmd``. The correction-note checks recompute their values from
+``results/*/runs.jsonl`` and git history, and ``verify_cited_tables_fresh``
+rebuilds the tables the correction note cites and compares them with the
+committed CSVs and Markdown. Checks match sentence fragments built from those
+values, so wording outside the fragments is not checked. Run after any table
+regeneration; a nonzero exit means the prose and the committed build have
+desynchronized.
 
 Usage:
     .venv/bin/python scripts/verify_paper_prose.py
@@ -22,9 +27,11 @@ PAPER = (REPO_ROOT / "paper" / "paper.qmd").read_text()
 TABLES = REPO_ROOT / "paper" / "tables"
 
 FAILURES: list[str] = []
+CHECKS_RUN = [0]
 
 
 def check(label: str, condition: bool, detail: str = "") -> None:
+    CHECKS_RUN[0] += 1
     if condition:
         print(f"  ok: {label}")
     else:
@@ -1512,6 +1519,75 @@ def verify_correction_note() -> None:
         f"{len(sign_sensitive)} of its runs on the two sign-sensitive quantities are negative" in note,
         f"got {len(sign_sensitive)} runs, {sum(v < 0 for v in sign_sensitive)} negative",
     )
+    # The results section restates the replacement finding; the withdrawn
+    # bimodality reading appears only where the paper says it was withdrawn.
+    gemini_runs = [
+        json.loads(line)
+        for line in (results / "gemini-3.5-flash-elasticities-batch15" / "runs.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
+
+    with (results / "gemini-3.5-flash-elasticities-batch15" / "summary.csv").open() as handle:
+        gemini_centers = {r["quantity_id"]: float(r["pooled_point_estimate"]) for r in csv.DictReader(handle)}
+    cg_center = f"{gemini_centers['tax.capital_gains_realizations.elasticity']:.2f}"
+    income_center = f"{gemini_centers['labor_supply.income_elasticity.prime_age']:.3f}"
+
+    def gemini_span(quantity: str) -> str:
+        values = [r["point_estimate"] for r in gemini_runs if r["quantity_id"] == quantity]
+        return f"between `{min(values):g}` and `{max(values):g}`"
+
+    sign_sensitive_ids = ("tax.capital_gains_realizations.elasticity", "labor_supply.income_elasticity.prime_age")
+    panel_centers = []
+    for path in sorted(results.glob("*-elasticities-batch15/summary.csv")):
+        with path.open() as handle:
+            panel_centers += [
+                float(r["pooled_point_estimate"]) for r in csv.DictReader(handle) if r["quantity_id"] in sign_sensitive_ids
+            ]
+    check(
+        "results section restates the corrected Gemini 3.5 Flash finding",
+        len(panel_centers) == 2 * len(list(results.glob("*-elasticities-batch15/summary.csv")))
+        and all(value < 0 for value in panel_centers)
+        and "Every model's pooled center is negative on both sign-sensitive quantities. "
+        "`gemini-3.5-flash` returns fifteen negative runs on each" in PAPER
+        and PAPER.count("bimodal") == 2
+        and "The Gemini 3.5 Flash bimodality finding is withdrawn" in note
+        and "`gemini-3.5-flash` returns fifteen negative runs on each: its capital-gains runs lie "
+        f"{gemini_span('tax.capital_gains_realizations.elasticity')} (center `{cg_center}`, inside the band) and "
+        f"its income-elasticity runs {gemini_span('labor_supply.income_elasticity.prime_age')} (center "
+        f"`{income_center}`, just above the band), with zero quantile repairs. (An earlier version of this paper "
+        "described `gemini-3.5-flash` as bimodal on these two quantities; the correction note above traces "
+        "the positive runs to a parser that dropped minus signs.)" in PAPER
+        and f"corrected centers of `{cg_center}` for capital gains realizations and `{income_center}` for "
+        "the income elasticity" in note
+        and not any(
+            r.get("quantiles_repaired")
+            for r in gemini_runs
+            if r["quantity_id"]
+            in ("tax.capital_gains_realizations.elasticity", "labor_supply.income_elasticity.prime_age")
+        ),
+        f"bimodal x{PAPER.count('bimodal')}",
+    )
+    # The successor model restated beside it, from its own run data.
+    successor_dir = results / "gemini-3.6-flash-elasticities-batch15"
+    successor_runs = [
+        json.loads(line) for line in (successor_dir / "runs.jsonl").read_text().splitlines() if line.strip()
+    ]
+    with (successor_dir / "summary.csv").open() as handle:
+        successor_centers = {r["quantity_id"]: float(r["pooled_point_estimate"]) for r in csv.DictReader(handle)}
+    successor_sign = [r for r in successor_runs if r["quantity_id"] in sign_sensitive_ids]
+    per_quantity = Counter(r["quantity_id"] for r in successor_sign)
+    count_word = {15: "fifteen"}.get(min(per_quantity.values()), str(min(per_quantity.values())))
+    check(
+        "results section restates the Gemini 3.6 Flash finding",
+        len(set(per_quantity.values())) == 1
+        and all(r["point_estimate"] < 0 and not r.get("quantiles_repaired") for r in successor_sign)
+        and f"Its successor `gemini-3.6-flash` answers the same way: all {count_word} of its runs are negative "
+        "on both sign-sensitive quantities (income-elasticity center "
+        f"`{successor_centers['labor_supply.income_elasticity.prime_age']:.3f}`, just above the band; "
+        f"capital-gains center `{successor_centers['tax.capital_gains_realizations.elasticity']:.2f}`, inside "
+        "it), with zero quantile repairs." in PAPER,
+        f"runs per quantity {dict(per_quantity)}",
+    )
 
     # Clarify-probe center in Table A7, before and after.
     old_clarify = [
@@ -1602,11 +1678,15 @@ def verify_correction_note() -> None:
         and len(old_a18) == len(new_a18)
         and len(a18_changes) == 1
         and "width" in a18_changes[0][1]
-        and "used the variance of run medians in place of the variance of run means. Both now use "
+        and "**Between-run variance.** The between-run term of the Appendix Table A15 decomposition, and "
+        "the post-hoc run-consistency correlates built on it, used the variance of run medians in place "
+        "of the variance of run means. Both now use "
         "run means. The reported center, the mean of run medians, is unchanged, and the headline "
         "pooled intervals do not depend on this term." in note
-        and "a few clarify-probe intervals in Appendix Tables A7 and A8 move slightly, as does one "
-        "interval in Appendix Table A18." in note,
+        and "A cell in which a run lacks full quantiles falls back to a normal approximation built from "
+        "the total SD, so a few clarify-probe intervals in Appendix Tables A7 and A8 move slightly, as "
+        "does one interval in Appendix Table A18." in note
+        and "\n**Appendix Table A15. Variance decomposition of pooled predictive spread.**" in PAPER,
         f"main centers {len(main_c)}, bounds {len(main_b)}, between {len(main_between)}; clarify "
         f"fallback moves {[(c[3], round(clar_steps[c], 4)) for c in fallback_moves]}; A18 {a18_changes}",
     )
@@ -1679,7 +1759,8 @@ def verify_correction_note() -> None:
     check(
         "correction open-item row counts",
         len(stale) == 9 and len(main_stale) == 1
-        and "Nine retained rows do not reparse" in note
+        and "Nine retained rows do not reparse; they are listed in "
+        "`tests/fixtures/stale_cached_rows.json`." in note
         and "One is a main-panel run" in note
         and "machine-parseable" not in PAPER
         and "A run counts as successful if the parser in use at collection accepted its output as an "
@@ -1691,6 +1772,38 @@ def verify_correction_note() -> None:
         and f"the other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse "
         "to their stored values" in note,
         f"got {len(stale)} stale rows, {len(main_stale)} main-panel",
+    )
+
+    def has_json_estimate(raw: str) -> bool:
+        decoder = json.JSONDecoder()
+        for start in (i for i, ch in enumerate(raw) if ch == "{"):
+            try:
+                payload, _ = decoder.raw_decode(raw, start)
+            except ValueError:
+                continue
+            if isinstance(payload, dict) and ("point_estimate" in payload or "quantiles" in payload):
+                return True
+        return False
+
+    no_json = sum(
+        1 for row in main_rows if row.get("parsed_ok") and not has_json_estimate(row.get("raw_response") or "")
+    )
+    data_start = PAPER.find("## Data")
+    data_section = PAPER[data_start:PAPER.find("\n## ", data_start + 1)]
+    scoped = note + data_section
+    check(
+        "Data section acceptance wording",
+        no_json > 0
+        and len(changed) > 0
+        and f"Every model-quantity cell holds 15 runs that were accepted as parsed at collection, after "
+        "the re-elicitations described below. Not every accepted answer was clean JSON: some were read "
+        "from text by the parser fallback that the correction note describes, and "
+        f"{words_small[len(main_stale)]} of those does not reparse under the corrected parser." in data_section
+        and not any(
+            phrase in scoped
+            for phrase in ("parsed cleanly", "uniformly 100", "ascending order", "accepted by the corrected parser")
+        ),
+        f"got {no_json} accepted main-panel answers with no JSON estimate, {len(changed)} changed",
     )
 
     def cell_rows(directory: str, quantity: str | None = None) -> list[dict]:
@@ -1722,8 +1835,29 @@ def verify_correction_note() -> None:
         "correction open-item count",
         len(bullets) == 3
         and "flags three open items" in note
-        and "Three groups of retained answers" in note,
+        and "**Open items.** Three groups of retained answers await a methodology call; each is kept "
+        "as stored at collection." in note
+        and [line.split("*")[1] for line in bullets]
+        == ["Rows the corrected parser rejects.", "Descending quantiles.", "The April 19 archive."],
         f"got {len(bullets)} bullets",
+    )
+    # The opening sentence counts one error per defect class in the census plus
+    # the between-run term and the sample count, each with its own paragraph.
+    count_words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
+    defects = (len(sign) > 0) + (len(prose) > 0)
+    heads = re.findall(r"^\*\*([^*]+)\.\*\*", note, flags=re.MULTILINE)
+    check(
+        "correction opening sentence and parser mechanism",
+        heads == ["Parser fallback", "Between-run variance", "Sample count", "Open items"]
+        and f"This version corrects {count_words[defects + len(heads) - 2]} errors in the paper as "
+        f"previously posted ({count_words[defects]} defects in the parser fallback, the between-run "
+        f"variance term, and a stale sample count) and flags {count_words[len(bullets)]} open items." in note
+        and "When a response did not parse as JSON, the published parser fell back to reading numbers "
+        f"out of the text, with {count_words[defects]} defects. It treated a minus sign as separator "
+        "filler and kept only the digits, and it took the point estimate from the first number after "
+        'words such as "around" or "roughly" in the prose, ahead of the stated median. Reparsing every '
+        "retained raw answer in the results directories with the corrected parser changes" in note,
+        f"got heads {heads}, defects {defects}",
     )
     check(
         "Data section reparse count",
@@ -1763,7 +1897,8 @@ def verify_correction_note() -> None:
         "clarify-probe rows (" + ", ".join(f"`{label}`" for label in clarify_labels) + ")" in note
         and no_estimate
         == [("gemini-3.1-pro-preview-ies-clarify-batch15", 15), ("inkling-armington-clarify-batch15", 13)]
-        and "Two of them state no point estimate at all" in note
+        and "Two of them state no point estimate at all, so their stored point estimate is a number "
+        "read from the prose at collection:" in note
         and "`Inkling`'s Armington run 13 and `Gemini 3.1 Pro`'s IES run 15" in note,
         f"got {clarify_labels}, {no_estimate}",
     )
@@ -1813,6 +1948,43 @@ def verify_correction_note() -> None:
         "Appendix Tables A7 and A8 sit at the support floor of `0`; no other clarify cell does." in note,
         f"fallback cells {sorted(fallback_dirs)}",
     )
+    # The rendered A7 and A8 rows, keyed by model, carry the same centers and
+    # floors, so the note's quoted centers are the tables' centers.
+    clarify_tables = {
+        "armington": {r["Model"]: r for r in read_rows("armington-clarify-delta")},
+        "ies": {r["Model"]: r for r in read_rows("ies-clarify-delta")},
+    }
+    table_ok, table_cells, table_detail = True, 0, []
+    for directory in clarify_lower:
+        kind = next((k for k in clarify_tables if f"-{k}-clarify" in directory), None)
+        if kind is None:
+            continue
+        label = MODEL_REGISTRY_BY_ID[directory.split(f"-{kind}-clarify")[0]].display_label
+        row = clarify_tables[kind].get(label)
+        if row is None:
+            table_ok = False
+            table_detail.append(f"{directory} missing")
+            continue
+        table_cells += 1
+        table_lower = float(row["Clarified pooled 90% interval"].strip("[]").split(",")[0])
+        center = _pooled_center(cell_rows(directory))
+        if (table_lower == 0) != (directory in fallback_dirs) or abs(float(row["Clarified center"]) - center) > 5e-4:
+            table_ok = False
+            table_detail.append(f"{directory}: table {row['Clarified center']} {table_lower}, runs {center:.4f}")
+    a8_rows = list(clarify_tables["ies"].values())
+    largest = min(a8_rows, key=lambda r: float(r["Change"]))
+    check(
+        "Appendix A8 prose names the largest clarified shift",
+        f"the largest shift is `{float(largest['Change']):.3f}` for `{largest['Model']}` (from "
+        f"`{float(largest['Old center']):.3f}` to `{float(largest['Clarified center']):.3f}`)" in PAPER
+        and abs(float(largest["Change"])) == max(abs(float(r["Change"])) for r in a8_rows),
+        f"largest {largest['Model']} {largest['Change']}",
+    )
+    check(
+        "correction clarify cells match Appendix Tables A7 and A8",
+        table_ok and table_cells == sum(len(rows) for rows in clarify_tables.values()),
+        f"{table_cells} cells; {table_detail[:4]}",
+    )
 
     # Descending quantiles: the repair keeps the stated p05 as the point estimate.
     from collections import defaultdict
@@ -1831,6 +2003,7 @@ def verify_correction_note() -> None:
             shapes_ok &= (
                 stated == sorted(stated, reverse=True) != sorted(stated)
                 and row["point_estimate"] == stated[0]
+                and all(row["quantiles"][key] == stated[0] for key in QUANTILE_KEYS)
                 and stated_estimate == stated[2]
             )
             example_seen |= stated == [-0.1, -0.4, -0.7, -1.0, -1.5] and stated_estimate == -0.7
@@ -1849,7 +2022,8 @@ def verify_correction_note() -> None:
         and f"{words.get(new_repairs)} main-panel runs ({model_text}) list their quantiles in descending order"
         in note
         and "`-0.1, -0.4, -0.7, -1.0, -1.5` with a stated point estimate of `-0.7`" in note
-        and "collapses each run to its first value, so the stored point estimate is the stated p05 rather "
+        and "with a stated point estimate of `-0.7`. Raising each quantile to the largest value before it "
+        "collapses each run to its first value, so the stored point estimate is the stated p05 rather "
         "than the stated median. Using the stated medians would move" in note,
         f"got {dict(per_model)}, shapes ok {shapes_ok}, example {example_seen}",
     )
@@ -1935,7 +2109,9 @@ def verify_correction_note() -> None:
         "correction descending-quantile A9 effects",
         a9_ok
         and sum(1 for d in a9_detail if d[3] != a9_rows[d[0]][band_column]) == 2
-        and f"Table A9 would hold {moved_counts[ordinary]} ordinary-income-window rows and "
+        and "In Appendix Table A9, the stated medians would move `" in note
+        and f"Under the table's fixed-seed bootstrap, Table A9 would hold {moved_counts[ordinary]} "
+        f"ordinary-income-window rows and "
         f"{moved_counts[ltcg]} LTCG-window rows rather than {a9_counts[ordinary]} and {a9_counts[ltcg]}"
         in note,
         f"got {a9_detail}, counts {dict(a9_counts)} -> {dict(moved_counts)}",
@@ -1977,6 +2153,10 @@ def verify_correction_note() -> None:
         "correction April 19 reparse counts",
         moved_cells == {(gemini_pro, net_id): (3, 5)}
         and len(stored_net) == 15
+        and "*The April 19 archive.* Appendix Tables A18 and A19, and the text in the Design section and "
+        "the appendix that cites them, use the superseded April 19 elicitations from git history as "
+        "stored at collection." in note
+        and "April 19" in PAPER[PAPER.find("## Design"):PAPER.find("\n## ", PAPER.find("## Design") + 1)]
         and "changes 3 and rejects 5 of the 15 `Gemini 3.1 Pro` net-of-tax-rate runs there; "
         f"the other {len(archive) - 1} sign-clarified April 19 cells reparse unchanged" in note,
         f"got {moved_cells}, {len(archive)} cells",
@@ -2020,14 +2200,85 @@ def verify_correction_note() -> None:
     check(
         "correction ledger counts",
         match is not None
-        and f"({int(match[1]):,} cells across {match[2]} CSV files, plus line diffs for {match[3]} Markdown tables)"
+        and "`paper/corrections/2026-09-25-changed-numbers.md` lists every changed table cell "
+        f"({int(match[1]):,} cells across {match[2]} CSV files, plus line diffs for {match[3]} Markdown tables)"
         in note,
         f"ledger says {match.groups() if match else None}",
     )
 
 
+def verify_cited_tables_fresh() -> None:
+    """Rebuild, in memory, the tables the correction note and its effects cite
+    and compare them with the committed CSV and Markdown table bodies.
+
+    ``results/elasticity-all-model-comparison.csv`` records each model's
+    ``source_dir`` as an absolute path into the checkout that generated it, so
+    the rows are pointed back at this checkout's ``results/`` first. Nothing is
+    written.
+    """
+    import dataclasses
+    import io
+
+    tables = _build_tables_module()
+    comparison = [
+        dataclasses.replace(row, source_dir=row.source_dir[row.source_dir.rfind("results/"):])
+        if "results/" in row.source_dir
+        else row
+        for row in tables.read_comparison_rows(tables.MAIN_COMPARISON_PATH)
+    ]
+    canonical = [row for row in comparison if tables.quantity_panel(row.quantity_id) == "canonical"]
+    wording, wording_tau = tables.build_wording_comparison_tables()
+    model_summary, spearman, _ = tables.build_correlates_tables()
+    rebuilt = {
+        "quantity-disagreement": tables.build_quantity_disagreement_table(canonical),  # Table A6
+        "armington-clarify-delta": tables.build_armington_delta_table(),  # Table A7
+        "ies-clarify-delta": tables.build_ies_delta_table(),  # Table A8
+        "cap-gains-convention-audit": tables.build_cap_gains_convention_audit_table(comparison),  # A9
+        "variance-decomposition": tables.build_variance_decomposition_table(canonical),  # A15
+        "wording-comparison": wording,  # A18
+        "wording-comparison-tau": wording_tau,  # A19
+        "correlates-model-summary": model_summary,
+        "policybench-correlates": spearman,
+        "correlates-country": tables.build_country_table(),  # Table 7
+    }
+    for stem, rows in rebuilt.items():
+        headers = list(rows[0].keys()) if rows else []
+        buffer = io.StringIO(newline="")
+        writer = csv.DictWriter(buffer, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(rows)
+        body = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"] + [
+            "| "
+            + " | ".join(tables.format_markdown_cell(h, row[h]).replace("|", "\\|") for h in headers)
+            + " |"
+            for row in rows
+        ]
+        committed_md = (TABLES / f"{stem}.md").read_text().splitlines()[2:]
+        check(
+            f"table {stem} matches a fresh in-memory build",
+            bool(rows)
+            and buffer.getvalue() == (TABLES / f"{stem}.csv").read_text(newline="")
+            and body == committed_md,
+            f"{len(rows)} rebuilt rows",
+        )
+
+
+def verify_check_count_copy() -> None:
+    """The /paper page states how many checks this gate runs."""
+    page = (REPO_ROOT / "dashboard" / "src" / "app" / "paper" / "page.tsx").read_text()
+    stated = re.search(r"(\d+)-check prose gate", page)
+    total = CHECKS_RUN[0] + 1
+    check(
+        "/paper page states the gate's check count",
+        stated is not None and int(stated[1]) == total,
+        f"page says {stated and stated[1]}, gate runs {total}",
+    )
+
+
 def main() -> int:
+    CHECKS_RUN[0] = 0
     verify_correction_note()
+    verify_cited_tables_fresh()
     verify_superlatives()
     verify_top_rate()
     verify_stability()
@@ -2053,6 +2304,7 @@ def main() -> int:
     verify_prompt_identity()
     verify_wording_comparison_prose()
     verify_wording_comparison_tables()
+    verify_check_count_copy()
     if FAILURES:
         print(f"\n{len(FAILURES)} check(s) failed")
         return 1

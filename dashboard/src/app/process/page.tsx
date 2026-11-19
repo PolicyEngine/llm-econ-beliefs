@@ -244,7 +244,7 @@ export default function ProcessPage() {
             </li>
             <li>
               <span style={cellStyle}>
-                Tables build, prose is pinned, pages generate.
+                Tables build, prose is checked, pages generate.
               </span>{" "}
               <a
                 className="underline underline-offset-2"
@@ -259,8 +259,9 @@ export default function ProcessPage() {
               >
                 verify_paper_prose.py
               </a>{" "}
-              pins the paper&apos;s quoted numbers to those tables so stale
-              claims fail instead of shipping. This site is statically
+              checks many of the paper&apos;s quoted numbers against those
+              tables and the run data, so a stale number among them fails
+              instead of shipping. This site is statically
               generated from the same results tree and table CSVs at build
               time — there is no separate dashboard database to drift.
             </li>

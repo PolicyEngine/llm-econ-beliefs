@@ -28,7 +28,7 @@ Render the manuscript:
 /Users/maxghenis/quarto/bin/quarto render paper.qmd
 ```
 
-Quarto is installed at `/Users/maxghenis/quarto/bin/quarto` locally and is not on the default shell `PATH`. Render from a checkout whose absolute path has no dot-directory: Quarto skips project files under one (for example `.claude/worktrees/...`), so `_quarto.yml` is ignored and the output loses its table of contents, section numbers and bibliography. `scripts/sync_paper_embed.sh` refuses such a render. The manuscript renders to `paper.html`; the bare `render` command does not rebuild the committed `paper.pdf`, so after any prose change also run:
+Quarto is installed at `/Users/maxghenis/quarto/bin/quarto` locally and is not on the default shell `PATH`. Render from a checkout whose absolute path has no dot-directory: Quarto skips project files under one (for example `.claude/worktrees/...`), so `_quarto.yml` is ignored and the output loses its table of contents, section numbers and bibliography. `scripts/sync_paper_embed.sh` refuses such a render, HTML or PDF. The manuscript renders to `paper.html`; the bare `render` command does not rebuild the committed `paper.pdf`, so after any prose change also run:
 
 ```bash
 /Users/maxghenis/quarto/bin/quarto render paper.qmd --to pdf

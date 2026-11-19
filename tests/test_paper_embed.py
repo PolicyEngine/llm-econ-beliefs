@@ -8,6 +8,7 @@ tests lock that contract and the layout it depends on.
 from __future__ import annotations
 
 import re
+import zlib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -44,10 +45,36 @@ def test_synced_render_applied_the_project_config() -> None:
     assert 'id="TOC"' in html
     assert 'id="refs"' in html
     assert html.count('class="header-section-number"') >= 50
-    raw_keys = re.findall(
-        r'<span class="citation"[^>]*>\s*\[?-?@[A-Za-z0-9_:.-]+', html
-    )
-    assert raw_keys == []
+    spans = re.findall(r'<span class="citation"[^>]*>(.*?)</span>', html, flags=re.S)
+    unresolved = [
+        span for span in spans if "@" in re.sub(r"<[^>]+>", "", span) or "???" in span
+    ]
+    assert spans and unresolved == []
+
+
+def _inflated_pdf_streams(path: Path) -> bytes:
+    data = path.read_bytes()
+    chunks = []
+    for match in re.finditer(rb"stream\r?\n", data):
+        try:
+            chunks.append(zlib.decompressobj().decompress(data[match.end() :]))
+        except zlib.error:
+            continue
+    return b"".join(chunks)
+
+
+def test_synced_pdf_applied_the_project_config() -> None:
+    # The PDF counterpart of the check above. A resolved bibliography leaves
+    # one cite.ref-* named destination per reference and numbered sections
+    # leave section.N destinations; a render without _quarto.yml has neither.
+    pdf = WEB / "index.pdf"
+    assert pdf.read_bytes() == (REPO_ROOT / "paper" / "paper.pdf").read_bytes()
+    streams = _inflated_pdf_streams(pdf)
+    references = (WEB / "index.html").read_text().count('class="csl-entry"')
+    cite_targets = set(re.findall(rb"\(cite\.ref-[^)]+\)", streams))
+    section_targets = set(re.findall(rb"\(section\.\d[\d.]*\)", streams))
+    assert references > 0 and len(cite_targets) == references
+    assert len(section_targets) >= 8
 
 
 def test_old_pdf_path_keeps_serving() -> None:
