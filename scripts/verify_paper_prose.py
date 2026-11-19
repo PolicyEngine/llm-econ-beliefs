@@ -1401,7 +1401,7 @@ def verify_correction_note() -> None:
         "correction run census",
         f"changes {len(changed)} main-panel runs ({breakdown}, and 1 each for {singles_text})"
         in note
-        and f"{len(sign)} had lost a minus sign, {flips} of which change the sign" in note
+        and f"{len(sign)} had lost a minus sign, {flips} of which change the sign of their point estimate" in note
         and f"({sign_with_prose_estimate} of the {len(sign)} also took their point estimate from "
         f"prose), and {len(prose)} more carried a point estimate read from prose" in note
         and not kinds.get((True, "other")),
@@ -1410,7 +1410,8 @@ def verify_correction_note() -> None:
     )
     check(
         "correction quantile-repair counts",
-        f"raised to the largest value before it, fall from {old_repairs} to {new_repairs}" in note,
+        "Panel-wide quantile repairs, in which each of a run's quantiles is raised to the largest value "
+        f"before it, fall from {old_repairs} to {new_repairs}" in note,
         f"got {old_repairs} -> {new_repairs}",
     )
     clarify_prose = kinds.get((False, "prose"), [])
@@ -1525,7 +1526,8 @@ def verify_correction_note() -> None:
     ]
     check(
         "correction A7 clarified center",
-        f"from `{_pooled_center(old_clarify):.3f}` to `{_pooled_center(new_clarify):.3f}`" in note,
+        "moving that model's clarified center in Appendix Table A7 from "
+        f"`{_pooled_center(old_clarify):.3f}` to `{_pooled_center(new_clarify):.3f}`" in note,
     )
 
     # Table 7 contrasts before and after.
@@ -1537,6 +1539,7 @@ def verify_correction_note() -> None:
     width, center = "Avg interval-width rank (1 = tightest)", "Mean |center|, labor-and-tax"
     check(
         "correction Table 7 p-values",
+        "the US-lab versus Chinese-lab width and center contrasts in Table 7 move "
         f"from raw $p = {country_p(old_country, width):.3f}$ and ${country_p(old_country, center):.3f}$ "
         f"to ${country_p(new_country, width):.3f}$ and ${country_p(new_country, center):.3f}$"
         in note,
@@ -1629,7 +1632,7 @@ def verify_correction_note() -> None:
         "correction A9 band for Gemini 3.5 Flash",
         old_band.startswith("uninformative")
         and new_band.endswith("consistent")
-        and "implied-tau row in Appendix Table A9 receives a band" in note,
+        and "Gemini 3.5 Flash's implied-tau row in Appendix Table A9 receives a band" in note,
         f"band {old_band!r} -> {new_band!r}",
     )
 
@@ -1643,6 +1646,7 @@ def verify_correction_note() -> None:
     quantities = len({row["quantity_id"] for row in main_rows})
     n_models = len(PANEL_MODEL_IDS)
     n_runs = sum(1 for row in main_rows if row.get("parsed_ok"))
+    cell_sizes = Counter((row["model_name"], row["quantity_id"]) for row in main_rows if row.get("parsed_ok"))
     old_paper = _git_show("paper/paper.qmd") or ""
     old_data = old_paper[old_paper.find("## Data"):]
     old_count = re.search(r"\n- ([\d,]+) successful main-panel runs", old_data)
@@ -1658,7 +1662,14 @@ def verify_correction_note() -> None:
         "as the abstract already stated" in note
         and f"contains {n_runs:,} successful runs across {n_models} models" in PAPER
         and f"\n- {n_runs:,} successful main-panel runs, every one accepted as parsed at collection"
-        in PAPER,
+        in PAPER
+        and set(cell_sizes.values()) == {15}
+        and f"every cell holds exactly {next(iter(set(cell_sizes.values())))} parsed runs" in PAPER
+        and f"Every model-quantity cell holds {next(iter(set(cell_sizes.values())))} runs that were accepted"
+        in PAPER
+        and f"\n- {n_models} models from ten organizations" in PAPER
+        and f"\n- {quantities} quantities (" in PAPER
+        and "\n- 15 runs per model-quantity cell" in PAPER,
         f"got {n_runs} runs, {n_models} models, {quantities} quantities, old {old_count and old_count[1]}",
     )
     stale = json.loads((REPO_ROOT / "tests" / "fixtures" / "stale_cached_rows.json").read_text())
@@ -1667,6 +1678,11 @@ def verify_correction_note() -> None:
         "correction open-item row counts",
         len(stale) == 9 and len(main_stale) == 1
         and "Nine retained rows do not reparse" in note
+        and "One is a main-panel run" in note
+        and "machine-parseable" not in PAPER
+        and "A run counts as successful if the parser in use at collection accepted its output as an "
+        "estimate; failed runs stay missing and drop out of the pooled summaries. The correction note "
+        "lists the retained runs that the corrected parser would reject." in PAPER
         and "The other eight are clarify-probe rows" in note
         and f"the other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse "
         "to their stored values" in note,
@@ -1686,9 +1702,11 @@ def verify_correction_note() -> None:
     pro_ies = cell_rows("gemini-3.1-pro-preview-ies-clarify-batch15")
     check(
         "correction open-item effects",
-        f"from `{_pooled_center(ies):.3f}` to `{_pooled_center(ies, skip=2):.3f}`" in note
-        and f"from `{_pooled_center(inkling):.3f}` to `{_pooled_center(inkling, skip=13):.3f}`" in note
-        and f"rests on {sum(1 for r in pro_ies if r.get('parsed_ok'))} parsed runs, from "
+        f"Dropping it would move that cell's center from `{_pooled_center(ies):.3f}` to "
+        f"`{_pooled_center(ies, skip=2):.3f}`" in note
+        and f"`Inkling`'s clarified center in Appendix Table A7 from `{_pooled_center(inkling):.3f}` to "
+        f"`{_pooled_center(inkling, skip=13):.3f}`" in note
+        and "`Gemini 3.1 Pro`'s clarified IES center in Appendix Table A8, which " + f"rests on {sum(1 for r in pro_ies if r.get('parsed_ok'))} parsed runs, from "
         f"`{_pooled_center(pro_ies):.3f}` to `{_pooled_center(pro_ies, skip=15):.3f}`".replace("rests on 4", "rests on four")
         in note
         and "point_estimate" not in next(r for r in inkling if r["run_index"] == 13)["raw_response"]
@@ -1725,7 +1743,8 @@ def verify_correction_note() -> None:
             for key, value in zip(QUANTILE_KEYS, ("0 .1", "0 .5", "1 .0"))
         )
         and "`Gemini 3.5 Flash` on the intertemporal elasticity of substitution (run 2)" in note
-        and '("0 .1", "0 .5", "1 .0") and is stored with quantiles `[0, 0, 1, 1, 2]`' in note,
+        and 'which wrote its numbers with spaces inside them ("0 .1", "0 .5", "1 .0") and is stored '
+        "with quantiles `[0, 0, 1, 1, 2]`" in note,
         f"got {main_stale} {main_row.get('run_index')} {main_row.get('quantiles')}",
     )
     clarify_stale = {key: stale_row(key) for key in stale if key not in main_stale}
@@ -1752,7 +1771,7 @@ def verify_correction_note() -> None:
         truncated.get("run_index") == 12
         and truncated["raw_response"].rstrip().endswith('"point_estimate": 1.')
         and truncated["point_estimate"] == 1.0
-        and "`Gemini 3.1 Pro`'s Armington run 12, is cut off at `\"point_estimate\": 1.` and stored as `1.0`"
+        and "A third, `Gemini 3.1 Pro`'s Armington run 12, is cut off at `\"point_estimate\": 1.` and stored as `1.0`"
         in note
         and f"`Gemini 3.1 Pro`'s from `{_pooled_center(pro_armington):.3f}` to "
         f"`{_pooled_center(pro_armington, skip=12):.3f}`" in note,
@@ -1825,7 +1844,9 @@ def verify_correction_note() -> None:
         and example_seen
         and f"{words.get(new_repairs)} main-panel runs ({model_text}) list their quantiles in descending order"
         in note
-        and "`-0.1, -0.4, -0.7, -1.0, -1.5` with a stated point estimate of `-0.7`" in note,
+        and "`-0.1, -0.4, -0.7, -1.0, -1.5` with a stated point estimate of `-0.7`" in note
+        and "collapses each run to its first value, so the stored point estimate is the stated p05 rather "
+        "than the stated median. Using the stated medians would move" in note,
         f"got {dict(per_model)}, shapes ok {shapes_ok}, example {example_seen}",
     )
     band_low, band_high = (
@@ -1968,7 +1989,7 @@ def verify_correction_note() -> None:
         and f"parse {len(reparsed_net)} of {len(stored_net)} runs rather than all {len(stored_net)}" in note
         and f"$({tax_median:.2f}, {median(reparsed_net):.3f})$ rather than "
         f"$({tax_median:.2f}, {median(stored_net):.2f})$" in note
-        and f"from `{fmean(stored_net):.3f}` to `{fmean(reparsed_net):.3f}`, shrinking its wording change "
+        and f"its Table A18 center would move from `{fmean(stored_net):.3f}` to `{fmean(reparsed_net):.3f}`, shrinking its wording change "
         f"from `{float(a18['Center change']):+.2f}` to `{revised_center - fmean(reparsed_net):+.2f}`" in note,
         f"centers {fmean(stored_net):.4f} -> {fmean(reparsed_net):.4f}",
     )
@@ -1983,7 +2004,8 @@ def verify_correction_note() -> None:
         f"{old_tau[1]:.3f} [{old_tau[0]:.3f}, {old_tau[2]:.3f}]" == a19["Original implied tau median [90%]"]
         and old_flag == a19["Original band"]
         and new_flag == "plausible sign, outside bands"
-        and f"from `{old_tau[1]:.3f}` [{old_tau[0]:.3f}, {old_tau[2]:.3f}], {old_flag}, to "
+        and f"Its Table A19 implied tau would move from `{old_tau[1]:.3f}` [{old_tau[0]:.3f}, "
+        f"{old_tau[2]:.3f}], {old_flag}, to "
         f"`{new_tau[1]:.3f}` [{new_tau[0]:.3f}, {new_tau[2]:.3f}], a plausible sign outside both bands, "
         f"against a reparsed plug-in of `{-rho / (1 - rho):.2f}`" in note,
         f"tau {old_tau} {old_flag} -> {new_tau} {new_flag}",
