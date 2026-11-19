@@ -1618,7 +1618,8 @@ def verify_correction_note() -> None:
     in_band, total_models = cap_gains_row["Models in range"].split(" / ")
     check(
         "correction Table 3 capital-gains band count",
-        f"inside the review band for {in_band} of {total_models} models (Table 3)" in note,
+        f"Downstream, capital-gains centers lie inside the review band for {in_band} of {total_models} "
+        "models (Table 3)" in note,
         f"Table 3 says {cap_gains_row['Models in range']}",
     )
 
@@ -1674,6 +1675,7 @@ def verify_correction_note() -> None:
     )
     stale = json.loads((REPO_ROOT / "tests" / "fixtures" / "stale_cached_rows.json").read_text())
     main_stale = [key for key in stale if "-elasticities-batch15/" in key]
+    words_small = {1: "one", 2: "two", 3: "three"}
     check(
         "correction open-item row counts",
         len(stale) == 9 and len(main_stale) == 1
@@ -1683,7 +1685,9 @@ def verify_correction_note() -> None:
         and "A run counts as successful if the parser in use at collection accepted its output as an "
         "estimate; failed runs stay missing and drop out of the pooled summaries. The correction note "
         "lists the retained runs that the corrected parser would reject." in PAPER
-        and "The other eight are clarify-probe rows" in note
+        and "The other eight are clarify-probe rows (" in note
+        and ") that lack full quantiles." in note
+        and f"and {words_small[len(main_stale)]} of those does not reparse under the corrected parser" in PAPER
         and f"the other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse "
         "to their stored values" in note,
         f"got {len(stale)} stale rows, {len(main_stale)} main-panel",
