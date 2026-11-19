@@ -87,7 +87,7 @@ export default function PaperPage(): ReactNode {
             calibration. This page embeds the manuscript snapshot that
             matches the live site — the 31-model panel with capability
             correlates pinned to PolicyBench release dashboard-data-20260805
-            — and a 164-check prose gate tests many of its stated numbers
+            — and a 167-check prose gate tests many of its stated numbers
             against the committed tables and run data.
           </p>
           <p className="mt-3">
