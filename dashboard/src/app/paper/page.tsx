@@ -15,7 +15,7 @@ const PDF_HREF = `${basePath}/paper/web/index.pdf?v=${PAPER_VERSION}`;
 export const metadata = {
   title: "Working paper — AI beliefs",
   description:
-    "How Large Language Models Answer Questions About Economic Elasticities: a repeated-elicitation study of 31 models, 12,090 runs, with every number verified against the committed tables.",
+    "How Large Language Models Answer Questions About Economic Elasticities: a repeated-elicitation study of 31 models, 12,090 runs; a prose gate tests many of its stated numbers against the committed tables.",
   openGraph: {
     type: "article",
     title: "How Large Language Models Answer Questions About Economic Elasticities",
@@ -87,8 +87,8 @@ export default function PaperPage(): ReactNode {
             calibration. This page embeds the manuscript snapshot that
             matches the live site — the 31-model panel with capability
             correlates pinned to PolicyBench release dashboard-data-20260805
-            — and every number in it is verified against the committed
-            tables by a 149-check prose gate.
+            — and a 164-check prose gate tests many of its stated numbers
+            against the committed tables and run data.
           </p>
           <p className="mt-3">
             <span

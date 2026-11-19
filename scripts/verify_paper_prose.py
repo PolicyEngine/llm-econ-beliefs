@@ -1284,7 +1284,7 @@ def verify_wording_comparison_tables() -> None:
     )
 
 
-PRE_CORRECTION_COMMIT = "22b4cee"  # origin/main before the d339 correction
+PRE_CORRECTION_COMMIT = "22b4ceee3183ebd6aa73c159405c1539e2c0424d"  # origin/main before the d339 correction
 QUANTILE_KEYS = ("p05", "p25", "p50", "p75", "p95")
 
 
@@ -1304,6 +1304,20 @@ def _git_show(path: str) -> str | None:
     return result.stdout.decode("utf-8") if result.returncode == 0 else None
 
 
+def _build_tables_module():
+    import importlib.util
+
+    if "paper_build_tables" in sys.modules:
+        return sys.modules["paper_build_tables"]
+    spec = importlib.util.spec_from_file_location(
+        "paper_build_tables", REPO_ROOT / "paper" / "build_tables.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["paper_build_tables"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def _pooled_center(rows: list[dict], skip: int | None = None) -> float:
     from statistics import fmean
 
@@ -1315,8 +1329,11 @@ def _pooled_center(rows: list[dict], skip: int | None = None) -> float:
 
 
 def verify_correction_note() -> None:
-    """Recompute every count and number the dated correction note states.
+    """Recompute the counts and quoted numbers in the dated correction note.
 
+    Covers the run census, the moved and quoted centers, the downstream table
+    effects, each open item's effects and the ledger counts; band names, model
+    lists and run descriptions are matched as text against the data they name.
     The run census compares each runs.jsonl with the pre-correction commit, so
     this needs git history and stays in the local gate (CI clones are shallow).
     """
@@ -1331,7 +1348,7 @@ def verify_correction_note() -> None:
         return
     results = REPO_ROOT / "results"
     kinds: dict[tuple[bool, str], list[tuple[str, str, float | None, float | None]]] = {}
-    old_repairs = new_repairs = 0
+    old_repairs = new_repairs = sign_with_prose_estimate = 0
     for path in sorted(results.glob("*/runs.jsonl")):
         relative = path.relative_to(REPO_ROOT).as_posix()
         old_text = _git_show(relative)
@@ -1363,6 +1380,8 @@ def verify_correction_note() -> None:
                 kind = "sign"
             else:
                 kind = "other"
+            if main_panel and kind == "sign" and old_p != old_q.get("p50"):
+                sign_with_prose_estimate += 1
             kinds.setdefault((main_panel, kind), []).append(
                 (new["model_name"], new["quantity_id"], old_p, new_p)
             )
@@ -1381,14 +1400,15 @@ def verify_correction_note() -> None:
         f"changes {len(changed)} main-panel runs ({breakdown}, and 1 each for {singles_text})"
         in note
         and f"{len(sign)} had lost a minus sign, {flips} of which change the sign" in note
-        and f"{len(prose)} carried a point estimate read from prose" in note
+        and f"({sign_with_prose_estimate} of the {len(sign)} also took their point estimate from "
+        f"prose), and {len(prose)} more carried a point estimate read from prose" in note
         and not kinds.get((True, "other")),
         f"got {len(changed)} changed ({dict(by_model)}), sign {len(sign)}, flips {flips}, "
-        f"prose {len(prose)}, other {len(kinds.get((True, 'other'), []))}",
+        f"sign with prose estimate {sign_with_prose_estimate}, prose {len(prose)}, other {len(kinds.get((True, 'other'), []))}",
     )
     check(
         "correction quantile-repair counts",
-        f"quantile repairs fall from {old_repairs} to {new_repairs}" in note,
+        f"forced into ascending order, fall from {old_repairs} to {new_repairs}" in note,
         f"got {old_repairs} -> {new_repairs}",
     )
     clarify_prose = kinds.get((False, "prose"), [])
@@ -1428,7 +1448,7 @@ def verify_correction_note() -> None:
         f"{len(moved)} main-panel centers move, {len(through_sign)} of them through a lost sign"
         in note
         and k3 is not None
-        and f"from `{k3[2]:.3f}` to `{k3[3]:.3f}` and {len(rest)} other centers by at most "
+        and f"from `{k3[2]:.3f}` to `{k3[3]:.3f}` and {len(rest)} other centers, the largest by "
         f"`{largest_rest:.3f}`" in note,
         f"got {len(moved)} moved, {len(through_sign)} via sign, K3 {k3}, "
         f"{len(rest)} others max {largest_rest:.4f}",
@@ -1438,11 +1458,27 @@ def verify_correction_note() -> None:
         ("gemini-3.5-flash", "labor_supply.income_elasticity.prime_age"): "`{b:.3f}` for the income elasticity",
         ("inkling", "tax.capital_gains_realizations.elasticity"): "`Inkling` from `{a:.3f}` to `{b:.3f}`",
         ("kimi-k2.6", "tax.capital_gains_realizations.elasticity"): "`Kimi K2.6` from `{a:.3f}` to `{b:.3f}`",
+        ("gemini-3.5-flash", "labor_supply.marshallian_wage_elasticity.prime_age"): (
+            "`Gemini 3.5 Flash`'s Marshallian wage elasticity, from `{a:.3f}` to `{b:.3f}`"
+        ),
     }
     centers = {(m, q): (a, b) for m, q, a, b in moved}
     for cell, template in quoted.items():
         a, b = centers.get(cell, (float("nan"), float("nan")))
         check(f"correction quotes {cell[0]} {cell[1].split('.')[1]}", template.format(a=a, b=b) in note, f"got {a} -> {b}")
+    check(
+        "correction names every center moved through a lost sign",
+        {(m, q) for m, q, *_ in through_sign} == set(quoted)
+        and "Two other capital-gains centers move through a lost sign" in note,
+        f"got {sorted((m, q) for m, q, *_ in through_sign)}",
+    )
+    gem_cg = centers.get(("gemini-3.5-flash", "tax.capital_gains_realizations.elasticity"), (0, 0))
+    gem_inc = centers.get(("gemini-3.5-flash", "labor_supply.income_elasticity.prime_age"), (0, 0))
+    check(
+        "correction quotes Gemini 3.5 Flash's published centers",
+        f"(published: `{gem_cg[0]:+.3f}` and `{gem_inc[0]:+.3f}`)" in note,
+        f"got {gem_cg[0]}, {gem_inc[0]}",
+    )
     check(
         "Gemini 3.5 Flash sign-sensitive runs all negative",
         all(
@@ -1490,6 +1526,31 @@ def verify_correction_note() -> None:
         in note,
     )
 
+    cap_gains_row = next(
+        r for r in read_rows("benchmark-comparison-labor-tax")
+        if r["Quantity"] == "Capital gains realizations elasticity"
+    )
+    in_band, total_models = cap_gains_row["Models in range"].split(" / ")
+    check(
+        "correction Table 3 capital-gains band count",
+        f"inside the review band for {in_band} of {total_models} models (Table 3)" in note,
+        f"Table 3 says {cap_gains_row['Models in range']}",
+    )
+
+    def a9_band(text: str) -> str:
+        row = next(r for r in csv.DictReader(text.splitlines()) if r["Model"] == "Gemini 3.5 Flash")
+        return list(row.values())[-1]
+
+    old_band = a9_band(_git_show("paper/tables/cap-gains-convention-audit.csv") or "Model\nGemini 3.5 Flash")
+    new_band = a9_band((TABLES / "cap-gains-convention-audit.csv").read_text())
+    check(
+        "correction A9 band for Gemini 3.5 Flash",
+        old_band.startswith("uninformative")
+        and new_band.endswith("consistent")
+        and "implied-tau row in Appendix Table A9 receives a band" in note,
+        f"band {old_band!r} -> {new_band!r}",
+    )
+
     # Sample counts, open items and the changed-numbers ledger.
     quantities = 26
     check(
@@ -1505,7 +1566,8 @@ def verify_correction_note() -> None:
         len(stale) == 9 and len(main_stale) == 1
         and "Nine retained rows do not reparse" in note
         and "The other eight are clarify-probe rows" in note
-        and f"The other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse" in note,
+        and f"the other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse "
+        "to their stored values" in note,
         f"got {len(stale)} stale rows, {len(main_stale)} main-panel",
     )
 
@@ -1530,6 +1592,212 @@ def verify_correction_note() -> None:
         and "point_estimate" not in next(r for r in inkling if r["run_index"] == 13)["raw_response"]
         and "point_estimate" not in next(r for r in pro_ies if r["run_index"] == 15)["raw_response"],
     )
+    open_items = note[note.find("**Open items.**"):]
+    bullets = [line for line in open_items.splitlines() if line.startswith("- *")]
+    check(
+        "correction open-item count",
+        len(bullets) == 3
+        and "flags three open items" in note
+        and "Three groups of retained answers" in note,
+        f"got {len(bullets)} bullets",
+    )
+    check(
+        "Data section reparse count",
+        f"under the corrected parser {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} reparse"
+        in PAPER,
+    )
+
+    def stale_row(key: str) -> dict:
+        path, line = key.rsplit(":", 1)
+        return json.loads((REPO_ROOT / path).read_text().splitlines()[int(line) - 1])
+
+    main_row = stale_row(main_stale[0]) if main_stale else {}
+    check(
+        "correction describes the main-panel stale row",
+        main_row.get("model_name") == "gemini-3.5-flash"
+        and main_row.get("quantity_id") == "household.intertemporal_elasticity_of_substitution"
+        and main_row.get("run_index") == 2
+        and [main_row["quantiles"][k] for k in QUANTILE_KEYS] == [0, 0, 1, 1, 2]
+        and all(
+            f'"{key}": {value}' in main_row["raw_response"]
+            for key, value in zip(QUANTILE_KEYS, ("0 .1", "0 .5", "1 .0"))
+        )
+        and "`Gemini 3.5 Flash` on the intertemporal elasticity of substitution (run 2)" in note
+        and '("0 .1", "0 .5", "1 .0") and is stored with quantiles `[0, 0, 1, 1, 2]`' in note,
+        f"got {main_stale} {main_row.get('run_index')} {main_row.get('quantiles')}",
+    )
+    clarify_stale = {key: stale_row(key) for key in stale if key not in main_stale}
+    clarify_labels = sorted({MODEL_REGISTRY_BY_ID[r["model_name"]].display_label for r in clarify_stale.values()})
+    no_estimate = sorted(
+        (key.split("/")[1], row["run_index"])
+        for key, row in clarify_stale.items()
+        if "point_estimate" not in row["raw_response"]
+    )
+    check(
+        "correction names the clarify rows without a point estimate",
+        "clarify-probe rows (" + ", ".join(f"`{label}`" for label in clarify_labels) + ")" in note
+        and no_estimate
+        == [("gemini-3.1-pro-preview-ies-clarify-batch15", 15), ("inkling-armington-clarify-batch15", 13)]
+        and "Two of them state no point estimate at all" in note
+        and "`Inkling`'s Armington run 13 and `Gemini 3.1 Pro`'s IES run 15" in note,
+        f"got {clarify_labels}, {no_estimate}",
+    )
+    truncated_key = "results/gemini-3.1-pro-preview-armington-clarify-batch15/runs.jsonl:12"
+    truncated = clarify_stale.get(truncated_key, {})
+    pro_armington = cell_rows("gemini-3.1-pro-preview-armington-clarify-batch15")
+    check(
+        "correction describes the truncated Armington run",
+        truncated.get("run_index") == 12
+        and truncated["raw_response"].rstrip().endswith('"point_estimate": 1.')
+        and truncated["point_estimate"] == 1.0
+        and "`Gemini 3.1 Pro`'s Armington run 12, is cut off at `\"point_estimate\": 1.` and stored as `1.0`"
+        in note
+        and f"`Gemini 3.1 Pro`'s from `{_pooled_center(pro_armington):.3f}` to "
+        f"`{_pooled_center(pro_armington, skip=12):.3f}`" in note,
+    )
+
+    # Descending quantiles: the repair keeps the stated p05 as the point estimate.
+    from collections import defaultdict
+    from statistics import fmean, median
+
+    stated_number = r"\s*:\s*(-?[\d.]+)"
+    repaired: dict[tuple[str, str], list[tuple[float, float]]] = defaultdict(list)
+    shapes_ok, example_seen = True, False
+    for path in sorted(results.glob("*-elasticities-batch15/runs.jsonl")):
+        for row in (json.loads(line) for line in path.read_text().splitlines() if line.strip()):
+            if not row.get("quantiles_repaired"):
+                continue
+            raw = row["raw_response"]
+            stated = [float(re.search(f'"{key}"' + stated_number, raw)[1]) for key in QUANTILE_KEYS]
+            stated_estimate = float(re.search('"point_estimate"' + stated_number, raw)[1])
+            shapes_ok &= (
+                stated == sorted(stated, reverse=True) != sorted(stated)
+                and row["point_estimate"] == stated[0]
+                and stated_estimate == stated[2]
+            )
+            example_seen |= stated == [-0.1, -0.4, -0.7, -1.0, -1.5] and stated_estimate == -0.7
+            repaired[(row["model_name"], row["quantity_id"])].append((row["point_estimate"], stated[2]))
+    words = {1: "one", 2: "two", 3: "three", 4: "four", 7: "Seven"}
+    per_model = Counter()
+    for (model, _), runs in repaired.items():
+        per_model[model] += len(runs)
+    model_text = ", ".join(
+        f"{words[n]} `{MODEL_REGISTRY_BY_ID[m].display_label}`" for m, n in per_model.most_common()
+    )
+    check(
+        "correction descending-quantile rows",
+        sum(per_model.values()) == new_repairs
+        and shapes_ok
+        and example_seen
+        and f"{words.get(new_repairs)} main-panel runs ({model_text}) list their quantiles in descending order"
+        in note
+        and "`-0.1, -0.4, -0.7, -1.0, -1.5` with a stated point estimate of `-0.7`" in note,
+        f"got {dict(per_model)}, shapes ok {shapes_ok}, example {example_seen}",
+    )
+    band_low, band_high = (
+        float(x) for x in cap_gains_row["Rough review range"].strip("[]").split(",")
+    )
+    cap_gains_id = "tax.capital_gains_realizations.elasticity"
+    effects_ok = True
+    for (model, quantity), runs in repaired.items():
+        cell = cell_rows(f"{model}-elasticities-batch15", quantity)
+        stored_center = fmean(r["point_estimate"] for r in cell)
+        stated_center = (
+            stored_center * len(cell) - sum(a for a, _ in runs) + sum(b for _, b in runs)
+        ) / len(cell)
+        with (results / f"{model}-elasticities-batch15" / "summary.csv").open() as handle:
+            published = next(
+                float(r["pooled_point_estimate"]) for r in csv.DictReader(handle) if r["quantity_id"] == quantity
+            )
+        label = MODEL_REGISTRY_BY_ID[model].display_label
+        if quantity == cap_gains_id:
+            text = f"`{label}` from `{stored_center:.3f}` to `{stated_center:.3f}`"
+            effects_ok &= band_low <= stated_center <= band_high
+        else:
+            text = f"`{label}`'s income-elasticity center from `{stored_center:.3f}` to `{stated_center:.3f}`"
+            effects_ok &= quantity == "labor_supply.income_elasticity.prime_age"
+        effects_ok &= text in note and abs(published - stored_center) < 1e-9
+    check(
+        "correction descending-quantile effects",
+        effects_ok
+        and sum(1 for _, q in repaired if q == cap_gains_id) == 3
+        and "All three capital-gains centers stay inside the Table 3 band" in note,
+        f"cells {sorted(repaired)}",
+    )
+
+    # April 19 archive behind Tables A18 and A19, reparsed.
+    from llm_econ_beliefs import parse_belief_response
+
+    build_tables = _build_tables_module()
+    tax_id = build_tables.CAP_GAINS_TAX_RATE_ID
+    net_id = build_tables.CAP_GAINS_NET_OF_TAX_RATE_ID
+    archive: dict[tuple[str, str], tuple[list[float], list[float], int, int]] = {}
+    for model in build_tables.DUAL_WORDING_MODELS:
+        rows = build_tables._read_archived_runs_jsonl(
+            build_tables.WORDING_ARCHIVE_COMMIT, f"results/{model}-elasticities-batch15/runs.jsonl"
+        )
+        for quantity in build_tables.SIGN_CLARIFIED_QUANTITY_IDS:
+            stored_values, reparsed_values, changed_runs, rejected_runs = [], [], 0, 0
+            for row in rows:
+                if row["quantity_id"] != quantity or not row.get("parsed_ok"):
+                    continue
+                stored_values.append(row["point_estimate"])
+                try:
+                    estimate = parse_belief_response(row["raw_response"], quantity_id=quantity)
+                except ValueError:
+                    rejected_runs += 1
+                    continue
+                reparsed_values.append(estimate.point_estimate)
+                changed_runs += (
+                    estimate.point_estimate != row["point_estimate"]
+                    or estimate.quantiles != row["quantiles"]
+                )
+            archive[(model, quantity)] = (stored_values, reparsed_values, changed_runs, rejected_runs)
+    gemini_pro = "gemini-3.1-pro-preview"
+    moved_cells = {cell: (c, r) for cell, (_, _, c, r) in archive.items() if c or r}
+    stored_net, reparsed_net, _, _ = archive[(gemini_pro, net_id)]
+    stored_tax = archive[(gemini_pro, tax_id)][0]
+    check(
+        "correction April 19 reparse counts",
+        moved_cells == {(gemini_pro, net_id): (3, 5)}
+        and len(stored_net) == 15
+        and "changes 3 and rejects 5 of the 15 `Gemini 3.1 Pro` net-of-tax-rate runs there; "
+        f"the other {len(archive) - 1} sign-clarified April 19 cells reparse unchanged" in note,
+        f"got {moved_cells}, {len(archive)} cells",
+    )
+    a18 = next(
+        r for r in read_rows("wording-comparison")
+        if r["Model"] == "Gemini 3.1 Pro" and "net-of-tax" in r["Quantity"]
+    )
+    revised_center = float(a18["Revised center"])
+    tax_median = median(stored_tax)
+    check(
+        "correction April 19 A18 effects",
+        f"{fmean(stored_net):.3f}" == a18["Original center"]
+        and f"parse {len(reparsed_net)} of {len(stored_net)} runs rather than all {len(stored_net)}" in note
+        and f"$({tax_median:.2f}, {median(reparsed_net):.3f})$ rather than "
+        f"$({tax_median:.2f}, {median(stored_net):.2f})$" in note
+        and f"from `{fmean(stored_net):.3f}` to `{fmean(reparsed_net):.3f}`, shrinking its wording change "
+        f"from `{float(a18['Center change']):+.2f}` to `{revised_center - fmean(reparsed_net):+.2f}`" in note,
+        f"centers {fmean(stored_net):.4f} -> {fmean(reparsed_net):.4f}",
+    )
+    a19 = next(r for r in read_rows("wording-comparison-tau") if r["Model"] == "Gemini 3.1 Pro")
+    old_tau = build_tables._bootstrap_implied_tau_quantiles(stored_tax, stored_net)
+    new_tau = build_tables._bootstrap_implied_tau_quantiles(stored_tax, reparsed_net)
+    old_flag = build_tables._implied_tau_band_flag(old_tau[1], old_tau[3])
+    new_flag = build_tables._implied_tau_band_flag(new_tau[1], new_tau[3])
+    rho = tax_median / median(reparsed_net)
+    check(
+        "correction April 19 A19 effects",
+        f"{old_tau[1]:.3f} [{old_tau[0]:.3f}, {old_tau[2]:.3f}]" == a19["Original implied tau median [90%]"]
+        and old_flag == a19["Original band"]
+        and new_flag == "plausible sign, outside bands"
+        and f"from `{old_tau[1]:.3f}` [{old_tau[0]:.3f}, {old_tau[2]:.3f}], {old_flag}, to "
+        f"`{new_tau[1]:.3f}` [{new_tau[0]:.3f}, {new_tau[2]:.3f}], a plausible sign outside both bands, "
+        f"against a reparsed plug-in of `{-rho / (1 - rho):.2f}`" in note,
+        f"tau {old_tau} {old_flag} -> {new_tau} {new_flag}",
+    )
+
     ledger = (REPO_ROOT / "paper" / "corrections" / "2026-09-25-changed-numbers.md").read_text()
     match = re.search(r"(\d+) cells changed across (\d+) CSV files; (\d+) Markdown tables", ledger)
     check(
