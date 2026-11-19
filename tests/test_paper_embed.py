@@ -8,6 +8,7 @@ tests lock that contract and the layout it depends on.
 from __future__ import annotations
 
 import re
+import zlib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +34,53 @@ def test_synced_render_exists_and_carries_the_manuscript() -> None:
     assert (WEB / "paper_files").is_dir()
     html = index.read_text()
     assert "How Large Language Models Answer Questions" in html
+
+
+def test_synced_render_applied_the_project_config() -> None:
+    # paper/_quarto.yml supplies the table of contents, section numbers and
+    # bibliography. Quarto skips project files whose absolute path contains a
+    # dot-directory (such as .claude/worktrees/...), and a render there comes
+    # out without all three, with every citation left as a raw @key.
+    html = (WEB / "index.html").read_text()
+    assert 'id="TOC"' in html
+    assert 'id="refs"' in html
+    assert html.count('class="header-section-number"') >= 50
+    spans = re.findall(r'<span class="citation"[^>]*>(.*?)</span>', html, flags=re.S)
+    unresolved = [
+        span for span in spans if "@" in re.sub(r"<[^>]+>", "", span) or "???" in span
+    ]
+    assert spans and unresolved == []
+
+
+def _inflated_pdf_streams(path: Path) -> bytes:
+    data = path.read_bytes()
+    chunks = []
+    for match in re.finditer(rb"stream\r?\n", data):
+        try:
+            chunks.append(zlib.decompressobj().decompress(data[match.end() :]))
+        except zlib.error:
+            continue
+    return b"".join(chunks)
+
+
+def test_synced_pdf_applied_the_project_config() -> None:
+    # The PDF counterpart of the check above. A resolved bibliography leaves
+    # one cite.ref-* named destination per reference and numbered sections
+    # leave section.N destinations; a render without _quarto.yml has neither.
+    # Its numbered sections and subsections pair one to one with the HTML's,
+    # so a PDF whose numbered outline differs fails too. One from another
+    # version with the same numbered outline is not caught here.
+    pdf = WEB / "index.pdf"
+    assert pdf.read_bytes() == (REPO_ROOT / "paper" / "paper.pdf").read_bytes()
+    streams = _inflated_pdf_streams(pdf)
+    html = (WEB / "index.html").read_text()
+    references = html.count('class="csl-entry"')
+    cite_targets = set(re.findall(rb"\(cite\.ref-[^)]+\)", streams))
+    assert references > 0 and len(cite_targets) == references
+    for level, tag in (("section", "h2"), ("subsection", "h3")):
+        targets = set(re.findall(rb"\(" + level.encode() + rb"\.\d[\d.]*\)", streams))
+        headings = re.findall(rf'<{tag}[^>]*>\s*<span class="header-section-number"', html)
+        assert len(targets) == len(headings) > 0, (level, len(targets), len(headings))
 
 
 def test_old_pdf_path_keeps_serving() -> None:

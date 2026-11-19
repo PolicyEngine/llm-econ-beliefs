@@ -526,6 +526,8 @@ def main() -> int:
 
     country_rows = build_country_table()
     if country_rows:
+        with (RESULTS_DIR / "correlates-country.csv").open() as handle:
+            first_outcome = next(csv.DictReader(handle))
         write_table_bundle(
             stem="correlates-country",
             rows=country_rows,
@@ -539,9 +541,9 @@ def main() -> int:
                 "confounded with the serving path (every Chinese-lab model "
                 "ran through OpenRouter JSON mode) and with elicitation "
                 "wave, and co-varies with completion budget and reasoning "
-                "configuration; prompts are English-language, and the group "
-                "sizes (5 versus 20) put a floor near 0.02-0.05 on "
-                "attainable p-values."
+                "configuration; prompts are English-language, and the groups "
+                f"are small ({first_outcome['china_n']} Chinese-lab versus "
+                f"{first_outcome['us_n']} US-lab models)."
             ),
         )
 
@@ -1625,10 +1627,31 @@ def read_comparison_rows(path: Path) -> list[ComparisonRow]:
                 cost_per_run_usd=float(row["usage_estimated_total_cost_usd_per_successful_run"])
                 if row["usage_estimated_total_cost_usd_per_successful_run"]
                 else None,
-                source_dir=row["source_dir"],
+                source_dir=resolve_source_dir(row["source_dir"]),
             )
         )
     return rows
+
+
+def resolve_source_dir(source_dir: str) -> str:
+    """Point a comparison row's run directory at this checkout's ``results/``.
+
+    The comparison CSV records each directory as an absolute path into the
+    checkout that generated it. Read as written, a build from any other
+    checkout (a worktree, CI, a fresh clone) would load that checkout's runs.
+    The run directory is everything from the last path component named
+    ``results`` on, so a checkout whose own path has a ``results`` directory
+    still resolves. An absolute path with no such component cannot be placed
+    in this checkout and raises rather than being read as written.
+    """
+    normalized = source_dir.replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part]
+    if "results" in parts:
+        start = len(parts) - 1 - parts[::-1].index("results")
+        return str(REPO_ROOT.joinpath(*parts[start:]))
+    if normalized.startswith("/") or re.match(r"[A-Za-z]:/", normalized):
+        raise ValueError(f"run directory {source_dir!r} has no results/ component")
+    return str(REPO_ROOT / normalized)
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -2151,7 +2174,11 @@ def write_markdown(path: Path, rows: list[dict[str, object]], *, note: str) -> N
     lines.append("| " + " | ".join(headers) + " |")
     lines.append("| " + " | ".join("---" for _ in headers) + " |")
     for row in rows:
-        cells = [format_markdown_cell(header, row[header]) for header in headers]
+        # Escape literal pipes ("Mean |center|") so Pandoc keeps the cell whole.
+        cells = [
+            format_markdown_cell(header, row[header]).replace("|", "\\|")
+            for header in headers
+        ]
         lines.append("| " + " | ".join(cells) + " |")
     path.write_text("\n".join(lines) + "\n")
 

@@ -74,7 +74,7 @@ export default function MethodsPage() {
             prompts. 26 U.S.-scoped quantities: 9 headline elasticities in
             two subpanels, 4 calibration parameters, a capital-gains
             convention sibling, and 12 simulation-facing coefficients.
-            12,090 successful runs at a 100 percent parse rate, with every
+            12,090 successful runs, every one accepted as parsed at collection, with every
             cell verified against the exact 15-run grid; failed slots re-ran as fresh independent draws,
             each traced in the{" "}
             <a
@@ -95,7 +95,8 @@ export default function MethodsPage() {
             >
               verification script
             </a>{" "}
-            pins the paper&apos;s prose to the generated tables. The{" "}
+            checks many of the paper&apos;s stated numbers against the
+            generated tables. The{" "}
             <a
               className="underline underline-offset-2"
               href="https://github.com/PolicyEngine/llm-econ-beliefs#reproducing-the-v4-panel"

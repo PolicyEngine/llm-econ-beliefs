@@ -397,22 +397,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.annual_discount_factor,9,v4,none,True,0.95,,0.9,0.995,0.9,"{""p05"": 0.9, ""p25"": 0.95, ""p50"": 0.96, ""p75"": 0.98, ""p95"": 0.995}",False,,"{
-  ""interpretation"": ""Annual time discount factor (beta) used in the calibration of a representative household's utility function."",
-  ""point_estimate"": 0.96,
-  ""quantiles"": {
-    ""p05"": 0.90,
-    ""p25"": 0.95,
-    ""p50"": 0.96,
-    ""p75"": 0.98,
-    ""p95"": 0.995
-  },
-  ""citations"": [
-    ""Kydland and Prescott (1982)"",
-    ""Mehra and Prescott (1985)"",
-    ""Gali (2008)""
-  ],
-  ""reasoning_summary"": ""In macroeconomic calibrations, the annual discount factor is typically selected to match steady-state real interest rates, historically placing it around 0.95 to 0.99. A value of 0.96 (or 0.99 quarterly) is widely used to target a 4% annual real risk-free rate.""",,"{
+litellm_completion,gemini-3.5-flash,household.annual_discount_factor,9,v4,none,True,0.96,Annual time discount factor (beta) used in the calibration of a representative household's utility function.,0.9,0.995,0.9,"{""p05"": 0.9, ""p25"": 0.95, ""p50"": 0.96, ""p75"": 0.98, ""p95"": 0.995}",False,Kydland and Prescott (1982) | Mehra and Prescott (1985) | Gali (2008),"In macroeconomic calibrations, the annual discount factor is typically selected to match steady-state real interest rates, historically placing it around 0.95 to 0.99. A value of 0.96 (or 0.99 quarterly) is widely used to target a 4% annual real risk-free rate.",,"{
   ""interpretation"": ""Annual time discount factor (beta) used in the calibration of a representative household's utility function."",
   ""point_estimate"": 0.96,
   ""quantiles"": {
@@ -609,22 +594,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.annual_discount_factor,13,v4,none,True,0.96,,0.92,0.99,0.9,"{""p05"": 0.92, ""p25"": 0.95, ""p50"": 0.96, ""p75"": 0.97, ""p95"": 0.99}",False,,"{
-  ""interpretation"": ""Annual discount factor (beta) calibrated for a representative household in macroeconomic models."",
-  ""point_estimate"": 0.96,
-  ""quantiles"": {
-    ""p05"": 0.92,
-    ""p25"": 0.95,
-    ""p50"": 0.96,
-    ""p75"": 0.97,
-    ""p95"": 0.99
-  },
-  ""citations"": [
-    ""Kydland, F. E., & Prescott, E. C. (1982). Time to Build and Aggregate Fluctuations. Econometrica."",
-    ""Mehra, R., & Prescott, E. C. (1985). The Equity Premium: A Puzzle. Journal of Monetary Economics."",
-    ""Cooley, T. F., & Prescott, E. C. (1995). Economic Growth and Business Cycles. Frontiers of Business Cycle Calculus.""
-  ],
-  ""reasoning_summary"": ""The annual discount factor in standard DSGE and RBC calibration is typically set to roughly 0.96 to align the steady-state real interest rate with historical averages of around 4% (via beta * (1 + r) = 1). Lower values like 0.92 or 0.95 are sometimes used in heterogeneous agent models to match wealth distributions, while higher values like 0.98 or 0.99 reflect low real interest rate regimes.""",,"{
+litellm_completion,gemini-3.5-flash,household.annual_discount_factor,13,v4,none,True,0.96,Annual discount factor (beta) calibrated for a representative household in macroeconomic models.,0.92,0.99,0.9,"{""p05"": 0.92, ""p25"": 0.95, ""p50"": 0.96, ""p75"": 0.97, ""p95"": 0.99}",False,"Kydland, F. E., & Prescott, E. C. (1982). Time to Build and Aggregate Fluctuations. Econometrica. | Mehra, R., & Prescott, E. C. (1985). The Equity Premium: A Puzzle. Journal of Monetary Economics. | Cooley, T. F., & Prescott, E. C. (1995). Economic Growth and Business Cycles. Frontiers of Business Cycle Calculus.","The annual discount factor in standard DSGE and RBC calibration is typically set to roughly 0.96 to align the steady-state real interest rate with historical averages of around 4% (via beta * (1 + r) = 1). Lower values like 0.92 or 0.95 are sometimes used in heterogeneous agent models to match wealth distributions, while higher values like 0.98 or 0.99 reflect low real interest rate regimes.",,"{
   ""interpretation"": ""Annual discount factor (beta) calibrated for a representative household in macroeconomic models."",
   ""point_estimate"": 0.96,
   ""quantiles"": {
@@ -887,22 +857,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,3,v4,none,True,0.2,,0.1,2.2,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.2}",False,,"{
-  ""interpretation"": ""The intertemporal elasticity of substitution (IES) for nondurable consumption for a representative U.S. household in an annual macro-calibration setting, distinct from the coefficient of relative risk aversion."",
-  ""point_estimate"": 1.0,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.5,
-    ""p50"": 1.0,
-    ""p75"": 1.5,
-    ""p95"": 2.2
-  },
-  ""citations"": [
-    ""Hall (1988), 'Intertemporal Substitution in Consumption'"",
-    ""Bansal and Yaron (2004), 'Risks for the Long Run: A Potential Resolution of Asset Pricing Puzzles'"",
-    ""Vissing-J\u00f8rgensen (2002), 'Limited Asset Market Participation and the Elasticity of Intertemporal Substitution'""
-  ],
-  ""reasoning_summary"": ""Estimates of the IES vary widely depending on the framework. Empirical micro studies and traditional macro models often estimate values well below 1 (frequently around 0.2 to 0.5). Conversely, modern macro-finance calibrations using Epstein-Zin preferences to decouple IES from risk aversion typically use values above 1 (frequently 1.5) to match asset pricing dynamics. A median of 1.0 represents the standard logarithmic utility benchmark and a neutral compromise between these paradigms.""",,"{
+litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,3,v4,none,True,1.0,"The intertemporal elasticity of substitution (IES) for nondurable consumption for a representative U.S. household in an annual macro-calibration setting, distinct from the coefficient of relative risk aversion.",0.1,2.2,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.2}",False,"Hall (1988), 'Intertemporal Substitution in Consumption' | Bansal and Yaron (2004), 'Risks for the Long Run: A Potential Resolution of Asset Pricing Puzzles' | Vissing-Jørgensen (2002), 'Limited Asset Market Participation and the Elasticity of Intertemporal Substitution'","Estimates of the IES vary widely depending on the framework. Empirical micro studies and traditional macro models often estimate values well below 1 (frequently around 0.2 to 0.5). Conversely, modern macro-finance calibrations using Epstein-Zin preferences to decouple IES from risk aversion typically use values above 1 (frequently 1.5) to match asset pricing dynamics. A median of 1.0 represents the standard logarithmic utility benchmark and a neutral compromise between these paradigms.",,"{
   ""interpretation"": ""The intertemporal elasticity of substitution (IES) for nondurable consumption for a representative U.S. household in an annual macro-calibration setting, distinct from the coefficient of relative risk aversion."",
   ""point_estimate"": 1.0,
   ""quantiles"": {
@@ -1001,22 +956,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,5,v4,none,True,1.0,,0.1,2.0,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.0}",False,,"{
-  ""interpretation"": ""Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, distinct from risk aversion."",
-  ""point_estimate"": 1.0,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.5,
-    ""p50"": 1.0,
-    ""p75"": 1.5,
-    ""p95"": 2.0
-  },
-  ""citations"": [
-    ""Hall (1988)"",
-    ""Bansal and Yaron (2004)"",
-    ""Guvenen (2006)""
-  ],
-  ""reasoning_summary"": ""Calibrations of the IES in macroeconomics are highly polarized. Microeconometric studies and standard RBC models often use or find values below 1.0 (often 0.2 to 0.5), whereas modern macro-finance models using Epstein-Zin preferences to decouple IES from risk aversion typically require an IES strictly greater than 1 (often calibrated to 1.5) to match asset pricing data. The probability distribution reflects this parameter conflict with a median of 1.0.""",,"{
+litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,5,v4,none,True,1.0,"Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, distinct from risk aversion.",0.1,2.0,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.0}",False,Hall (1988) | Bansal and Yaron (2004) | Guvenen (2006),"Calibrations of the IES in macroeconomics are highly polarized. Microeconometric studies and standard RBC models often use or find values below 1.0 (often 0.2 to 0.5), whereas modern macro-finance models using Epstein-Zin preferences to decouple IES from risk aversion typically require an IES strictly greater than 1 (often calibrated to 1.5) to match asset pricing data. The probability distribution reflects this parameter conflict with a median of 1.0.",,"{
   ""interpretation"": ""Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, distinct from risk aversion."",
   ""point_estimate"": 1.0,
   ""quantiles"": {
@@ -1515,22 +1455,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,15,v4,none,True,1.0,,0.1,2.0,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.0}",False,,"{
-  ""interpretation"": ""Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, structurally disentangled from coefficient of relative risk aversion."",
-  ""point_estimate"": 1.0,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.5,
-    ""p50"": 1.0,
-    ""p75"": 1.5,
-    ""p95"": 2.0
-  },
-  ""citations"": [
-    ""Hall (1988)"",
-    ""Bansal and Yaron (2004)"",
-    ""Vissing-J\u00f8rgensen (2002)""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the IES vary dramatically depending on the methodology. Aggregate time-series regressions historically suggest very low values near 0, whereas asset-pricing models with Epstein-Zin preferences (such as long-run risk models) calibrate the IES above 1.0 to fit asset price dynamics. Micro-data studies that account for asset market participation often find intermediate values.""",,"{
+litellm_completion,gemini-3.5-flash,household.intertemporal_elasticity_of_substitution,15,v4,none,True,1.0,"Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, structurally disentangled from coefficient of relative risk aversion.",0.1,2.0,0.9,"{""p05"": 0.1, ""p25"": 0.5, ""p50"": 1.0, ""p75"": 1.5, ""p95"": 2.0}",False,Hall (1988) | Bansal and Yaron (2004) | Vissing-Jørgensen (2002),"Empirical estimates of the IES vary dramatically depending on the methodology. Aggregate time-series regressions historically suggest very low values near 0, whereas asset-pricing models with Epstein-Zin preferences (such as long-run risk models) calibrate the IES above 1.0 to fit asset price dynamics. Micro-data studies that account for asset market participation often find intermediate values.",,"{
   ""interpretation"": ""Intertemporal elasticity of substitution (IES) for nondurable consumption of a representative U.S. household in an annual macro-calibration setting, structurally disentangled from coefficient of relative risk aversion."",
   ""point_estimate"": 1.0,
   ""quantiles"": {
@@ -1829,21 +1754,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,6,v4,none,True,2.0,,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,,"{
-  ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative or calibrated household utility function over consumption."",
-  ""point_estimate"": 2.0,
-  ""quantiles"": {
-    ""p05"": 0.5,
-    ""p25"": 1.0,
-    ""p50"": 2.0,
-    ""p75"": 4.0,
-    ""p95"": 10.0
-  },
-  ""citations"": [
-    ""Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161."",
-    ""Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.""
-  ],
-  ""reasoning_summary"": ""Standard macroeconomic and Dynamic Stochastic General Equilibrium (DSGE) models typically calibrate the CRRA coefficient to a range between 1 (log utility) and 3. Empirical micro-estimates from portfolio choice and labor supply often center around 2. While resolving the equity premium puzzle in simple setups sometimes pushes the parameter higher, values above 10 are generally considered theoretically and empirically implausible.""",,"{
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,6,v4,none,True,2.0,"The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative or calibrated household utility function over consumption.",0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 4.0, ""p95"": 10.0}",False,"Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145-161. | Friend, I., & Blume, M. E. (1975). The demand for risky assets. The American Economic Review, 65(5), 900-922.","Standard macroeconomic and Dynamic Stochastic General Equilibrium (DSGE) models typically calibrate the CRRA coefficient to a range between 1 (log utility) and 3. Empirical micro-estimates from portfolio choice and labor supply often center around 2. While resolving the equity premium puzzle in simple setups sometimes pushes the parameter higher, values above 10 are generally considered theoretically and empirically implausible.",,"{
   ""interpretation"": ""The coefficient of relative risk aversion (CRRA, typically denoted sigma) in a representative or calibrated household utility function over consumption."",
   ""point_estimate"": 2.0,
   ""quantiles"": {
@@ -1940,22 +1851,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,8,v4,none,True,2.0,,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,,"{
-  ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption"",
-  ""point_estimate"": 2.0,
-  ""quantiles"": {
-    ""p05"": 0.5,
-    ""p25"": 1.0,
-    ""p50"": 2.0,
-    ""p75"": 5.0,
-    ""p95"": 10.0
-  },
-  ""citations"": [
-    ""Mehra and Prescott (1985)"",
-    ""Friend and Blume (1975)"",
-    ""Arrow (1971)""
-  ],
-  ""reasoning_summary"": ""Calibrations in macroeconomic models typically default to a CRRA of 1 (logarithmic utility) or 2. Micro-data estimates and asset pricing models often suggest higher values, but a range between 1 and 5 covers most standard applications, with 10 representing an upper bound of standard macroeconomic consensus limit of plausible risk aversion.""",,"{
+litellm_completion,gemini-3.5-flash,household.relative_risk_aversion.crra,8,v4,none,True,2.0,CRRA coefficient (sigma) in household utility over consumption,0.5,10.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 2.0, ""p75"": 5.0, ""p95"": 10.0}",False,Mehra and Prescott (1985) | Friend and Blume (1975) | Arrow (1971),"Calibrations in macroeconomic models typically default to a CRRA of 1 (logarithmic utility) or 2. Micro-data estimates and asset pricing models often suggest higher values, but a range between 1 and 5 covers most standard applications, with 10 representing an upper bound of standard macroeconomic consensus limit of plausible risk aversion.",,"{
   ""interpretation"": ""CRRA coefficient (sigma) in household utility over consumption"",
   ""point_estimate"": 2.0,
   ""quantiles"": {
@@ -2451,22 +2347,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.extensive_margin.single_mothers,3,v4,none,True,0.5,,0.15,1.0,0.9,"{""p05"": 0.15, ""p25"": 0.35, ""p50"": 0.5, ""p75"": 0.7, ""p95"": 1.0}",False,,"{
-  ""interpretation"": ""Medium-run employment participation elasticity of single mothers in the United States with respect to the net-of-tax wage"",
-  ""point_estimate"": 0.5,
-  ""quantiles"": {
-    ""p05"": 0.15,
-    ""p25"": 0.35,
-    ""p50"": 0.5,
-    ""p75"": 0.7,
-    ""p95"": 1.0
-  },
-  ""citations"": [
-    ""Meyer and Rosenbaum (2001), 'Welfare, the Earned Income Tax Credit, and the Labor Supply of Single Mothers'"",
-    ""Eissa and Liebman (1996), 'Labor Supply Response to the Earned Income Tax Credit'"",
-    ""Chetty, Guren, Manoli, and Weber (2012), 'Does Indivisible Labor Explain the Difference Between Micro and Macro Elasticities? A Meta-Analysis'""
-  ],
-  ""reasoning_summary"": ""Empirical literature on the EITC and welfare reforms of the 1990s consistently finds that single mothers have relatively high labor force participation elasticities on the extensive margin. Most estimates fall between 0.3 and 0.7, though there is some debate in more recent literature about whether these responses have attenuated over or-time shifts have diminished the have.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.extensive_margin.single_mothers,3,v4,none,True,0.5,Medium-run employment participation elasticity of single mothers in the United States with respect to the net-of-tax wage,0.15,1.0,0.9,"{""p05"": 0.15, ""p25"": 0.35, ""p50"": 0.5, ""p75"": 0.7, ""p95"": 1.0}",False,"Meyer and Rosenbaum (2001), 'Welfare, the Earned Income Tax Credit, and the Labor Supply of Single Mothers' | Eissa and Liebman (1996), 'Labor Supply Response to the Earned Income Tax Credit' | Chetty, Guren, Manoli, and Weber (2012), 'Does Indivisible Labor Explain the Difference Between Micro and Macro Elasticities? A Meta-Analysis'","Empirical literature on the EITC and welfare reforms of the 1990s consistently finds that single mothers have relatively high labor force participation elasticities on the extensive margin. Most estimates fall between 0.3 and 0.7, though there is some debate in more recent literature about whether these responses have attenuated over or-time shifts have diminished the have.",,"{
   ""interpretation"": ""Medium-run employment participation elasticity of single mothers in the United States with respect to the net-of-tax wage"",
   ""point_estimate"": 0.5,
   ""quantiles"": {
@@ -2715,22 +2596,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.extensive_margin.single_mothers,8,v4,none,True,0.5,,0.15,1.0,0.9,"{""p05"": 0.15, ""p25"": 0.35, ""p50"": 0.5, ""p75"": 0.7, ""p95"": 1.0}",False,,"{
-  ""interpretation"": ""Medium-run employment participation elasticity with respect to the net-of-tax wage for single mothers in the United States"",
-  ""point_estimate"": 0.5,
-  ""quantiles"": {
-    ""p05"": 0.15,
-    ""p25"": 0.35,
-    ""p50"": 0.5,
-    ""p75"": 0.7,
-    ""p95"": 1.0
-  },
-  ""citations"": [
-    ""Eissa and Liebman (1996)"",
-    ""Meyer and Rosenbaum (2001)"",
-    ""Chetty, Guren, Manoli, and Weber (2011)""
-  ],
-  ""reasoning_summary"": ""Extensive margin labor supply elasticities for single mothers have historically been estimated to be higher than those for the general population, primarily driven by responses to EITC expansions in the 1980s and 1990s. While older literature (e.g., Meyer and Rosenbaum) suggests elasticities around 0.5 to 0.7, more recent meta-analyses and quasi-experimental studies suggest a range of 0.3 to 0.6, with some potential for smaller values in more recent decades due to changing baseline participation leveling out of baseline employment saturation.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.extensive_margin.single_mothers,8,v4,none,True,0.5,Medium-run employment participation elasticity with respect to the net-of-tax wage for single mothers in the United States,0.15,1.0,0.9,"{""p05"": 0.15, ""p25"": 0.35, ""p50"": 0.5, ""p75"": 0.7, ""p95"": 1.0}",False,"Eissa and Liebman (1996) | Meyer and Rosenbaum (2001) | Chetty, Guren, Manoli, and Weber (2011)","Extensive margin labor supply elasticities for single mothers have historically been estimated to be higher than those for the general population, primarily driven by responses to EITC expansions in the 1980s and 1990s. While older literature (e.g., Meyer and Rosenbaum) suggests elasticities around 0.5 to 0.7, more recent meta-analyses and quasi-experimental studies suggest a range of 0.3 to 0.6, with some potential for smaller values in more recent decades due to changing baseline participation leveling out of baseline employment saturation.",,"{
   ""interpretation"": ""Medium-run employment participation elasticity with respect to the net-of-tax wage for single mothers in the United States"",
   ""point_estimate"": 0.5,
   ""quantiles"": {
@@ -3478,22 +3344,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,8,v4,none,True,0.5,,0.1,1.2,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.2}",False,,"{
-  ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the workforce, suitable for lifecycle or macro calibration."",
-  ""point_estimate"": 0.5,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.3,
-    ""p50"": 0.5,
-    ""p75"": 0.75,
-    ""p95"": 1.2
-  },
-  ""citations"": [
-    ""Chetty, Guren, Manoli, and Weber (2011)"",
-    ""MaCurdy (1981)"",
-    ""Altonji (1986)""
-  ],
-  ""reasoning_summary"": ""Microeconomic estimates of the intensive-margin Frisch elasticity of labor supply (e.g., MaCurdy, Altonji) traditionally cluster at low values (0.1 to 0.3). Meta-analyses and lifecycle models that account for optimization frictions or borrowing constraints (e.g., Chetty et al.) suggest a somewhat higher intensive-margin elasticity of around 0.5 for calibration, though macroeconomic models often request even higher aggregate elasticities that incorporate the extensive margin.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,8,v4,none,True,0.5,"Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the workforce, suitable for lifecycle or macro calibration.",0.1,1.2,0.9,"{""p05"": 0.1, ""p25"": 0.3, ""p50"": 0.5, ""p75"": 0.75, ""p95"": 1.2}",False,"Chetty, Guren, Manoli, and Weber (2011) | MaCurdy (1981) | Altonji (1986)","Microeconomic estimates of the intensive-margin Frisch elasticity of labor supply (e.g., MaCurdy, Altonji) traditionally cluster at low values (0.1 to 0.3). Meta-analyses and lifecycle models that account for optimization frictions or borrowing constraints (e.g., Chetty et al.) suggest a somewhat higher intensive-margin elasticity of around 0.5 for calibration, though macroeconomic models often request even higher aggregate elasticities that incorporate the extensive margin.",,"{
   ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the workforce, suitable for lifecycle or macro calibration."",
   ""point_estimate"": 0.5,
   ""quantiles"": {
@@ -3642,22 +3493,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,11,v4,none,True,0.3,,0.05,1.0,0.9,"{""p05"": 0.05, ""p25"": 0.15, ""p50"": 0.3, ""p75"": 0.55, ""p95"": 1.0}",False,,"{
-  ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the labor force, as used in lifecycle or macro calibrations."",
-  ""point_estimate"": 0.3,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.15,
-    ""p50"": 0.3,
-    ""p75"": 0.55,
-    ""p95"": 1.0
-  },
-  ""citations"": [
-    ""MaCurdy (1981): An Empirical Model of Labor Supply in a Life-Cycle Setting"",
-    ""Altonji (1986): Intertemporal Substitution in Labor Supply: Evidence from Micro Data"",
-    ""Chetty et al. (2011): Are Micro and Macro Labor Supply Elasticities Consistent? A Review of Evidence on the Frisch Elasticity""
-  ],
-  ""reasoning_summary"": ""Micro-empirical studies using panel data typically estimate a very low intensive-margin Frisch elasticity (often between 0.0 and 0.5) for prime-age workers. While macroeconomic models often calibrate higher values to match business cycle fluctuations, these often implicitly include the extensive margin or household-level adjustments. Accounting for optimization frictions pushes the plausible micro-consistent range slightly higher, but it remains concentrated below 1.0.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,11,v4,none,True,0.3,"Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the labor force, as used in lifecycle or macro calibrations.",0.05,1.0,0.9,"{""p05"": 0.05, ""p25"": 0.15, ""p50"": 0.3, ""p75"": 0.55, ""p95"": 1.0}",False,MaCurdy (1981): An Empirical Model of Labor Supply in a Life-Cycle Setting | Altonji (1986): Intertemporal Substitution in Labor Supply: Evidence from Micro Data | Chetty et al. (2011): Are Micro and Macro Labor Supply Elasticities Consistent? A Review of Evidence on the Frisch Elasticity,"Micro-empirical studies using panel data typically estimate a very low intensive-margin Frisch elasticity (often between 0.0 and 0.5) for prime-age workers. While macroeconomic models often calibrate higher values to match business cycle fluctuations, these often implicitly include the extensive margin or household-level adjustments. Accounting for optimization frictions pushes the plausible micro-consistent range slightly higher, but it remains concentrated below 1.0.",,"{
   ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for prime-age US workers already in the labor force, as used in lifecycle or macro calibrations."",
   ""point_estimate"": 0.3,
   ""quantiles"": {
@@ -3706,22 +3542,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,12,v4,none,True,0.3,,0.1,1.2,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.75, ""p95"": 1.2}",False,,"{
-  ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for employed prime-age US workers, holding marginal utility of wealth constant."",
-  ""point_estimate"": 0.4,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.25,
-    ""p50"": 0.4,
-    ""p75"": 0.75,
-    ""p95"": 1.2
-  },
-  ""citations"": [
-    ""MaCurdy (1981)"",
-    ""Chetty, Guren, Manoli, and Weber (2011)"",
-    ""Keane (2011)""
-  ],
-  ""reasoning_summary"": ""Micro-econometric estimates of the intensive-margin Frisch elasticity for prime-age males are typically small (0.1 to 0.5). Macroeconomic calibrations often push this value higher (up to 1.0 or more) to match aggregate fluctuations, but consensus reviews reconciling the two literatures point to a bounds-consistent intensive-margin estimate around 0.3 to 0.5.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.frisch_elasticity.prime_age,12,v4,none,True,0.4,"Intensive-margin annual-hours Frisch elasticity of labor supply for employed prime-age US workers, holding marginal utility of wealth constant.",0.1,1.2,0.9,"{""p05"": 0.1, ""p25"": 0.25, ""p50"": 0.4, ""p75"": 0.75, ""p95"": 1.2}",False,"MaCurdy (1981) | Chetty, Guren, Manoli, and Weber (2011) | Keane (2011)","Micro-econometric estimates of the intensive-margin Frisch elasticity for prime-age males are typically small (0.1 to 0.5). Macroeconomic calibrations often push this value higher (up to 1.0 or more) to match aggregate fluctuations, but consensus reviews reconciling the two literatures point to a bounds-consistent intensive-margin estimate around 0.3 to 0.5.",,"{
   ""interpretation"": ""Intensive-margin annual-hours Frisch elasticity of labor supply for employed prime-age US workers, holding marginal utility of wealth constant."",
   ""point_estimate"": 0.4,
   ""quantiles"": {
@@ -4140,22 +3961,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,5,v4,none,True,0.1,,0.15,0.15,0.9,"{""p05"": 0.15, ""p25"": 0.15, ""p50"": 0.15, ""p75"": 0.15, ""p95"": 0.15}",True,,"{
-  ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income conditional on employment for prime-age US workers."",
-  ""point_estimate"": -0.04,
-  ""quantiles"": {
-    ""p05"": -0.15,
-    ""p25"": -0.08,
-    ""p50"": -0.04,
-    ""p75"": -0.01,
-    ""p95"": 0.01
-  },
-  ""citations"": [
-    ""Imbens, Rubin, and Sacerdote (2001)"",
-    ""Cesarini, Lindqvist, Östling, and Wallace (2017)"",
-    ""Blundell and MaCurdy (1999)""
-  ],
-  ""reasoning_summary"": ""Microeconomic empirical research, particularly studies exploiting lottery wealth shocks (e.g., Imbens et al., 2001; Cesarini et al., 2017), consistently finds small, negative income effects on the intensive margin of labor supply. This indicates that while leisure is a normal good, the intensive-margin hours response to non-labor income is highly inelastic, with central estimates typically falling between -0.10 and 0.00.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,5,v4,none,True,-0.04,Intensive-margin annual-hours elasticity with respect to non-labor income conditional on employment for prime-age US workers.,-0.15,0.01,0.9,"{""p05"": -0.15, ""p25"": -0.08, ""p50"": -0.04, ""p75"": -0.01, ""p95"": 0.01}",False,"Imbens, Rubin, and Sacerdote (2001) | Cesarini, Lindqvist, Östling, and Wallace (2017) | Blundell and MaCurdy (1999)","Microeconomic empirical research, particularly studies exploiting lottery wealth shocks (e.g., Imbens et al., 2001; Cesarini et al., 2017), consistently finds small, negative income effects on the intensive margin of labor supply. This indicates that while leisure is a normal good, the intensive-margin hours response to non-labor income is highly inelastic, with central estimates typically falling between -0.10 and 0.00.",,"{
   ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income conditional on employment for prime-age US workers."",
   ""point_estimate"": -0.04,
   ""quantiles"": {
@@ -4429,7 +4235,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,10,v4,none,True,-0.04,,0.15,0.15,0.9,"{""p05"": 0.15, ""p25"": 0.15, ""p50"": 0.15, ""p75"": 0.15, ""p95"": 0.15}",True,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,10,v4,none,True,-0.04,,-0.15,0.01,0.9,"{""p05"": -0.15, ""p25"": -0.08, ""p50"": -0.04, ""p75"": -0.01, ""p95"": 0.01}",False,,"{
   ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income, conditional on employment for prime-age US workers."",
   ""point_estimate"": -0.04,
   ""quantiles"": {
@@ -4502,22 +4308,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,11,v4,none,True,0.15,,0.15,0.15,0.9,"{""p05"": 0.15, ""p25"": 0.15, ""p50"": 0.15, ""p75"": 0.15, ""p95"": 0.15}",True,,"{
-  ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income for prime-age, currently employed US workers, holding net-of-tax wages constant."",
-  ""point_estimate"": -0.04,
-  ""quantiles"": {
-    ""p05"": -0.15,
-    ""p25"": -0.08,
-    ""p50"": -0.04,
-    ""p75"": -0.01,
-    ""p95"": 0.00
-  },
-  ""citations"": [
-    ""Imbens, Rubin, and Sacerdote (2001) - American Economic Review"",
-    ""Cesarini, Lindqvist, Östling, and Wallace (2017) - American Economic Review"",
-    ""Pencavel (1986) - Handbook of Labor Economics""
-  ],
-  ""reasoning_summary"": ""Empirical studies, particularly those exploiting lottery wins as exogenous shocks to non-labor income, find small, negative income effects on hours worked. The income elasticity of labor supply for prime-age workers is robustly estimated to be negative but small in magnitude, typically ranging between -0.10 and 0.00.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,11,v4,none,True,-0.04,"Intensive-margin annual-hours elasticity with respect to non-labor income for prime-age, currently employed US workers, holding net-of-tax wages constant.",-0.15,0.0,0.9,"{""p05"": -0.15, ""p25"": -0.08, ""p50"": -0.04, ""p75"": -0.01, ""p95"": 0.0}",False,"Imbens, Rubin, and Sacerdote (2001) - American Economic Review | Cesarini, Lindqvist, Östling, and Wallace (2017) - American Economic Review | Pencavel (1986) - Handbook of Labor Economics","Empirical studies, particularly those exploiting lottery wins as exogenous shocks to non-labor income, find small, negative income effects on hours worked. The income elasticity of labor supply for prime-age workers is robustly estimated to be negative but small in magnitude, typically ranging between -0.10 and 0.00.",,"{
   ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income for prime-age, currently employed US workers, holding net-of-tax wages constant."",
   ""point_estimate"": -0.04,
   ""quantiles"": {
@@ -4626,22 +4417,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,13,v4,none,True,0.12,,0.12,0.12,0.9,"{""p05"": 0.12, ""p25"": 0.12, ""p50"": 0.12, ""p75"": 0.12, ""p95"": 0.12}",True,,"{
-  ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income, conditional on employment for prime-age US workers"",
-  ""point_estimate"": -0.02,
-  ""quantiles"": {
-    ""p05"": -0.12,
-    ""p25"": -0.05,
-    ""p50"": -0.02,
-    ""p75"": -0.005,
-    ""p95"": 0.0
-  },
-  ""citations"": [
-    ""Imbens, Rubin, and Sacerdote (2001) - American Economic Review"",
-    ""Cesarini, Lindqvist, Ostling, and Westman (2017) - American Economic Review"",
-    ""Keane (2011) - Journal of Economic Literature""
-  ],
-  ""reasoning_summary"": ""Empirical studies, including those analyzing lottery winners and tax-transfer reforms, consistently find small, negative income elasticities of labor supply on the intensive margin. Because non-labor income is typically a modest share of total income for prime-age workers, a one percent increase in non-labor income yields a very small percentage reduction in hours worked.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,13,v4,none,True,-0.02,"Intensive-margin annual-hours elasticity with respect to non-labor income, conditional on employment for prime-age US workers",-0.12,0.0,0.9,"{""p05"": -0.12, ""p25"": -0.05, ""p50"": -0.02, ""p75"": -0.005, ""p95"": 0.0}",False,"Imbens, Rubin, and Sacerdote (2001) - American Economic Review | Cesarini, Lindqvist, Ostling, and Westman (2017) - American Economic Review | Keane (2011) - Journal of Economic Literature","Empirical studies, including those analyzing lottery winners and tax-transfer reforms, consistently find small, negative income elasticities of labor supply on the intensive margin. Because non-labor income is typically a modest share of total income for prime-age workers, a one percent increase in non-labor income yields a very small percentage reduction in hours worked.",,"{
   ""interpretation"": ""Intensive-margin annual-hours elasticity with respect to non-labor income, conditional on employment for prime-age US workers"",
   ""point_estimate"": -0.02,
   ""quantiles"": {
@@ -4695,22 +4471,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,14,v4,none,True,0.12,,0.12,0.12,0.9,"{""p05"": 0.12, ""p25"": 0.12, ""p50"": 0.12, ""p75"": 0.12, ""p95"": 0.12}",True,,"{
-  ""interpretation"": ""Intensive-margin annual-hours elasticity of labor supply with respect to non-labor income for employed, prime-age US workers."",
-  ""point_estimate"": -0.03,
-  ""quantiles"": {
-    ""p05"": -0.12,
-    ""p25"": -0.06,
-    ""p50"": -0.03,
-    ""p75"": -0.01,
-    ""p95"": 0.00
-  },
-  ""citations"": [
-    ""Pencavel, J. (1986). Labor supply of men: A survey. Handbook of Labor Economics."",
-    ""Imbens, G. W., Rubin, D. B., & Sacerdote, B. I. (2001). Estimating the Effect of Unearned Income on Labor Earnings, Savings, and Consumption: Evidence from a Survey of Lottery Players. American Economic Review."",
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper.""
-  ],
-  ""reasoning_summary"": ""Empirical literature on the income elasticity of labor supply, including studies on lottery winners and meta-analyses by the CBO, consistently finds small, negative income effects on the intensive margin. Because non-labor income constitutes a relatively small share of total resources for most prime-age workers, the elasticity with respect to non-labor income specifically is clustered between -0.10 and 0.00.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.income_elasticity.prime_age,14,v4,none,True,-0.03,"Intensive-margin annual-hours elasticity of labor supply with respect to non-labor income for employed, prime-age US workers.",-0.12,0.0,0.9,"{""p05"": -0.12, ""p25"": -0.06, ""p50"": -0.03, ""p75"": -0.01, ""p95"": 0.0}",False,"Pencavel, J. (1986). Labor supply of men: A survey. Handbook of Labor Economics. | Imbens, G. W., Rubin, D. B., & Sacerdote, B. I. (2001). Estimating the Effect of Unearned Income on Labor Earnings, Savings, and Consumption: Evidence from a Survey of Lottery Players. American Economic Review. | McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper.","Empirical literature on the income elasticity of labor supply, including studies on lottery winners and meta-analyses by the CBO, consistently finds small, negative income effects on the intensive margin. Because non-labor income constitutes a relatively small share of total resources for most prime-age workers, the elasticity with respect to non-labor income specifically is clustered between -0.10 and 0.00.",,"{
   ""interpretation"": ""Intensive-margin annual-hours elasticity of labor supply with respect to non-labor income for employed, prime-age US workers."",
   ""point_estimate"": -0.03,
   ""quantiles"": {
@@ -5021,22 +4782,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,5,v4,none,True,0.15,,0.15,0.3,0.9,"{""p05"": 0.15, ""p25"": 0.15, ""p50"": 0.15, ""p75"": 0.15, ""p95"": 0.3}",True,,"{
-  ""interpretation"": ""Intensive-margin uncompensated (Marshallian) annual-hours wage elasticity for employed, prime-age workers in the United States."",
-  ""point_estimate"": 0.05,
-  ""quantiles"": {
-    ""p05"": -0.15,
-    ""p25"": -0.05,
-    ""p50"": 0.05,
-    ""p75"": 0.15,
-    ""p95"": 0.3
-  },
-  ""citations"": [
-    ""Keane, M. P. (2011). Labor supply and taxes: A survey. Journal of Economic Literature, 49(4), 961-1075."",
-    ""Chetty, R. (2012). Bounds on elasticities with optimization frictions: A synthesis of micro and macro evidence on labor supply. Econometrica, 80(3), 969-1018."",
-    ""McClelland, R., & Mok, S. (2012). A review of recent research on labor supply elasticities. CBO Working Paper 2012-12.""
-  ],
-  ""reasoning_summary"": ""Empirical consensus suggests that the intensive-margin uncompensated labor supply elasticity for prime-age workers is very small because the positive substitution effect is largely offset by the negative income effect. Microeconomic estimates typically center near zero, with a range spanning slightly negative to modestly.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,5,v4,none,True,0.05,"Intensive-margin uncompensated (Marshallian) annual-hours wage elasticity for employed, prime-age workers in the United States.",-0.15,0.3,0.9,"{""p05"": -0.15, ""p25"": -0.05, ""p50"": 0.05, ""p75"": 0.15, ""p95"": 0.3}",False,"Keane, M. P. (2011). Labor supply and taxes: A survey. Journal of Economic Literature, 49(4), 961-1075. | Chetty, R. (2012). Bounds on elasticities with optimization frictions: A synthesis of micro and macro evidence on labor supply. Econometrica, 80(3), 969-1018. | McClelland, R., & Mok, S. (2012). A review of recent research on labor supply elasticities. CBO Working Paper 2012-12.","Empirical consensus suggests that the intensive-margin uncompensated labor supply elasticity for prime-age workers is very small because the positive substitution effect is largely offset by the negative income effect. Microeconomic estimates typically center near zero, with a range spanning slightly negative to modestly.",,"{
   ""interpretation"": ""Intensive-margin uncompensated (Marshallian) annual-hours wage elasticity for employed, prime-age workers in the United States."",
   ""point_estimate"": 0.05,
   ""quantiles"": {
@@ -5085,7 +4831,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,6,v4,none,True,0.1,,0.1,0.25,0.9,"{""p05"": 0.1, ""p25"": 0.1, ""p50"": 0.1, ""p75"": 0.15, ""p95"": 0.25}",True,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,6,v4,none,True,0.05,,-0.1,0.25,0.9,"{""p05"": -0.1, ""p25"": 0.0, ""p50"": 0.05, ""p75"": 0.15, ""p95"": 0.25}",False,,"{
   ""interpretation"": ""Intensive-margin uncompensated annual-hours elasticity of labor supply for employed prime-age US workers"",
   ""point_estimate"": 0.05,
   ""quantiles"": {
@@ -5403,22 +5149,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,12,v4,none,True,0.15,,0.15,0.35,0.9,"{""p05"": 0.15, ""p25"": 0.15, ""p50"": 0.15, ""p75"": 0.15, ""p95"": 0.35}",True,,"{
-  ""interpretation"": ""Intensive-margin uncompensated annual-hours elasticity of labor supply for employed prime-age US workers."",
-  ""point_estimate"": 0.05,
-  ""quantiles"": {
-    ""p05"": -0.15,
-    ""p25"": -0.05,
-    ""p50"": 0.05,
-    ""p75"": 0.15,
-    ""p95"": 0.35
-  },
-  ""citations"": [
-    ""Blundell and MaCurdy (1999)"",
-    ""Keane (2011)"",
-    ""Chetty (2012)""
-  ],
-  ""reasoning_summary"": ""Empirical consensus on the intensive margin for prime-age workers consistently finds small uncompensated elasticities, as substitution and income effects largely offset each other. While some micro-data estimates suggest slightly negative values (backward-bending labor supply), others find small positive values, leading to a median expectation near zero or slightly positive.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,12,v4,none,True,0.05,Intensive-margin uncompensated annual-hours elasticity of labor supply for employed prime-age US workers.,-0.15,0.35,0.9,"{""p05"": -0.15, ""p25"": -0.05, ""p50"": 0.05, ""p75"": 0.15, ""p95"": 0.35}",False,Blundell and MaCurdy (1999) | Keane (2011) | Chetty (2012),"Empirical consensus on the intensive margin for prime-age workers consistently finds small uncompensated elasticities, as substitution and income effects largely offset each other. While some micro-data estimates suggest slightly negative values (backward-bending labor supply), others find small positive values, leading to a median expectation near zero or slightly positive.",,"{
   ""interpretation"": ""Intensive-margin uncompensated annual-hours elasticity of labor supply for employed prime-age US workers."",
   ""point_estimate"": 0.05,
   ""quantiles"": {
@@ -5567,22 +5298,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,15,v4,none,True,0.1,,0.1,0.3,0.9,"{""p05"": 0.1, ""p25"": 0.1, ""p50"": 0.1, ""p75"": 0.15, ""p95"": 0.3}",True,,"{
-  ""interpretation"": ""Intensive-margin uncompensated annual-hours elasticity of labor supply with respect to the net-of-tax wage for employed prime-age US workers."",
-  ""point_estimate"": 0.05,
-  ""quantiles"": {
-    ""p05"": -0.1,
-    ""p25"": -0.02,
-    ""p50"": 0.05,
-    ""p75"": 0.15,
-    ""p95"": 0.3
-  },
-  ""citations"": [
-    ""Pencavel (1986) - Labor Supply of Men: A Survey"",
-    ""Blundell and MaCurdy (1999) - Handbook of Labor Economics"",
-    ""Keane (2011) - Journal of Economic Literature""
-  ],
-  ""reasoning_summary"": ""Empirical consensus suggests that the intensive-margin uncompensated (Marshallian) labor supply elasticity for prime-age workers is very small. For men, estimates are frequently near zero or slightly negative due to offsetting income and substitution effects. For women, historically positive elasticities have declined over time toward the male baseline. The distribution reflects a clustering of estimates around zero to slightly positive values.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.marshallian_wage_elasticity.prime_age,15,v4,none,True,0.05,Intensive-margin uncompensated annual-hours elasticity of labor supply with respect to the net-of-tax wage for employed prime-age US workers.,-0.1,0.3,0.9,"{""p05"": -0.1, ""p25"": -0.02, ""p50"": 0.05, ""p75"": 0.15, ""p95"": 0.3}",False,Pencavel (1986) - Labor Supply of Men: A Survey | Blundell and MaCurdy (1999) - Handbook of Labor Economics | Keane (2011) - Journal of Economic Literature,"Empirical consensus suggests that the intensive-margin uncompensated (Marshallian) labor supply elasticity for prime-age workers is very small. For men, estimates are frequently near zero or slightly negative due to offsetting income and substitution effects. For women, historically positive elasticities have declined over time toward the male baseline. The distribution reflects a clustering of estimates around zero to slightly positive values.",,"{
   ""interpretation"": ""Intensive-margin uncompensated annual-hours elasticity of labor supply with respect to the net-of-tax wage for employed prime-age US workers."",
   ""point_estimate"": 0.05,
   ""quantiles"": {
@@ -6321,7 +6037,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.all,15,v4,none,True,0.2,,0.1,0.5,0.9,"{""p05"": 0.1, ""p25"": 0.18, ""p50"": 0.25, ""p75"": 0.35, ""p95"": 0.5}",False,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.all,15,v4,none,True,0.25,,0.1,0.5,0.9,"{""p05"": 0.1, ""p25"": 0.18, ""p50"": 0.25, ""p75"": 0.35, ""p95"": 0.5}",False,,"{
   ""interpretation"": ""Global labor-supply substitution-response elasticity override used in a U.S. microsimulation model"",
   ""point_estimate"": 0.25,
   ""quantiles"": {
@@ -7030,21 +6746,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_1,14,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 1 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Tax Rates on Labor Supply."",
-    ""Chetty (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.""
-  ],
-  ""reasoning_summary"": ""Primary earners generally exhibit low substitution elasticities in tax-benefit models. In the lowest income decile, the intensive-margin substitution elasticity is typically modeled between 0.1 and 0.2, reflecting a relatively inelastic response compared to secondary earners, though some models allow for higher responses due to the proximity to welfare notches.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_1,14,v4,none,True,0.15,Primary-earner substitution-response elasticity for earnings decile 1 in a U.S. microsimulation model,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Tax Rates on Labor Supply. | Chetty (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.,"Primary earners generally exhibit low substitution elasticities in tax-benefit models. In the lowest income decile, the intensive-margin substitution elasticity is typically modeled between 0.1 and 0.2, reflecting a relatively inelastic response compared to secondary earners, though some models allow for higher responses due to the proximity to welfare notches.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 1 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -7239,22 +6941,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,3,v4,none,True,0.2,,0.05,0.45,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.2, ""p75"": 0.3, ""p95"": 0.45}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity of labor supply for earnings decile 10 in a U.S. tax-benefit microsimulation model."",
-  ""point_estimate"": 0.20,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.20,
-    ""p75"": 0.30,
-    ""p95"": 0.45
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) - CBO Working Paper on Labor Supply Elasticities"",
-    ""Congressional Budget Office (2012) - Policy publications on tax microsimulations"",
-    ""Blundell and MaCurdy (1999) - Handbook of Labor Economics""
-  ],
-  ""reasoning_summary"": ""U.S. tax-benefit microsimulation models (such as those from the CBO or TPC) typically parameterize the substitution (compensated) elasticity of labor supply for primary earners between 0.1 and 0.3, with a central estimate of 0.2. While the elasticity of taxable income (ETI) is often assumed to be higher at the top of the income distribution (decile 10), the pure labor supply substitution elasticity parameter in standard simulations is typically kept conservative and aligned with broad empirical estimates for primary earners.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,3,v4,none,True,0.2,Primary-earner substitution elasticity of labor supply for earnings decile 10 in a U.S. tax-benefit microsimulation model.,0.05,0.45,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.2, ""p75"": 0.3, ""p95"": 0.45}",False,McClelland and Mok (2012) - CBO Working Paper on Labor Supply Elasticities | Congressional Budget Office (2012) - Policy publications on tax microsimulations | Blundell and MaCurdy (1999) - Handbook of Labor Economics,"U.S. tax-benefit microsimulation models (such as those from the CBO or TPC) typically parameterize the substitution (compensated) elasticity of labor supply for primary earners between 0.1 and 0.3, with a central estimate of 0.2. While the elasticity of taxable income (ETI) is often assumed to be higher at the top of the income distribution (decile 10), the pure labor supply substitution elasticity parameter in standard simulations is typically kept conservative and aligned with broad empirical estimates for primary earners.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity of labor supply for earnings decile 10 in a U.S. tax-benefit microsimulation model."",
   ""point_estimate"": 0.20,
   ""quantiles"": {
@@ -7401,7 +7088,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,6,v4,none,True,0.1,,0.05,0.5,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.18, ""p75"": 0.3, ""p95"": 0.5}",False,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,6,v4,none,True,0.18,,0.05,0.5,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.18, ""p75"": 0.3, ""p95"": 0.5}",False,,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 10 in a U.S. microsimulation model"",
   ""point_estimate"": 0.18,
   ""quantiles"": {
@@ -7465,22 +7152,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,7,v4,none,True,0.1,,0.05,0.45,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.45}",False,,"{
-  ""interpretation"": ""Primary-earner substitution labor supply elasticity for earnings decile 10 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.45
-  },
-  ""citations"": [
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica."",
-    ""Saez, E., Slemrod, J., & Giertz, S. H. (2012). The Elasticity of Taxable Income with Respect to Marginal Tax Rates: A Critical Review. Journal of Economic Literature.""
-  ],
-  ""reasoning_summary"": ""Empirical literature and federal agency standards (such as the Congressional Budget Office) typically assume a low labor supply substitution elasticity for primary earners, generally clustering around 0.1 to 0.2. Although the overall elasticity of taxable income (ETI) for high-income earners (decile 10) can be higher due to tax avoidance and income shifting, the actual hours-of-work/labor supply substitution response is estimated to be modest.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,7,v4,none,True,0.15,Primary-earner substitution labor supply elasticity for earnings decile 10 in a U.S. microsimulation model,0.05,0.45,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.45}",False,"Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica. | Saez, E., Slemrod, J., & Giertz, S. H. (2012). The Elasticity of Taxable Income with Respect to Marginal Tax Rates: A Critical Review. Journal of Economic Literature.","Empirical literature and federal agency standards (such as the Congressional Budget Office) typically assume a low labor supply substitution elasticity for primary earners, generally clustering around 0.1 to 0.2. Although the overall elasticity of taxable income (ETI) for high-income earners (decile 10) can be higher due to tax avoidance and income shifting, the actual hours-of-work/labor supply substitution response is estimated to be modest.",,"{
   ""interpretation"": ""Primary-earner substitution labor supply elasticity for earnings decile 10 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -7529,21 +7201,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,8,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for the highest earnings decile (decile 10) in a U.S. tax-benefit microsimulation model, representing the labor supply or taxable income response to marginal net-of-tax wage changes."",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper."",
-    ""Gruber, J., & Saez, E. (2002). The elasticity of taxable income: evidence and implications. Journal of Public Economics.""
-  ],
-  ""reasoning_summary"": ""Policy microsimulations in the U.S. (such as those by the CBO or academic equivalents) typically assign low substitution elasticities to primary earners. For the highest decile, some models use a slightly higher intensive-margin or taxable income elasticity, leading to a median expectation of 0.15 with a reasonable range of 0.05 to 0.40.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,8,v4,none,True,0.15,"Primary-earner substitution-response elasticity for the highest earnings decile (decile 10) in a U.S. tax-benefit microsimulation model, representing the labor supply or taxable income response to marginal net-of-tax wage changes.",0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper. | Gruber, J., & Saez, E. (2002). The elasticity of taxable income: evidence and implications. Journal of Public Economics.","Policy microsimulations in the U.S. (such as those by the CBO or academic equivalents) typically assign low substitution elasticities to primary earners. For the highest decile, some models use a slightly higher intensive-margin or taxable income elasticity, leading to a median expectation of 0.15 with a reasonable range of 0.05 to 0.40.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for the highest earnings decile (decile 10) in a U.S. tax-benefit microsimulation model, representing the labor supply or taxable income response to marginal net-of-tax wage changes."",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -7739,21 +7397,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,12,v4,none,True,0.1,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity for the 10th earnings decile in a U.S. tax-benefit microsimulation model."",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.""
-  ],
-  ""reasoning_summary"": ""Subjective estimate based on standard labor supply parameters used in U.S. policy analysis and microsimulation models (such as those by the CBO), where primary earners are typically modeled with a relatively low substitution elasticity (around 0.1 to 0.2), though high-income earners in decile 10 might exhibit slightly greater responsiveness due to flexible or higher flexibility in-income flexibility or different compensation.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_10,12,v4,none,True,0.15,Primary-earner substitution elasticity for the 10th earnings decile in a U.S. tax-benefit microsimulation model.,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.","Subjective estimate based on standard labor supply parameters used in U.S. policy analysis and microsimulation models (such as those by the CBO), where primary earners are typically modeled with a relatively low substitution elasticity (around 0.1 to 0.2), though high-income earners in decile 10 might exhibit slightly greater responsiveness due to flexible or higher flexibility in-income flexibility or different compensation.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity for the 10th earnings decile in a U.S. tax-benefit microsimulation model."",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -8410,21 +8054,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_2,10,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity of labor supply for earnings decile 2 in a U.S. tax-benefit microsimulation model."",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.""
-  ],
-  ""reasoning_summary"": ""Primary earners generally exhibit low intensive-margin labor supply responses. Public finance simulation models typically parameterize the substitution elasticity for primary earners between 0.1 and 0.2. For lower-income deciles like decile 2, while extensive margin (participation) responses are often larger, the intensive substitution elasticity is modeled in a similar low range with some upward uncertainty.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_2,10,v4,none,True,0.15,Primary-earner substitution elasticity of labor supply for earnings decile 2 in a U.S. tax-benefit microsimulation model.,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.","Primary earners generally exhibit low intensive-margin labor supply responses. Public finance simulation models typically parameterize the substitution elasticity for primary earners between 0.1 and 0.2. For lower-income deciles like decile 2, while extensive margin (participation) responses are often larger, the intensive substitution elasticity is modeled in a similar low range with some upward uncertainty.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity of labor supply for earnings decile 2 in a U.S. tax-benefit microsimulation model."",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -8766,21 +8396,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,2,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 3 in a U.S. tax-benefit microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper."",
-    ""Keane (2011). Labor Supply and Taxes: A Survey. Journal of Economic Literature.""
-  ],
-  ""reasoning_summary"": ""Empirical consensus and structural public finance literature (such as CBO guidelines) suggest that primary-earner substitution elasticities are relatively small, typically centered between 0.1 and 0.2. In lower earnings deciles like decile 3, the elasticity might be slightly higher due to labor market friction and the design of transfer programs, but remains generally inelastic.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,2,v4,none,True,0.15,Primary-earner substitution elasticity for earnings decile 3 in a U.S. tax-benefit microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,McClelland and Mok (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper. | Keane (2011). Labor Supply and Taxes: A Survey. Journal of Economic Literature.,"Empirical consensus and structural public finance literature (such as CBO guidelines) suggest that primary-earner substitution elasticities are relatively small, typically centered between 0.1 and 0.2. In lower earnings deciles like decile 3, the elasticity might be slightly higher due to labor market friction and the design of transfer programs, but remains generally inelastic.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 3 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -9073,7 +8689,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,8,v4,none,True,0.1,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,8,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
   ""interpretation"": ""Primary-earner substitution labor supply elasticity for earnings decile 3 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -9285,21 +8901,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,12,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 3 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12."",
-    ""Congressional Budget Office. (2012). How the Congressional Budget Office Estimates the Effects of the Tax System on Labor Supply.""
-  ],
-  ""reasoning_summary"": ""Primary earners generally exhibit low substitution elasticities in tax-benefit models. For lower-income brackets such as decile 3, the intensive-margin substitution elasticity is typically modeled between 0.1 and 0.2 based on empirical literature synthesized by the Congressional Budget Office, with some uncertainty allowing for slightly higher values if extensive margin responses are partially captured within- decile responses are partially.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,12,v4,none,True,0.15,Primary-earner substitution elasticity for earnings decile 3 in a U.S. microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12. | Congressional Budget Office. (2012). How the Congressional Budget Office Estimates the Effects of the Tax System on Labor Supply.","Primary earners generally exhibit low substitution elasticities in tax-benefit models. For lower-income brackets such as decile 3, the intensive-margin substitution elasticity is typically modeled between 0.1 and 0.2 based on empirical literature synthesized by the Congressional Budget Office, with some uncertainty allowing for slightly higher values if extensive margin responses are partially captured within- decile responses are partially.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 3 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -9462,21 +9064,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,15,v4,none,True,0.1,,0.03,0.27,0.9,"{""p05"": 0.03, ""p25"": 0.07, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.27}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 3 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.12,
-  ""quantiles"": {
-    ""p05"": 0.03,
-    ""p25"": 0.07,
-    ""p50"": 0.12,
-    ""p75"": 0.18,
-    ""p95"": 0.27
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: An Application to Taxation and Labor Supply. Econometrica.""
-  ],
-  ""reasoning_summary"": ""Subjective estimate based on standard public finance and microsimulation assumptions (such as those used by the CBO), where primary earners are modeled with relatively low substitution elasticities (typically around 0.1 to 0.15), with slightly higher uncertainty for lower-middle earnings deciles like decile 3 due to interactions with transfer program phase-of tax credits and transfers.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_3,15,v4,none,True,0.12,Primary-earner substitution-response elasticity for earnings decile 3 in a U.S. microsimulation model,0.03,0.27,0.9,"{""p05"": 0.03, ""p25"": 0.07, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.27}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: An Application to Taxation and Labor Supply. Econometrica.","Subjective estimate based on standard public finance and microsimulation assumptions (such as those used by the CBO), where primary earners are modeled with relatively low substitution elasticities (typically around 0.1 to 0.15), with slightly higher uncertainty for lower-middle earnings deciles like decile 3 due to interactions with transfer program phase-of tax credits and transfers.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 3 in a U.S. microsimulation model"",
   ""point_estimate"": 0.12,
   ""quantiles"": {
@@ -9670,7 +9258,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_4,4,v4,none,True,0.1,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_4,4,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
   ""interpretation"": ""Primary-earner substitution elasticity for U.S. earnings decile 4 in a tax-benefit microsimulation"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -10521,21 +10109,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_5,6,v4,none,True,0.1,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""Congressional Budget Office (2012). 'How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy'"",
-    ""Chetty, R. (2012). 'Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.' Econometrica""
-  ],
-  ""reasoning_summary"": ""Empirical consensus and policy simulation models (such as those by the CBO) typically assume low labor supply substitution elasticities for primary earners, usually centering around 0.1 to 0.2. Middle-income earners (decile 5) are expected to fall within this range, with some uncertainty accounting for potential optimization frictions or broader definitions of taxable income responses.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_5,6,v4,none,True,0.15,Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"Congressional Budget Office (2012). 'How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy' | Chetty, R. (2012). 'Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence.' Econometrica","Empirical consensus and policy simulation models (such as those by the CBO) typically assume low labor supply substitution elasticities for primary earners, usually centering around 0.1 to 0.2. Middle-income earners (decile 5) are expected to fall within this range, with some uncertainty accounting for potential optimization frictions or broader definitions of taxable income responses.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -10781,21 +10355,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_5,11,v4,none,True,0.1,,0.04,0.3,0.9,"{""p05"": 0.04, ""p25"": 0.08, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.3}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.12,
-  ""quantiles"": {
-    ""p05"": 0.04,
-    ""p25"": 0.08,
-    ""p50"": 0.12,
-    ""p75"": 0.18,
-    ""p95"": 0.30
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) - CBO Working Paper on Labor Supply Elasticities"",
-    ""Chetty (2012) - Econometrica bounds on elasticities""
-  ],
-  ""reasoning_summary"": ""In major U.S. policy simulations (like those of the CBO), primary earners are modeled with relatively low labor supply substitution elasticities compared to secondary earners. Empirical literature and meta-analyses suggest a central estimate near 0.1 to 0.15 for middle-income primary earners, with tight bounds reflecting consensus in micro-econometric studies.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_5,11,v4,none,True,0.12,Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model,0.04,0.3,0.9,"{""p05"": 0.04, ""p25"": 0.08, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.3}",False,McClelland and Mok (2012) - CBO Working Paper on Labor Supply Elasticities | Chetty (2012) - Econometrica bounds on elasticities,"In major U.S. policy simulations (like those of the CBO), primary earners are modeled with relatively low labor supply substitution elasticities compared to secondary earners. Empirical literature and meta-analyses suggest a central estimate near 0.1 to 0.15 for middle-income primary earners, with tight bounds reflecting consensus in micro-econometric studies.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 5 in a U.S. microsimulation model"",
   ""point_estimate"": 0.12,
   ""quantiles"": {
@@ -11059,22 +10619,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,1,v4,none,True,0.1,,0.02,0.28,0.9,"{""p05"": 0.02, ""p25"": 0.07, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.28}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.12,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.07,
-    ""p50"": 0.12,
-    ""p75"": 0.18,
-    ""p95"": 0.28
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012). 'A Review of Recent Research on Labor Supply Elasticities.' CBO Working Paper."",
-    ""Chetty, Guren, Manoli, and Weber (2011). 'Are Micro and Macro Labor Supply Elasticities Consistent?' NBER."",
-    ""Congressional Budget Office (2012). 'How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.'""
-  ],
-  ""reasoning_summary"": ""Empirical consensus and policy simulation standards (such as those employed by the Congressional Budget Office) generally calibrate the substitution elasticity of labor supply for primary earners to be quite low, typically clustered around 0.1 to 0.15. While there is some variation across income deciles, decile 6 represents middle-income earners where the elasticity remains relatively inelastic compared to secondary earners.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,1,v4,none,True,0.12,Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model,0.02,0.28,0.9,"{""p05"": 0.02, ""p25"": 0.07, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.28}",False,"McClelland and Mok (2012). 'A Review of Recent Research on Labor Supply Elasticities.' CBO Working Paper. | Chetty, Guren, Manoli, and Weber (2011). 'Are Micro and Macro Labor Supply Elasticities Consistent?' NBER. | Congressional Budget Office (2012). 'How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.'","Empirical consensus and policy simulation standards (such as those employed by the Congressional Budget Office) generally calibrate the substitution elasticity of labor supply for primary earners to be quite low, typically clustered around 0.1 to 0.15. While there is some variation across income deciles, decile 6 represents middle-income earners where the elasticity remains relatively inelastic compared to secondary earners.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
   ""point_estimate"": 0.12,
   ""quantiles"": {
@@ -11222,21 +10767,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,4,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 6 in a U.S. tax-benefit microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.""
-  ],
-  ""reasoning_summary"": ""Subjective estimate based on standard labor economics literature and U.S. congressional modeling assumptions (such as those by the CBO), which typically assign lower substitution elasticities to primary earners (typically 0.1 to 0.2) compared to secondary earners compared to secondary earners.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,4,v4,none,True,0.15,Primary-earner substitution elasticity for earnings decile 6 in a U.S. tax-benefit microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.","Subjective estimate based on standard labor economics literature and U.S. congressional modeling assumptions (such as those by the CBO), which typically assign lower substitution elasticities to primary earners (typically 0.1 to 0.2) compared to secondary earners compared to secondary earners.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 6 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -11530,22 +11061,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,10,v4,none,True,0.1,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 6 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012), CBO Working Paper: 'A Review of Recent Research on Labor Supply Elasticities'"",
-    ""Congressional Budget Office (2012): 'How CBO Analyzes the Effects of Changes in Federal Personal Income Tax Rates on Labor Supply'"",
-    ""Chetty (2012): 'Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence'""
-  ],
-  ""reasoning_summary"": ""Microsimulation models in the U.S. (such as those by the CBO or TPC) typically employ relatively conservative substitution elasticities for primary earners, generally centering around 0.1 to 0.2. Decile 6 represents middle-income earners where the substitution effect is expected to be positive but small due to labor market rigidities and institutional constraints.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,10,v4,none,True,0.15,Primary-earner substitution elasticity for earnings decile 6 in a U.S. microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland and Mok (2012), CBO Working Paper: 'A Review of Recent Research on Labor Supply Elasticities' | Congressional Budget Office (2012): 'How CBO Analyzes the Effects of Changes in Federal Personal Income Tax Rates on Labor Supply' | Chetty (2012): 'Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence'","Microsimulation models in the U.S. (such as those by the CBO or TPC) typically employ relatively conservative substitution elasticities for primary earners, generally centering around 0.1 to 0.2. Decile 6 represents middle-income earners where the substitution effect is expected to be positive but small due to labor market rigidities and institutional constraints.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 6 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -11692,7 +11208,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,13,v4,none,True,0.4,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,13,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
   ""interpretation"": ""Primary-earner substitution elasticity for earnings decile 6 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -11768,21 +11284,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,14,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper."",
-    ""Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.""
-  ],
-  ""reasoning_summary"": ""Subjective estimates are based on empirical literature and policy simulation models (such as those by the CBO), which typically assume a low but positive substitution elasticity of labor supply for primary earners around the middle of the income distribution (decile 6), generally ranging from 0.1 to 0.3.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,14,v4,none,True,0.15,Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper. | Chetty, R. (2012). Bounds on Elasticities with Optimization Frictions: A Synthesis of Micro and Macro Evidence on Labor Supply. Econometrica.","Subjective estimates are based on empirical literature and policy simulation models (such as those by the CBO), which typically assume a low but positive substitution elasticity of labor supply for primary earners around the middle of the income distribution (decile 6), generally ranging from 0.1 to 0.3.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -11830,21 +11332,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,15,v4,none,True,0.15,,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.4
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) - CBO Working Paper: A Review of Recent Research on Labor Supply Elasticities"",
-    ""Saez, Slemrod, and Giertz (2012) - Journal of Economic Literature""
-  ],
-  ""reasoning_summary"": ""In U.S. tax-benefit microsimulations and standard economic literature, primary earners are modeled with relatively inelastic labor supply. The substitution elasticity is typically set between 0.1 and 0.2 based on empirical literature, with wider uncertainty bounds reflecting debates over taxable income versus hours-of-work responses.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_6,15,v4,none,True,0.15,Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model,0.02,0.4,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland and Mok (2012) - CBO Working Paper: A Review of Recent Research on Labor Supply Elasticities | Saez, Slemrod, and Giertz (2012) - Journal of Economic Literature","In U.S. tax-benefit microsimulations and standard economic literature, primary earners are modeled with relatively inelastic labor supply. The substitution elasticity is typically set between 0.1 and 0.2 based on empirical literature, with wider uncertainty bounds reflecting debates over taxable income versus hours-of-work responses.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 6 in a U.S. microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -12103,21 +11591,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,5,v4,none,True,0.15,,0.05,0.35,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.18, ""p75"": 0.25, ""p95"": 0.35}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 7 in a U.S. microsimulation model"",
-  ""point_estimate"": 0.18,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.18,
-    ""p75"": 0.25,
-    ""p95"": 0.35
-  },
-  ""citations"": [
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Tax Rates on Labor Supply."",
-    ""McClelland, R., & Mok, Shannon (2012). A Review of Recent Research on Labor Supply Elasticities.""
-  ],
-  ""reasoning_summary"": ""Primary earners generally exhibit low substitution elasticities compared to secondary earners. In major U.S. microsimulation and policy models (such as those of the CBO), the substitution elasticity for primary earners is typically parameterized between 0.1 and 0.3, with a central tendency around 0.15 to 0.20 for middle-to-upper income deciles.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,5,v4,none,True,0.18,Primary-earner substitution-response elasticity for earnings decile 7 in a U.S. microsimulation model,0.05,0.35,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.18, ""p75"": 0.25, ""p95"": 0.35}",False,"Congressional Budget Office (2012). How CBO Analyzes the Effects of Changes in Federal Tax Rates on Labor Supply. | McClelland, R., & Mok, Shannon (2012). A Review of Recent Research on Labor Supply Elasticities.","Primary earners generally exhibit low substitution elasticities compared to secondary earners. In major U.S. microsimulation and policy models (such as those of the CBO), the substitution elasticity for primary earners is typically parameterized between 0.1 and 0.3, with a central tendency around 0.15 to 0.20 for middle-to-upper income deciles.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 7 in a U.S. microsimulation model"",
   ""point_estimate"": 0.18,
   ""quantiles"": {
@@ -12165,20 +11639,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,6,v4,none,True,0.1,,0.02,0.25,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.25}",False,,"{
-  ""interpretation"": ""Primary-earner labor supply substitution elasticity for earnings decile 7 in a U.S. tax-benefit microsimulation model"",
-  ""point_estimate"": 0.12,
-  ""quantiles"": {
-    ""p05"": 0.02,
-    ""p25"": 0.08,
-    ""p50"": 0.12,
-    ""p75"": 0.18,
-    ""p95"": 0.25
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) CBO Working Paper""
-  ],
-  ""reasoning_summary"": ""In U.S. tax-benefit microsimulation models (such as those by the CBO), primary earners are assumed to have relatively low substitution elasticities of labor supply with respect to the net-of-tax marginal wage. For middle-to-high income groups like decile 7, typical central estimates range from 0.1 to 0.15, with a plausible range between 0.02 and 0.25 based on empirical literature reviews.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,6,v4,none,True,0.12,Primary-earner labor supply substitution elasticity for earnings decile 7 in a U.S. tax-benefit microsimulation model,0.02,0.25,0.9,"{""p05"": 0.02, ""p25"": 0.08, ""p50"": 0.12, ""p75"": 0.18, ""p95"": 0.25}",False,McClelland and Mok (2012) CBO Working Paper,"In U.S. tax-benefit microsimulation models (such as those by the CBO), primary earners are assumed to have relatively low substitution elasticities of labor supply with respect to the net-of-tax marginal wage. For middle-to-high income groups like decile 7, typical central estimates range from 0.1 to 0.15, with a plausible range between 0.02 and 0.25 based on empirical literature reviews.",,"{
   ""interpretation"": ""Primary-earner labor supply substitution elasticity for earnings decile 7 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.12,
   ""quantiles"": {
@@ -12421,21 +11882,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,11,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution elasticity of labor supply for the 7th earnings decile in a U.S. tax-benefit microsimulation model."",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper."",
-    ""Congressional Budget Office. (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.""
-  ],
-  ""reasoning_summary"": ""In standard U.S. tax-benefit simulations, the substitution elasticity of labor supply for primary earners is calibrated to be relatively inelastic, reflecting consensus in the empirical public finance literature. It typically ranges between 0.1 and 0.3, with middle-to-high deciles like decile 7 centered around 0.15.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_7,11,v4,none,True,0.15,Primary-earner substitution elasticity of labor supply for the 7th earnings decile in a U.S. tax-benefit microsimulation model.,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities. Congressional Budget Office Working Paper. | Congressional Budget Office. (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.","In standard U.S. tax-benefit simulations, the substitution elasticity of labor supply for primary earners is calibrated to be relatively inelastic, reflecting consensus in the empirical public finance literature. It typically ranges between 0.1 and 0.3, with middle-to-high deciles like decile 7 centered around 0.15.",,"{
   ""interpretation"": ""Primary-earner substitution elasticity of labor supply for the 7th earnings decile in a U.S. tax-benefit microsimulation model."",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -12892,21 +12339,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_8,5,v4,none,True,0.15,,0.05,0.35,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.22, ""p95"": 0.35}",False,,"{
-  ""interpretation"": ""Primary-earner substitution labor supply elasticity for earnings decile 8 in a U.S. tax-benefit microsimulation"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.22,
-    ""p95"": 0.35
-  },
-  ""citations"": [
-    ""McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities (CBO Working Paper 2012-12)."",
-    ""Congressional Budget Office. (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.""
-  ],
-  ""reasoning_summary"": ""Empirical consensus and major microsimulation models (such as those by the CBO) generally assume that primary earners have relatively low intensive-margin labor supply elasticities. For middle-to-high income deciles like decile 8, the compensated substitution elasticity is typically parameterized between 0.10 and 0.20, reflecting a small but statistically significant response to marginal tax rate variations in the net-of-tax wage.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_8,5,v4,none,True,0.15,Primary-earner substitution labor supply elasticity for earnings decile 8 in a U.S. tax-benefit microsimulation,0.05,0.35,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.22, ""p95"": 0.35}",False,"McClelland, R., & Mok, S. (2012). A Review of Recent Research on Labor Supply Elasticities (CBO Working Paper 2012-12). | Congressional Budget Office. (2012). How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy.","Empirical consensus and major microsimulation models (such as those by the CBO) generally assume that primary earners have relatively low intensive-margin labor supply elasticities. For middle-to-high income deciles like decile 8, the compensated substitution elasticity is typically parameterized between 0.10 and 0.20, reflecting a small but statistically significant response to marginal tax rate variations in the net-of-tax wage.",,"{
   ""interpretation"": ""Primary-earner substitution labor supply elasticity for earnings decile 8 in a U.S. tax-benefit microsimulation"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -13515,20 +12948,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_9,2,v4,none,True,0.15,,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,,"{
-  ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 9 in a U.S. tax-benefit microsimulation model"",
-  ""point_estimate"": 0.15,
-  ""quantiles"": {
-    ""p05"": 0.05,
-    ""p25"": 0.10,
-    ""p50"": 0.15,
-    ""p75"": 0.25,
-    ""p95"": 0.40
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12.""
-  ],
-  ""reasoning_summary"": ""Primary earners generally exhibit relatively inelastic labor supply compared to secondary earners. In standard U.S. microsimulations, such as those utilized by the Congressional Budget Office, the substitution elasticity for primary earners at high-income levels (like decile 9) is typically parameterized between 0.1 and 0.2 based on empirical literature.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.primary.decile_9,2,v4,none,True,0.15,Primary-earner substitution-response elasticity for earnings decile 9 in a U.S. tax-benefit microsimulation model,0.05,0.4,0.9,"{""p05"": 0.05, ""p25"": 0.1, ""p50"": 0.15, ""p75"": 0.25, ""p95"": 0.4}",False,McClelland and Mok (2012). A Review of Recent Research on Labor Supply Elasticities. CBO Working Paper 2012-12.,"Primary earners generally exhibit relatively inelastic labor supply compared to secondary earners. In standard U.S. microsimulations, such as those utilized by the Congressional Budget Office, the substitution elasticity for primary earners at high-income levels (like decile 9) is typically parameterized between 0.1 and 0.2 based on empirical literature.",,"{
   ""interpretation"": ""Primary-earner substitution-response elasticity for earnings decile 9 in a U.S. tax-benefit microsimulation model"",
   ""point_estimate"": 0.15,
   ""quantiles"": {
@@ -14230,21 +13650,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,1,v4,none,True,0.3,,0.1,0.6,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.6}",False,,"{
-  ""interpretation"": ""Secondary-earner substitution elasticity parameter representing the labor supply response to marginal net wage changes in U.S. tax-benefit microsimulation models."",
-  ""point_estimate"": 0.30,
-  ""quantiles"": {
-    ""p05"": 0.10,
-    ""p25"": 0.20,
-    ""p50"": 0.30,
-    ""p75"": 0.45,
-    ""p95"": 0.60
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) - CBO Working Paper: A Review of Recent Research on Labor Supply Elasticities"",
-    ""Congressional Budget Office (2012) - How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy""
-  ],
-  ""reasoning_summary"": ""In major U.S. tax-benefit policy models (such as those from the CBO and JCT), secondary earners are estimated and simulated to have a more wage-elastic labor supply than primary earners. The literature generally supports a substitution elasticity for secondary earners centered around 0.25 to 0.35, leading to a point estimate of 0.30 with an asymmetric upward tail.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,1,v4,none,True,0.3,Secondary-earner substitution elasticity parameter representing the labor supply response to marginal net wage changes in U.S. tax-benefit microsimulation models.,0.1,0.6,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.6}",False,McClelland and Mok (2012) - CBO Working Paper: A Review of Recent Research on Labor Supply Elasticities | Congressional Budget Office (2012) - How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy,"In major U.S. tax-benefit policy models (such as those from the CBO and JCT), secondary earners are estimated and simulated to have a more wage-elastic labor supply than primary earners. The literature generally supports a substitution elasticity for secondary earners centered around 0.25 to 0.35, leading to a point estimate of 0.30 with an asymmetric upward tail.",,"{
   ""interpretation"": ""Secondary-earner substitution elasticity parameter representing the labor supply response to marginal net wage changes in U.S. tax-benefit microsimulation models."",
   ""point_estimate"": 0.30,
   ""quantiles"": {
@@ -14489,22 +13895,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,6,v4,none,True,0.25,,0.1,0.55,0.9,"{""p05"": 0.1, ""p25"": 0.18, ""p50"": 0.25, ""p75"": 0.35, ""p95"": 0.55}",False,,"{
-  ""interpretation"": ""Secondary-earner substitution elasticity representing the labor supply response of the lower-earning spouse to changes in the marginal net-of-tax wage rate within a U.S. tax-benefit microsimulation framework."",
-  ""point_estimate"": 0.25,
-  ""quantiles"": {
-    ""p05"": 0.10,
-    ""p25"": 0.18,
-    ""p50"": 0.25,
-    ""p75"": 0.35,
-    ""p95"": 0.55
-  },
-  ""citations"": [
-    ""Blau and Kahn (2007) - Changes in the Labor Supply Behavior of Married Women"",
-    ""Congressional Budget Office (2012) - How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy"",
-    ""Eissa and Hoynes (2004) - Taxes and the Labor Market Outcomes of Married Couples""
-  ],
-  ""reasoning_summary"": ""Empirical literature indicates that secondary earners are more wage-sensitive than primary earners, though this elasticity has declined over recent decades. Modern U.S. tax-benefit simulations typically parameterize this substitution elasticity between 0.2 and 0.4 to reflect these historical and consensus.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,6,v4,none,True,0.25,Secondary-earner substitution elasticity representing the labor supply response of the lower-earning spouse to changes in the marginal net-of-tax wage rate within a U.S. tax-benefit microsimulation framework.,0.1,0.55,0.9,"{""p05"": 0.1, ""p25"": 0.18, ""p50"": 0.25, ""p75"": 0.35, ""p95"": 0.55}",False,Blau and Kahn (2007) - Changes in the Labor Supply Behavior of Married Women | Congressional Budget Office (2012) - How CBO Analyzes the Effects of Changes in Federal Fiscal Policies on the Economy | Eissa and Hoynes (2004) - Taxes and the Labor Market Outcomes of Married Couples,"Empirical literature indicates that secondary earners are more wage-sensitive than primary earners, though this elasticity has declined over recent decades. Modern U.S. tax-benefit simulations typically parameterize this substitution elasticity between 0.2 and 0.4 to reflect these historical and consensus.",,"{
   ""interpretation"": ""Secondary-earner substitution elasticity representing the labor supply response of the lower-earning spouse to changes in the marginal net-of-tax wage rate within a U.S. tax-benefit microsimulation framework."",
   ""point_estimate"": 0.25,
   ""quantiles"": {
@@ -14701,21 +14092,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,10,v4,none,True,0.3,,0.1,0.65,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.65}",False,,"{
-  ""interpretation"": ""Secondary-earner labor supply substitution elasticity used in U.S. tax-benefit microsimulation models."",
-  ""point_estimate"": 0.30,
-  ""quantiles"": {
-    ""p05"": 0.10,
-    ""p25"": 0.20,
-    ""p50"": 0.30,
-    ""p75"": 0.45,
-    ""p95"": 0.65
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) - CBO Working Paper"",
-    ""Congressional Budget Office (2012)""
-  ],
-  ""reasoning_summary"": ""Based on empirical labor economics literature and parameterizations used by agencies like the Congressional Budget Office, the substitution elasticity for secondary earners is typically modeled between 0.2 and 0.4, reflecting a historical decline in married women's labor supply responsiveness while remaining higher than primary earners.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,10,v4,none,True,0.3,Secondary-earner labor supply substitution elasticity used in U.S. tax-benefit microsimulation models.,0.1,0.65,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.65}",False,McClelland and Mok (2012) - CBO Working Paper | Congressional Budget Office (2012),"Based on empirical labor economics literature and parameterizations used by agencies like the Congressional Budget Office, the substitution elasticity for secondary earners is typically modeled between 0.2 and 0.4, reflecting a historical decline in married women's labor supply responsiveness while remaining higher than primary earners.",,"{
   ""interpretation"": ""Secondary-earner labor supply substitution elasticity used in U.S. tax-benefit microsimulation models."",
   ""point_estimate"": 0.30,
   ""quantiles"": {
@@ -14763,21 +14140,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,11,v4,none,True,0.3,,0.1,0.65,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.65}",False,,"{
-  ""interpretation"": ""Secondary-earner substitution elasticity of labor supply used in U.S. tax-benefit microsimulation models."",
-  ""point_estimate"": 0.30,
-  ""quantiles"": {
-    ""p05"": 0.10,
-    ""p25"": 0.20,
-    ""p50"": 0.30,
-    ""p75"": 0.45,
-    ""p95"": 0.65
-  },
-  ""citations"": [
-    ""McClelland and Mok (2012) CBO Working Paper on Labor Supply Elasticities"",
-    ""Congressional Budget Office guidelines for tax-benefit analysis""
-  ],
-  ""reasoning_summary"": ""The probability distribution is based on standard parameters used in U.S. policy analysis, where secondary earners exhibit higher labor supply responsiveness than primary earners. The median value of 0.30 aligns with central estimates from empirical literature and government agency modeling, while the bounds reflect the historical range of academic estimates.""",,"{
+litellm_completion,gemini-3.5-flash,labor_supply.policy_response.substitution_elasticity.secondary,11,v4,none,True,0.3,Secondary-earner substitution elasticity of labor supply used in U.S. tax-benefit microsimulation models.,0.1,0.65,0.9,"{""p05"": 0.1, ""p25"": 0.2, ""p50"": 0.3, ""p75"": 0.45, ""p95"": 0.65}",False,McClelland and Mok (2012) CBO Working Paper on Labor Supply Elasticities | Congressional Budget Office guidelines for tax-benefit analysis,"The probability distribution is based on standard parameters used in U.S. policy analysis, where secondary earners exhibit higher labor supply responsiveness than primary earners. The median value of 0.30 aligns with central estimates from empirical literature and government agency modeling, while the bounds reflect the historical range of academic estimates.",,"{
   ""interpretation"": ""Secondary-earner substitution elasticity of labor supply used in U.S. tax-benefit microsimulation models."",
   ""point_estimate"": 0.30,
   ""quantiles"": {
@@ -15436,22 +14799,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,macro.tfp_persistence.ar1,9,v4,none,True,0.95,,0.92,0.995,0.9,"{""p05"": 0.92, ""p25"": 0.95, ""p50"": 0.97, ""p75"": 0.985, ""p95"": 0.995}",False,,"{
-  ""interpretation"": ""Quarterly AR(1) persistence coefficient of aggregate U.S. total factor productivity (TFP)"",
-  ""point_estimate"": 0.97,
-  ""quantiles"": {
-    ""p05"": 0.92,
-    ""p25"": 0.95,
-    ""p50"": 0.97,
-    ""p75"": 0.985,
-    ""p95"": 0.995
-  },
-  ""citations"": [
-    ""King, R. G., & Rebelo, S. T. (1999). Resuscitating real business cycles. Handbook of Macroeconomics."",
-    ""Smets, F., & Wouters, R. (2007). Shocks and frictions in US business cycles: A Bayesian DSGE approach. American Economic Review."",
-    ""Prescott, E. C. (1986). Theory ahead of business cycle measurement. Federal Reserve Bank of Minneapolis Quarterly Review.""
-  ],
-  ""reasoning_summary"": ""In macroeconomic modeling (both RBC and DSGE traditions), quarterly TFP is modeled as a highly persistent AR(1) process. Standard calibrations usually set this coefficient around 0.95 to 0.98 to match the persistence of Solow residuals, while Bayesian estimations yield similar posteriors depending on the exact measurement of hours and utilization.""",,"{
+litellm_completion,gemini-3.5-flash,macro.tfp_persistence.ar1,9,v4,none,True,0.97,Quarterly AR(1) persistence coefficient of aggregate U.S. total factor productivity (TFP),0.92,0.995,0.9,"{""p05"": 0.92, ""p25"": 0.95, ""p50"": 0.97, ""p75"": 0.985, ""p95"": 0.995}",False,"King, R. G., & Rebelo, S. T. (1999). Resuscitating real business cycles. Handbook of Macroeconomics. | Smets, F., & Wouters, R. (2007). Shocks and frictions in US business cycles: A Bayesian DSGE approach. American Economic Review. | Prescott, E. C. (1986). Theory ahead of business cycle measurement. Federal Reserve Bank of Minneapolis Quarterly Review.","In macroeconomic modeling (both RBC and DSGE traditions), quarterly TFP is modeled as a highly persistent AR(1) process. Standard calibrations usually set this coefficient around 0.95 to 0.98 to match the persistence of Solow residuals, while Bayesian estimations yield similar posteriors depending on the exact measurement of hours and utilization.",,"{
   ""interpretation"": ""Quarterly AR(1) persistence coefficient of aggregate U.S. total factor productivity (TFP)"",
   ""point_estimate"": 0.97,
   ""quantiles"": {
@@ -15550,22 +14898,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,macro.tfp_persistence.ar1,11,v4,none,True,0.95,,0.9,0.99,0.9,"{""p05"": 0.9, ""p25"": 0.93, ""p50"": 0.95, ""p75"": 0.97, ""p95"": 0.99}",False,,"{
-  ""interpretation"": ""Quarterly AR(1) persistence coefficient of log aggregate TFP in the United States."",
-  ""point_estimate"": 0.95,
-  ""quantiles"": {
-    ""p05"": 0.90,
-    ""p25"": 0.93,
-    ""p50"": 0.95,
-    ""p75"": 0.97,
-    ""p95"": 0.99
-  },
-  ""citations"": [
-    ""King and Rebelo (1999), Resuscitating Real Business Cycles"",
-    ""Cooley and Prescott (1995), Economic Growth and Business Cycles"",
-    ""Fernald (2014), A Quarterly, Utilization-Adjusted Series on Business-Sector TFP""
-  ],
-  ""reasoning_summary"": ""Standard macroeconomic calibrations and empirical estimations of the Solow residual or utilization-adjusted TFP at a quarterly frequency typically find a high degree of persistence, generally ranging between 0.95 and 0.98. The lower bound allows for measurement error or structural breaks, while the upper bound approaches a unit root.""",,"{
+litellm_completion,gemini-3.5-flash,macro.tfp_persistence.ar1,11,v4,none,True,0.95,Quarterly AR(1) persistence coefficient of log aggregate TFP in the United States.,0.9,0.99,0.9,"{""p05"": 0.9, ""p25"": 0.93, ""p50"": 0.95, ""p75"": 0.97, ""p95"": 0.99}",False,"King and Rebelo (1999), Resuscitating Real Business Cycles | Cooley and Prescott (1995), Economic Growth and Business Cycles | Fernald (2014), A Quarterly, Utilization-Adjusted Series on Business-Sector TFP","Standard macroeconomic calibrations and empirical estimations of the Solow residual or utilization-adjusted TFP at a quarterly frequency typically find a high degree of persistence, generally ranging between 0.95 and 0.98. The lower bound allows for measurement error or structural breaks, while the upper bound approaches a unit root.",,"{
   ""interpretation"": ""Quarterly AR(1) persistence coefficient of log aggregate TFP in the United States."",
   ""point_estimate"": 0.95,
   ""quantiles"": {
@@ -15813,22 +15146,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,production.capital_labor_substitution,1,v4,none,True,1.25,,0.4,1.25,0.9,"{""p05"": 0.4, ""p25"": 0.6, ""p50"": 0.75, ""p75"": 0.95, ""p95"": 1.25}",False,,"{
-  ""interpretation"": ""Long-run CES elasticity of substitution between capital and labor in aggregate private-sector production in the United States"",
-  ""point_estimate"": 0.75,
-  ""quantiles"": {
-    ""p05"": 0.40,
-    ""p25"": 0.60,
-    ""p50"": 0.75,
-    ""p75"": 0.95,
-    ""p95"": 1.25
-  },
-  ""citations"": [
-    ""Chirinko (2008). 'Sigma: The Long-Run Elasticity of Substitution Between Capital and Labor: A Survey.'"",
-    ""Karabarbounis and Neiman (2014). 'The Global Decline of the Labor Share.'"",
-    ""Antras (2004). 'Is the US Aggregate Production Function Cobb-Douglas? New Estimates of the Elasticity of Substitution.'""
-  ],
-  ""reasoning_summary"": ""Most empirical studies utilizing micro-data or correcting for biased technical change estimate the long-run aggregate elasticity of substitution to be below 1, typically between 0.5 and 0.8. However, some prominent macroeconomic studies estimating the relationship from declining investment goods prices suggest a value above 1 (around 1.25). The distribution reflects a median estimate below unity while maintaining significant probability mass on both sides of the Cobb-Douglas benchmark of 1.0.""",,"{
+litellm_completion,gemini-3.5-flash,production.capital_labor_substitution,1,v4,none,True,0.75,Long-run CES elasticity of substitution between capital and labor in aggregate private-sector production in the United States,0.4,1.25,0.9,"{""p05"": 0.4, ""p25"": 0.6, ""p50"": 0.75, ""p75"": 0.95, ""p95"": 1.25}",False,Chirinko (2008). 'Sigma: The Long-Run Elasticity of Substitution Between Capital and Labor: A Survey.' | Karabarbounis and Neiman (2014). 'The Global Decline of the Labor Share.' | Antras (2004). 'Is the US Aggregate Production Function Cobb-Douglas? New Estimates of the Elasticity of Substitution.',"Most empirical studies utilizing micro-data or correcting for biased technical change estimate the long-run aggregate elasticity of substitution to be below 1, typically between 0.5 and 0.8. However, some prominent macroeconomic studies estimating the relationship from declining investment goods prices suggest a value above 1 (around 1.25). The distribution reflects a median estimate below unity while maintaining significant probability mass on both sides of the Cobb-Douglas benchmark of 1.0.",,"{
   ""interpretation"": ""Long-run CES elasticity of substitution between capital and labor in aggregate private-sector production in the United States"",
   ""point_estimate"": 0.75,
   ""quantiles"": {
@@ -16127,22 +15445,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,production.capital_labor_substitution,7,v4,none,True,0.75,,0.4,1.25,0.9,"{""p05"": 0.4, ""p25"": 0.6, ""p50"": 0.75, ""p75"": 0.95, ""p95"": 1.25}",False,,"{
-  ""interpretation"": ""The long-run CES elasticity of substitution between aggregate capital and labor in the U.S. private sector."",
-  ""point_estimate"": 0.75,
-  ""quantiles"": {
-    ""p05"": 0.40,
-    ""p25"": 0.60,
-    ""p50"": 0.75,
-    ""p75"": 0.95,
-    ""p95"": 1.25
-  },
-  ""citations"": [
-    ""Chirinko (2008) - Sigma: Will the real elasticity of substitution please stand up?"",
-    ""Karabarbounis and Neiman (2014) - The Global Decline of the Labor Share"",
-    ""Oberfield and Raval (2021) - Micro Data and Macro Elasticity of Substitution""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the aggregate capital-labor elasticity of substitution generally fall below the Cobb-Douglas benchmark of 1.0, typically clustering between 0.5 and 0.8 in studies using cross-sectional or panel variation. Some macroeconomic analyses of labor share declines suggest values above 1.0, leading to a subjective probability distribution centered around 0.75 with substantial uncertainty spanning from 0.4 to 1.25.""",,"{
+litellm_completion,gemini-3.5-flash,production.capital_labor_substitution,7,v4,none,True,0.75,The long-run CES elasticity of substitution between aggregate capital and labor in the U.S. private sector.,0.4,1.25,0.9,"{""p05"": 0.4, ""p25"": 0.6, ""p50"": 0.75, ""p75"": 0.95, ""p95"": 1.25}",False,Chirinko (2008) - Sigma: Will the real elasticity of substitution please stand up? | Karabarbounis and Neiman (2014) - The Global Decline of the Labor Share | Oberfield and Raval (2021) - Micro Data and Macro Elasticity of Substitution,"Empirical estimates of the aggregate capital-labor elasticity of substitution generally fall below the Cobb-Douglas benchmark of 1.0, typically clustering between 0.5 and 0.8 in studies using cross-sectional or panel variation. Some macroeconomic analyses of labor share declines suggest values above 1.0, leading to a subjective probability distribution centered around 0.75 with substantial uncertainty spanning from 0.4 to 1.25.",,"{
   ""interpretation"": ""The long-run CES elasticity of substitution between aggregate capital and labor in the U.S. private sector."",
   ""point_estimate"": 0.75,
   ""quantiles"": {
@@ -17042,22 +16345,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,production.capital_share,10,v4,none,True,0.34,,0.28,0.41,0.9,"{""p05"": 0.28, ""p25"": 0.32, ""p50"": 0.34, ""p75"": 0.37, ""p95"": 0.41}",False,,"{
-  ""interpretation"": ""Cobb-Douglas capital share alpha in the aggregate U.S. production function, representing the output elasticity with respect to capital."",
-  ""point_estimate"": 0.34,
-  ""quantiles"": {
-    ""p05"": 0.28,
-    ""p25"": 0.32,
-    ""p50"": 0.34,
-    ""p75"": 0.37,
-    ""p95"": 0.41
-  },
-  ""citations"": [
-    ""Cobb and Douglas (1928) - A Theory of Production"",
-    ""Karabarbounis and Neiman (2014) - The Global Decline of the Labor Share"",
-    ""Elsby, Hobijn, and Sahin (2013) - The Decline of the U.S. Labor Share""
-  ],
-  ""reasoning_summary"": ""Historically, the U.S. capital share has been estimated at approximately one-third (0.33). Recent macroeconomic research suggests a decline in the labor share over the past few decades, which implies a corresponding rise in the capital share towards 0.35-0.40, depending on the treatment of housing, self-employment income, and intellectual property.""",,"{
+litellm_completion,gemini-3.5-flash,production.capital_share,10,v4,none,True,0.34,"Cobb-Douglas capital share alpha in the aggregate U.S. production function, representing the output elasticity with respect to capital.",0.28,0.41,0.9,"{""p05"": 0.28, ""p25"": 0.32, ""p50"": 0.34, ""p75"": 0.37, ""p95"": 0.41}",False,"Cobb and Douglas (1928) - A Theory of Production | Karabarbounis and Neiman (2014) - The Global Decline of the Labor Share | Elsby, Hobijn, and Sahin (2013) - The Decline of the U.S. Labor Share","Historically, the U.S. capital share has been estimated at approximately one-third (0.33). Recent macroeconomic research suggests a decline in the labor share over the past few decades, which implies a corresponding rise in the capital share towards 0.35-0.40, depending on the treatment of housing, self-employment income, and intellectual property.",,"{
   ""interpretation"": ""Cobb-Douglas capital share alpha in the aggregate U.S. production function, representing the output elasticity with respect to capital."",
   ""point_estimate"": 0.34,
   ""quantiles"": {
@@ -17411,22 +16699,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,2,v4,none,True,1.3,,1.3,1.3,0.9,"{""p05"": 1.3, ""p25"": 1.3, ""p50"": 1.3, ""p75"": 1.3, ""p95"": 1.3}",True,,"{
-  ""interpretation"": ""The medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate for U.S. taxpayers."",
-  ""point_estimate"": -0.65,
-  ""quantiles"": {
-    ""p05"": -1.3,
-    ""p25"": -0.9,
-    ""p50"": -0.65,
-    ""p75"": -0.4,
-    ""p95"": -0.15
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015). An Analysis of the Elasticity of Capital Gains Realizations with Respect to Marginal Tax Rates. National Tax Journal."",
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of the Tax on Capital Gains Realizations."",
-    ""Slemrod (1998). Methodological Issues in Measuring the Response of Realizations to Tax Rates.""
-  ],
-  ""reasoning_summary"": ""Empirical estimates from the CBO, JCT, and academic literature indicate a negative medium-run realization elasticity with respect to the marginal tax rate. While short-run timing elasticities are very high, medium-run behavioral responses are more moderate, typically estimated to lie between -0.5 and -0.8, with substantial uncertainty regarding the extent of permanent tax and permanence of avoidance can mitigate the long-run impact.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,2,v4,none,True,-0.65,The medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate for U.S. taxpayers.,-1.3,-0.15,0.9,"{""p05"": -1.3, ""p25"": -0.9, ""p50"": -0.65, ""p75"": -0.4, ""p95"": -0.15}",False,"Dowd, McClelland, and Lu (2015). An Analysis of the Elasticity of Capital Gains Realizations with Respect to Marginal Tax Rates. National Tax Journal. | Congressional Budget Office (2012). How CBO Analyzes the Effects of the Tax on Capital Gains Realizations. | Slemrod (1998). Methodological Issues in Measuring the Response of Realizations to Tax Rates.","Empirical estimates from the CBO, JCT, and academic literature indicate a negative medium-run realization elasticity with respect to the marginal tax rate. While short-run timing elasticities are very high, medium-run behavioral responses are more moderate, typically estimated to lie between -0.5 and -0.8, with substantial uncertainty regarding the extent of permanent tax and permanence of avoidance can mitigate the long-run impact.",,"{
   ""interpretation"": ""The medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate for U.S. taxpayers."",
   ""point_estimate"": -0.65,
   ""quantiles"": {
@@ -17481,21 +16754,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,3,v4,none,True,0.4,,1.0,1.0,0.9,"{""p05"": 1.0, ""p25"": 1.0, ""p50"": 1.0, ""p75"": 1.0, ""p95"": 1.0}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the U.S."",
-  ""point_estimate"": -0.4,
-  ""quantiles"": {
-    ""p05"": -1.0,
-    ""p25"": -0.6,
-    ""p50"": -0.4,
-    ""p75"": -0.2,
-    ""p95"": -0.05
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015). Tax rates and the realization of capital gains in the short and long run. Journal of Public Economics."",
-    ""Congressional Budget Office (CBO) modeling of capital gains realizations.""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the semi-elasticity of capital gains realizations with respect to the tax rate usually range from about -1.0 to -3.0. At a representative marginal tax rate of 15% to 25%, this translates to an elasticity with respect to the tax rate itself of approximately -0.2 to -0.6, with a central estimate of around -0.4. Short-run elasticities are typically larger in magnitude than these medium-to-long-run estimates.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,3,v4,none,True,-0.4,Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the U.S.,-1.0,-0.05,0.9,"{""p05"": -1.0, ""p25"": -0.6, ""p50"": -0.4, ""p75"": -0.2, ""p95"": -0.05}",False,"Dowd, McClelland, and Lu (2015). Tax rates and the realization of capital gains in the short and long run. Journal of Public Economics. | Congressional Budget Office (CBO) modeling of capital gains realizations.","Empirical estimates of the semi-elasticity of capital gains realizations with respect to the tax rate usually range from about -1.0 to -3.0. At a representative marginal tax rate of 15% to 25%, this translates to an elasticity with respect to the tax rate itself of approximately -0.2 to -0.6, with a central estimate of around -0.4. Short-run elasticities are typically larger in magnitude than these medium-to-long-run estimates.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the U.S."",
   ""point_estimate"": -0.4,
   ""quantiles"": {
@@ -17661,21 +16920,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,6,v4,none,True,-0.7,,1.3,1.3,0.9,"{""p05"": 1.3, ""p25"": 1.3, ""p50"": 1.3, ""p75"": 1.3, ""p95"": 1.3}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the capital-gains marginal tax rate in the United States."",
-  ""point_estimate"": -0.7,
-  ""quantiles"": {
-    ""p05"": -1.3,
-    ""p25"": -0.9,
-    ""p50"": -0.7,
-    ""p75"": -0.4,
-    ""p95"": -0.1
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015)"",
-    ""Agersnap and Zidar (2021)""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the medium-run elasticity of capital gains realizations with respect to the marginal tax rate typically fall between -0.3 and -0.9. The Congressional Budget Office and associated researchers (e.g., Dowd et al.) have historically used or found values around -0.7 to -0.8, while some recent literature using state-level variation (e.g., Agersnap and Zidar) points to somewhat smaller elasticities in the medium-to-long run.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,6,v4,none,True,-0.7,Medium-run elasticity of long-term capital gains realizations with respect to the capital-gains marginal tax rate in the United States.,-1.3,-0.1,0.9,"{""p05"": -1.3, ""p25"": -0.9, ""p50"": -0.7, ""p75"": -0.4, ""p95"": -0.1}",False,"Dowd, McClelland, and Lu (2015) | Agersnap and Zidar (2021)","Empirical estimates of the medium-run elasticity of capital gains realizations with respect to the marginal tax rate typically fall between -0.3 and -0.9. The Congressional Budget Office and associated researchers (e.g., Dowd et al.) have historically used or found values around -0.7 to -0.8, while some recent literature using state-level variation (e.g., Agersnap and Zidar) points to somewhat smaller elasticities in the medium-to-long run.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the capital-gains marginal tax rate in the United States."",
   ""point_estimate"": -0.7,
   ""quantiles"": {
@@ -17729,22 +16974,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,7,v4,none,True,1.2,,1.2,1.2,0.9,"{""p05"": 1.2, ""p25"": 1.2, ""p50"": 1.2, ""p75"": 1.2, ""p95"": 1.2}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate for U.S. taxpayers."",
-  ""point_estimate"": -0.7,
-  ""quantiles"": {
-    ""p05"": -1.2,
-    ""p25"": -0.9,
-    ""p50"": -0.7,
-    ""p75"": -0.4,
-    ""p95"": -0.1
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015). 'Capital Gains Realizations and Marginal Tax Rates: New Evidence from Government Administrative Data.'"",
-    ""Burman and Randolph (1994). 'Measuring Permanent and Transitory Responses to Capital Gains Taxes: Micro-Data Estimates from the 1980s.'"",
-    ""Congressional Budget Office (CBO) modeling guidelines and reports on capital gains realizations.""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the medium-run elasticity of capital gains realizations with respect to the tax rate typically fall between -0.5 and -0.9. While short-run elasticities can be much larger due to timing effects, medium-to-long-run elasticities are constrained by the eventual need to realize gains, though deferral and step-up in basis at death maintain some permanent responsiveness.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,7,v4,none,True,-0.7,Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate for U.S. taxpayers.,-1.2,-0.1,0.9,"{""p05"": -1.2, ""p25"": -0.9, ""p50"": -0.7, ""p75"": -0.4, ""p95"": -0.1}",False,"Dowd, McClelland, and Lu (2015). 'Capital Gains Realizations and Marginal Tax Rates: New Evidence from Government Administrative Data.' | Burman and Randolph (1994). 'Measuring Permanent and Transitory Responses to Capital Gains Taxes: Micro-Data Estimates from the 1980s.' | Congressional Budget Office (CBO) modeling guidelines and reports on capital gains realizations.","Empirical estimates of the medium-run elasticity of capital gains realizations with respect to the tax rate typically fall between -0.5 and -0.9. While short-run elasticities can be much larger due to timing effects, medium-to-long-run elasticities are constrained by the eventual need to realize gains, though deferral and step-up in basis at death maintain some permanent responsiveness.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate for U.S. taxpayers."",
   ""point_estimate"": -0.7,
   ""quantiles"": {
@@ -17799,21 +17029,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,8,v4,none,True,1.2,,1.2,1.2,0.9,"{""p05"": 1.2, ""p25"": 1.2, ""p50"": 1.2, ""p75"": 1.2, ""p95"": 1.2}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations."",
-  ""point_estimate"": -0.7,
-  ""quantiles"": {
-    ""p05"": -1.2,
-    ""p25"": -0.9,
-    ""p50"": -0.7,
-    ""p75"": -0.5,
-    ""p95"": -0.2
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015)"",
-    ""Burman and Randolph (1994)""
-  ],
-  ""reasoning_summary"": ""Empirical literature, including key studies by the CBO and academic researchers, suggests that the medium-run elasticity of capital gains realizations with respect to the tax rate is negative and typically falls between -0.5 and -0.9. Short-run elasticities are much larger in absolute value due to timing behavior, while long-run elasticities are smaller but remain negative due to portfolio reallocation and the realization lock-in effect.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,8,v4,none,True,-0.7,"Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations.",-1.2,-0.2,0.9,"{""p05"": -1.2, ""p25"": -0.9, ""p50"": -0.7, ""p75"": -0.5, ""p95"": -0.2}",False,"Dowd, McClelland, and Lu (2015) | Burman and Randolph (1994)","Empirical literature, including key studies by the CBO and academic researchers, suggests that the medium-run elasticity of capital gains realizations with respect to the tax rate is negative and typically falls between -0.5 and -0.9. Short-run elasticities are much larger in absolute value due to timing behavior, while long-run elasticities are smaller but remain negative due to portfolio reallocation and the realization lock-in effect.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations."",
   ""point_estimate"": -0.7,
   ""quantiles"": {
@@ -17867,7 +17083,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,9,v4,none,True,-0.7,,1.2,1.2,0.9,"{""p05"": 1.2, ""p25"": 1.2, ""p50"": 1.2, ""p75"": 1.2, ""p95"": 1.2}",True,,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,9,v4,none,True,-0.7,,-1.2,-0.2,0.9,"{""p05"": -1.2, ""p25"": -0.9, ""p50"": -0.7, ""p75"": -0.5, ""p95"": -0.2}",False,,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital-gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations."",
   ""point_estimate"": -0.7,
   ""quantiles"": {
@@ -17997,7 +17213,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,11,v4,none,True,-0.6,,1.2,1.2,0.9,"{""p05"": 1.2, ""p25"": 1.2, ""p50"": 1.2, ""p75"": 1.2, ""p95"": 1.2}",True,,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,11,v4,none,True,-0.55,,-1.2,-0.15,0.9,"{""p05"": -1.2, ""p25"": -0.8, ""p50"": -0.55, ""p75"": -0.35, ""p95"": -0.15}",False,,"{
   ""interpretation"": ""Medium-run elasticity of U.S. long-term capital gains realizations with respect to the marginal capital gains tax rate."",
   ""point_estimate"": -0.55,
   ""quantiles"": {
@@ -18181,21 +17397,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,14,v4,none,True,-0.7,,1.3,1.3,0.9,"{""p05"": 1.3, ""p25"": 1.3, ""p50"": 1.3, ""p75"": 1.3, ""p95"": 1.3}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate in the U.S."",
-  ""point_estimate"": -0.7,
-  ""quantiles"": {
-    ""p05"": -1.3,
-    ""p25"": -0.9,
-    ""p50"": -0.7,
-    ""p75"": -0.5,
-    ""p95"": -0.2
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015). Keys to the Gate: Estimating the Elasticity of Capital Gains Realizations."",
-    ""Congressional Budget Office (2012). How CBO Analyzes the Effects of the Tax Rate on Capital Gains on Tax Revenues.""
-  ],
-  ""reasoning_summary"": ""The estimate is based on empirical literature and government agency modeling (CBO/JCT), which typically find a medium-run/persistent log-log elasticity of capital gains realizations with respect to the marginal tax rate of around -0.7. There is uncertainty regarding the extent of the lock-in effect over longer horizons, resulting in a range from highly responsive (-1.3) to relatively inelastic (-0.2).""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,14,v4,none,True,-0.7,Medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate in the U.S.,-1.3,-0.2,0.9,"{""p05"": -1.3, ""p25"": -0.9, ""p50"": -0.7, ""p75"": -0.5, ""p95"": -0.2}",False,"Dowd, McClelland, and Lu (2015). Keys to the Gate: Estimating the Elasticity of Capital Gains Realizations. | Congressional Budget Office (2012). How CBO Analyzes the Effects of the Tax Rate on Capital Gains on Tax Revenues.","The estimate is based on empirical literature and government agency modeling (CBO/JCT), which typically find a medium-run/persistent log-log elasticity of capital gains realizations with respect to the marginal tax rate of around -0.7. There is uncertainty regarding the extent of the lock-in effect over longer horizons, resulting in a range from highly responsive (-1.3) to relatively inelastic (-0.2).",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the capital gains marginal tax rate in the U.S."",
   ""point_estimate"": -0.7,
   ""quantiles"": {
@@ -18249,22 +17451,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,15,v4,none,True,1.3,,1.3,1.3,0.9,"{""p05"": 1.3, ""p25"": 1.3, ""p50"": 1.3, ""p75"": 1.3, ""p95"": 1.3}",True,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations."",
-  ""point_estimate"": -0.6,
-  ""quantiles"": {
-    ""p05"": -1.3,
-    ""p25"": -0.9,
-    ""p50"": -0.6,
-    ""p75"": -0.3,
-    ""p95"": -0.1
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015). Recent Estimates of the Elasticity of Capital Gains Realizations. American Economic Journal: Economic Policy"",
-    ""Congressional Budget Office (2012). Estimates of the Elasticity of Capital Gains Realizations with Respect to Marginal Tax Rates"",
-    ""Feldstein, Slemrod, and Yitzhaki (1980). Effects of Taxation on the Selling of Corporate Stock and the Realization of Capital Gains. Quarterly Journal of Economics""
-  ],
-  ""reasoning_summary"": ""Empirical literature and modeling by government agencies (CBO/JCT) indicate that capital gains realizations are sensitive to tax rates, with substantial short-run timing responses. In the medium run, the elasticity with respect to the tax rate is estimated to be less negative than in the short run but remains significantly negative, typically clustering between -0.5 and -0.8.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity,15,v4,none,True,-0.6,"Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations.",-1.3,-0.1,0.9,"{""p05"": -1.3, ""p25"": -0.9, ""p50"": -0.6, ""p75"": -0.3, ""p95"": -0.1}",False,"Dowd, McClelland, and Lu (2015). Recent Estimates of the Elasticity of Capital Gains Realizations. American Economic Journal: Economic Policy | Congressional Budget Office (2012). Estimates of the Elasticity of Capital Gains Realizations with Respect to Marginal Tax Rates | Feldstein, Slemrod, and Yitzhaki (1980). Effects of Taxation on the Selling of Corporate Stock and the Realization of Capital Gains. Quarterly Journal of Economics","Empirical literature and modeling by government agencies (CBO/JCT) indicate that capital gains realizations are sensitive to tax rates, with substantial short-run timing responses. In the medium run, the elasticity with respect to the tax rate is estimated to be less negative than in the short run but remains significantly negative, typically clustering between -0.5 and -0.8.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the marginal capital gains tax rate in the United States, where a negative value indicates that higher tax rates reduce realizations."",
   ""point_estimate"": -0.6,
   ""quantiles"": {
@@ -18541,22 +17728,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,5,v4,none,True,0.8,,0.2,1.8,0.9,"{""p05"": 0.2, ""p25"": 0.5, ""p50"": 0.8, ""p75"": 1.2, ""p95"": 1.8}",False,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) among US taxpayers"",
-  ""point_estimate"": 0.8,
-  ""quantiles"": {
-    ""p05"": 0.2,
-    ""p25"": 0.5,
-    ""p50"": 0.8,
-    ""p75"": 1.2,
-    ""p95"": 1.8
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015) - Recent Estimates of the Elasticity of Capital Gains Realizations"",
-    ""Burman and Randolph (1994) - Measuring Permanent and Transitory Responses of Capital Gains Realizations"",
-    ""Auten and Clotfelter (1982) - More Evidence on the Effect of Tax Rates on Capital Gains Realizations""
-  ],
-  ""reasoning_summary"": ""Subjective belief is guided by empirical literature decomposing short-run (transitory) and medium/long-run (permanent) elasticities. While short-run net-of-tax elasticities can be quite high (often exceeding 1.5 or 2.0), consensus estimates for the medium-run elasticity generally center between 0.7 and 1.0, with a wider range of uncertainty reflecting different econometric methodologies and panel datasets.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,5,v4,none,True,0.8,Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) among US taxpayers,0.2,1.8,0.9,"{""p05"": 0.2, ""p25"": 0.5, ""p50"": 0.8, ""p75"": 1.2, ""p95"": 1.8}",False,"Dowd, McClelland, and Lu (2015) - Recent Estimates of the Elasticity of Capital Gains Realizations | Burman and Randolph (1994) - Measuring Permanent and Transitory Responses of Capital Gains Realizations | Auten and Clotfelter (1982) - More Evidence on the Effect of Tax Rates on Capital Gains Realizations","Subjective belief is guided by empirical literature decomposing short-run (transitory) and medium/long-run (permanent) elasticities. While short-run net-of-tax elasticities can be quite high (often exceeding 1.5 or 2.0), consensus estimates for the medium-run elasticity generally center between 0.7 and 1.0, with a wider range of uncertainty reflecting different econometric methodologies and panel datasets.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) among US taxpayers"",
   ""point_estimate"": 0.8,
   ""quantiles"": {
@@ -18945,22 +18117,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,12,v4,none,True,0.7,,0.1,1.6,0.9,"{""p05"": 0.1, ""p25"": 0.4, ""p50"": 0.7, ""p75"": 1.1, ""p95"": 1.6}",False,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US taxpayers."",
-  ""point_estimate"": 0.7,
-  ""quantiles"": {
-    ""p05"": 0.1,
-    ""p25"": 0.4,
-    ""p50"": 0.7,
-    ""p75"": 1.1,
-    ""p95"": 1.6
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2012)"",
-    ""Agersnap and Zidar (2021)"",
-    ""Feldstein, Slemrod, and Yitzhaki (1980)""
-  ],
-  ""reasoning_summary"": ""Empirical estimates of the medium-to-long-run elasticity of capital gains realizations with respect to the net-of-tax rate vary. Panel studies of individual tax returns (such as Dowd et al.) often find medium-run net-of-tax elasticities around 0.7 to 0.8, while some macro-level or state-level analyses (such as Agersnap and Zidar) suggest smaller long-run responses. The chosen quantiles reflect this range, with a median of 0.7 and significant uncertainty.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,12,v4,none,True,0.7,Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US taxpayers.,0.1,1.6,0.9,"{""p05"": 0.1, ""p25"": 0.4, ""p50"": 0.7, ""p75"": 1.1, ""p95"": 1.6}",False,"Dowd, McClelland, and Lu (2012) | Agersnap and Zidar (2021) | Feldstein, Slemrod, and Yitzhaki (1980)","Empirical estimates of the medium-to-long-run elasticity of capital gains realizations with respect to the net-of-tax rate vary. Panel studies of individual tax returns (such as Dowd et al.) often find medium-run net-of-tax elasticities around 0.7 to 0.8, while some macro-level or state-level analyses (such as Agersnap and Zidar) suggest smaller long-run responses. The chosen quantiles reflect this range, with a median of 0.7 and significant uncertainty.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US taxpayers."",
   ""point_estimate"": 0.7,
   ""quantiles"": {
@@ -19071,21 +18228,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,14,v4,none,True,0.8,,0.2,1.8,0.9,"{""p05"": 0.2, ""p25"": 0.5, ""p50"": 0.8, ""p75"": 1.2, ""p95"": 1.8}",False,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals."",
-  ""point_estimate"": 0.8,
-  ""quantiles"": {
-    ""p05"": 0.2,
-    ""p25"": 0.5,
-    ""p50"": 0.8,
-    ""p75"": 1.2,
-    ""p95"": 1.8
-  },
-  ""citations"": [
-    ""Burman and Randolph (1994)"",
-    ""Dowd, McClelland, and Lu (2012)""
-  ],
-  ""reasoning_summary"": ""Estimates of the medium-run (or permanent) elasticity of capital gains realizations with respect to the net-of-tax rate are lower than short-run elasticities due to the postponement of realizations. Representative literature (e.g., Burman and Randolph; Dowd et al.) points to a persistent net-of-tax elasticity in the range of 0.5 to 1.2, with a central estimate of approximately 0.8.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,14,v4,none,True,0.8,Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals.,0.2,1.8,0.9,"{""p05"": 0.2, ""p25"": 0.5, ""p50"": 0.8, ""p75"": 1.2, ""p95"": 1.8}",False,"Burman and Randolph (1994) | Dowd, McClelland, and Lu (2012)","Estimates of the medium-run (or permanent) elasticity of capital gains realizations with respect to the net-of-tax rate are lower than short-run elasticities due to the postponement of realizations. Representative literature (e.g., Burman and Randolph; Dowd et al.) points to a persistent net-of-tax elasticity in the range of 0.5 to 1.2, with a central estimate of approximately 0.8.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals."",
   ""point_estimate"": 0.8,
   ""quantiles"": {
@@ -19139,21 +18282,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,15,v4,none,True,0.85,,0.3,1.8,0.9,"{""p05"": 0.3, ""p25"": 0.6, ""p50"": 0.85, ""p75"": 1.2, ""p95"": 1.8}",False,,"{
-  ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals"",
-  ""point_estimate"": 0.85,
-  ""quantiles"": {
-    ""p05"": 0.3,
-    ""p25"": 0.6,
-    ""p50"": 0.85,
-    ""p75"": 1.2,
-    ""p95"": 1.8
-  },
-  ""citations"": [
-    ""Dowd, McClelland, and Lu (2015)"",
-    ""Burman and Randolph (1994)""
-  ],
-  ""reasoning_summary"": ""Empirical literature on capital gains realizations shows a clear distinction between transitory and permanent tax changes. Estimates of the medium-run (permanent) elasticity of realizations with respect to the net-of-tax rate typically cluster between 0.6 and 1.2, indicating moderate but statistically significant behavioral responsiveness to tax policy responses over, non-transitory responses.""",,"{
+litellm_completion,gemini-3.5-flash,tax.capital_gains_realizations.elasticity.net_of_tax_rate,15,v4,none,True,0.85,Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals,0.3,1.8,0.9,"{""p05"": 0.3, ""p25"": 0.6, ""p50"": 0.85, ""p75"": 1.2, ""p95"": 1.8}",False,"Dowd, McClelland, and Lu (2015) | Burman and Randolph (1994)","Empirical literature on capital gains realizations shows a clear distinction between transitory and permanent tax changes. Estimates of the medium-run (permanent) elasticity of realizations with respect to the net-of-tax rate typically cluster between 0.6 and 1.2, indicating moderate but statistically significant behavioral responsiveness to tax policy responses over, non-transitory responses.",,"{
   ""interpretation"": ""Medium-run elasticity of long-term capital gains realizations with respect to the net-of-tax rate (1 - tau) for US individuals"",
   ""point_estimate"": 0.85,
   ""quantiles"": {
@@ -20207,22 +19336,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,6,v4,none,True,1.5,,0.6,3.5,0.9,"{""p05"": 0.6, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 3.5}",False,,"{
-  ""interpretation"": ""Top-level Armington elasticity of substitution between aggregate imports and domestic goods for U.S. trade / CGE calibration."",
-  ""point_estimate"": 1.5,
-  ""quantiles"": {
-    ""p05"": 0.6,
-    ""p25"": 1.0,
-    ""p50"": 1.5,
-    ""p75"": 2.2,
-    ""p95"": 3.5
-  },
-  ""citations"": [
-    ""Hertel et al. (2007) GTAP parameter estimations"",
-    ""Imbs and Mejean (2015) on aggregation bias and elasticity optimism"",
-    ""Backus, Kehoe, and Kydland (1994) international business cycle calibration""
-  ],
-  ""reasoning_summary"": ""Macroeconomic estimates and top-nest CGE parameters for aggregate import-domestic substitution typically cluster between 1.0 and 2.0. These values are lower than sector-level or variety-level elasticities (which often exceed 3) due to aggregation bias.""",,"{
+litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,6,v4,none,True,1.5,Top-level Armington elasticity of substitution between aggregate imports and domestic goods for U.S. trade / CGE calibration.,0.6,3.5,0.9,"{""p05"": 0.6, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 3.5}",False,"Hertel et al. (2007) GTAP parameter estimations | Imbs and Mejean (2015) on aggregation bias and elasticity optimism | Backus, Kehoe, and Kydland (1994) international business cycle calibration",Macroeconomic estimates and top-nest CGE parameters for aggregate import-domestic substitution typically cluster between 1.0 and 2.0. These values are lower than sector-level or variety-level elasticities (which often exceed 3) due to aggregation bias.,,"{
   ""interpretation"": ""Top-level Armington elasticity of substitution between aggregate imports and domestic goods for U.S. trade / CGE calibration."",
   ""point_estimate"": 1.5,
   ""quantiles"": {
@@ -20371,22 +19485,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,9,v4,none,True,1.5,,0.6,3.5,0.9,"{""p05"": 0.6, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 3.5}",False,,"{
-  ""interpretation"": ""Top-level aggregate Armington elasticity of substitution between domestic goods and import composites for the U.S."",
-  ""point_estimate"": 1.5,
-  ""quantiles"": {
-    ""p05"": 0.6,
-    ""p25"": 1.0,
-    ""p50"": 1.5,
-    ""p75"": 2.2,
-    ""p95"": 3.5
-  },
-  ""citations"": [
-    ""Gallaway, McDaniel, and Rivera (2003)"",
-    ""Imbs and Mejean (2015)"",
-    ""Broda and Weinstein (2006)""
-  ],
-  ""reasoning_summary"": ""Aggregate (macro) Armington elasticities are consistently estimated to be much lower than sector-level or variety-level (micro) elasticities, typically falling between 1.0 and 2.0 due to aggregation bias and transition costs, though some macro models use higher calibration values.""",,"{
+litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,9,v4,none,True,1.5,Top-level aggregate Armington elasticity of substitution between domestic goods and import composites for the U.S.,0.6,3.5,0.9,"{""p05"": 0.6, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 3.5}",False,"Gallaway, McDaniel, and Rivera (2003) | Imbs and Mejean (2015) | Broda and Weinstein (2006)","Aggregate (macro) Armington elasticities are consistently estimated to be much lower than sector-level or variety-level (micro) elasticities, typically falling between 1.0 and 2.0 due to aggregation bias and transition costs, though some macro models use higher calibration values.",,"{
   ""interpretation"": ""Top-level aggregate Armington elasticity of substitution between domestic goods and import composites for the U.S."",
   ""point_estimate"": 1.5,
   ""quantiles"": {
@@ -20685,22 +19784,7 @@ Return valid JSON only with exactly this shape:
   ""citations"": [""...""],
   ""reasoning_summary"": ""...""
 }"
-litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,15,v4,none,True,1.5,,0.5,4.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 4.0}",False,,"{
-  ""interpretation"": ""Top-level aggregate Armington elasticity of substitution between domestic and import composites, typically calibrated or estimated for U.S. CGE trade models."",
-  ""point_estimate"": 1.5,
-  ""quantiles"": {
-    ""p05"": 0.5,
-    ""p25"": 1.0,
-    ""p50"": 1.5,
-    ""p75"": 2.2,
-    ""p95"": 4.0
-  },
-  ""citations"": [
-    ""Gallaway, McDaniel, and Rivera (2003). Short-run and long-run estimates of the elasticity of substitution in U.S. trade."",
-    ""Hertel, Hummels, Ivanic, and Mirza (2007). How confident can we be in CGE models? Reconstruction of GTAP elasticities."",
-    ""Feenstra, Obstfeld, and Russ (2018). In search of the Armington elasticity.""
-  ],
-  ""reasoning_summary"": ""Empirical trade studies and CGE models generally calibrate top-level domestic-import Armington elasticities between 1.0 and 2.0 for aggregate macro models, with short-run estimates occasionally dropping below 1.0 and long-run or micro-disaggregated estimates skewing higher.""",,"{
+litellm_completion,gemini-3.5-flash,trade.armington_elasticity.import_domestic,15,v4,none,True,1.5,"Top-level aggregate Armington elasticity of substitution between domestic and import composites, typically calibrated or estimated for U.S. CGE trade models.",0.5,4.0,0.9,"{""p05"": 0.5, ""p25"": 1.0, ""p50"": 1.5, ""p75"": 2.2, ""p95"": 4.0}",False,"Gallaway, McDaniel, and Rivera (2003). Short-run and long-run estimates of the elasticity of substitution in U.S. trade. | Hertel, Hummels, Ivanic, and Mirza (2007). How confident can we be in CGE models? Reconstruction of GTAP elasticities. | Feenstra, Obstfeld, and Russ (2018). In search of the Armington elasticity.","Empirical trade studies and CGE models generally calibrate top-level domestic-import Armington elasticities between 1.0 and 2.0 for aggregate macro models, with short-run estimates occasionally dropping below 1.0 and long-run or micro-disaggregated estimates skewing higher.",,"{
   ""interpretation"": ""Top-level aggregate Armington elasticity of substitution between domestic and import composites, typically calibrated or estimated for U.S. CGE trade models."",
   ""point_estimate"": 1.5,
   ""quantiles"": {

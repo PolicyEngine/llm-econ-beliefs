@@ -244,7 +244,7 @@ export default function ProcessPage() {
             </li>
             <li>
               <span style={cellStyle}>
-                Tables build, prose is pinned, pages generate.
+                Tables build, prose is checked, pages generate.
               </span>{" "}
               <a
                 className="underline underline-offset-2"
@@ -259,8 +259,10 @@ export default function ProcessPage() {
               >
                 verify_paper_prose.py
               </a>{" "}
-              pins the paper&apos;s quoted numbers to those tables so stale
-              claims fail instead of shipping. This site is statically
+              checks many of the paper&apos;s quoted numbers against those
+              tables and the run data. It runs locally before a manuscript
+              update, since some checks need full git history; CI runs a
+              subset. This site is statically
               generated from the same results tree and table CSVs at build
               time — there is no separate dashboard database to drift.
             </li>
@@ -491,10 +493,10 @@ export default function ProcessPage() {
             </li>
             <li>
               <span style={cellStyle}>The paper hardens toward review.</span>{" "}
-              Every number quoted in the manuscript stays pinned to the
-              generated tables by the verification script as the panel
-              grows, so review revisions and model additions cannot silently
-              disagree.
+              The verification script checks many of the numbers the
+              manuscript quotes against the generated tables; extending it
+              to the rest would keep review revisions and model additions
+              from silently disagreeing with them.
             </li>
           </ul>
         </section>

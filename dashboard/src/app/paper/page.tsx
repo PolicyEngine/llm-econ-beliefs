@@ -7,7 +7,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 // Bump on every manuscript revision, in lockstep everywhere this page
 // links the render (tests/test_paper_embed.py locks the lockstep).
-const PAPER_VERSION = "n31-20260808";
+const PAPER_VERSION = "n31-corrected-20261119b";
 
 const STANDALONE_HREF = `${basePath}/paper/web/index.html?v=${PAPER_VERSION}`;
 const PDF_HREF = `${basePath}/paper/web/index.pdf?v=${PAPER_VERSION}`;
@@ -15,7 +15,7 @@ const PDF_HREF = `${basePath}/paper/web/index.pdf?v=${PAPER_VERSION}`;
 export const metadata = {
   title: "Working paper — AI beliefs",
   description:
-    "How Large Language Models Answer Questions About Economic Elasticities: a repeated-elicitation study of 31 models, 12,090 runs, with every number verified against the committed tables.",
+    "How Large Language Models Answer Questions About Economic Elasticities: a repeated-elicitation study of 31 models, 12,090 runs; a prose gate tests many of its stated numbers against the committed tables.",
   openGraph: {
     type: "article",
     title: "How Large Language Models Answer Questions About Economic Elasticities",
@@ -87,8 +87,8 @@ export default function PaperPage(): ReactNode {
             calibration. This page embeds the manuscript snapshot that
             matches the live site — the 31-model panel with capability
             correlates pinned to PolicyBench release dashboard-data-20260805
-            — and every number in it is verified against the committed
-            tables by a 131-check prose gate.
+            — and a 187-check prose gate tests many of its stated numbers
+            against the committed tables and run data.
           </p>
           <p className="mt-3">
             <span
@@ -98,7 +98,7 @@ export default function PaperPage(): ReactNode {
                 color: "var(--muted-foreground)",
               }}
             >
-              31-model panel · 2026-08-08 · Max Ghenis, PolicyEngine
+              31-model panel · corrected 2026-09-27 · Max Ghenis, PolicyEngine
             </span>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
