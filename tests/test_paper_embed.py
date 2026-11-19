@@ -67,14 +67,19 @@ def test_synced_pdf_applied_the_project_config() -> None:
     # The PDF counterpart of the check above. A resolved bibliography leaves
     # one cite.ref-* named destination per reference and numbered sections
     # leave section.N destinations; a render without _quarto.yml has neither.
+    # Its numbered sections and subsections pair one to one with the HTML's,
+    # so a PDF from an older manuscript with a different outline fails too.
     pdf = WEB / "index.pdf"
     assert pdf.read_bytes() == (REPO_ROOT / "paper" / "paper.pdf").read_bytes()
     streams = _inflated_pdf_streams(pdf)
-    references = (WEB / "index.html").read_text().count('class="csl-entry"')
+    html = (WEB / "index.html").read_text()
+    references = html.count('class="csl-entry"')
     cite_targets = set(re.findall(rb"\(cite\.ref-[^)]+\)", streams))
-    section_targets = set(re.findall(rb"\(section\.\d[\d.]*\)", streams))
     assert references > 0 and len(cite_targets) == references
-    assert len(section_targets) >= 8
+    for level, tag in (("section", "h2"), ("subsection", "h3")):
+        targets = set(re.findall(rb"\(" + level.encode() + rb"\.\d[\d.]*\)", streams))
+        headings = re.findall(rf'<{tag}[^>]*>\s*<span class="header-section-number"', html)
+        assert len(targets) == len(headings) > 0, (level, len(targets), len(headings))
 
 
 def test_old_pdf_path_keeps_serving() -> None:

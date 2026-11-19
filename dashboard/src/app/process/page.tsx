@@ -260,8 +260,9 @@ export default function ProcessPage() {
                 verify_paper_prose.py
               </a>{" "}
               checks many of the paper&apos;s quoted numbers against those
-              tables and the run data, so a stale number among them fails
-              instead of shipping. This site is statically
+              tables and the run data. It runs locally before a manuscript
+              update, since some checks need full git history; CI runs a
+              subset. This site is statically
               generated from the same results tree and table CSVs at build
               time — there is no separate dashboard database to drift.
             </li>

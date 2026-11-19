@@ -1325,6 +1325,12 @@ def _build_tables_module():
     return module
 
 
+def _read_exact(path: Path) -> str:
+    """Read text with line endings untouched (Path.read_text gains newline= only in 3.13)."""
+    with path.open(newline="") as handle:
+        return handle.read()
+
+
 def _pooled_center(rows: list[dict], skip: int | None = None) -> float:
     from statistics import fmean
 
@@ -1749,6 +1755,9 @@ def verify_correction_note() -> None:
         and f"Every model-quantity cell holds {next(iter(set(cell_sizes.values())))} runs that were accepted"
         in PAPER
         and f"\n- {n_models} models from ten organizations" in PAPER
+        and f"The current main panel includes {n_models} models from ten organizations" in PAPER
+        and f"over {quantities} U.S.-scoped quantities" in PAPER
+        and f"uses a {quantities}-quantity U.S.-scoped panel" in PAPER
         and f"\n- {quantities} quantities (" in PAPER
         and "\n- 15 runs per model-quantity cell" in PAPER,
         f"got {n_runs} runs, {n_models} models, {quantities} quantities, old {old_count and old_count[1]}",
@@ -1772,6 +1781,38 @@ def verify_correction_note() -> None:
         and f"the other {len(PANEL_MODEL_IDS) * quantities * 15 - len(main_stale):,} main-panel runs reparse "
         "to their stored values" in note,
         f"got {len(stale)} stale rows, {len(main_stale)} main-panel",
+    )
+
+    # Replay the corrected parser over every retained row, so the note's
+    # "12,089 reparse" and "Nine retained rows" rest on the parser itself
+    # rather than on the fixture's length.
+    from llm_econ_beliefs import parse_belief_response as reparse
+
+    replay_exact = replay_main = 0
+    replay_rejected: list[str] = []
+    for path in sorted(results.glob("*/runs.jsonl")):
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        for number, line in enumerate(path.read_text().splitlines(), 1):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if not row.get("parsed_ok"):
+                continue
+            try:
+                estimate = reparse(row["raw_response"], quantity_id=row["quantity_id"])
+            except ValueError:
+                replay_rejected.append(f"{relative}:{number}")
+                continue
+            if "-elasticities-batch15/" in relative:
+                replay_main += 1
+                replay_exact += estimate.point_estimate == row["point_estimate"] and estimate.quantiles == row["quantiles"]
+    check(
+        "corrected-parser replay matches the note's counts",
+        sorted(replay_rejected) == sorted(stale)
+        and replay_main == replay_exact == n_runs - len(main_stale)
+        and f"the other {replay_exact:,} main-panel runs reparse to their stored values" in note
+        and f"under the corrected parser {replay_exact:,} reparse" in PAPER,
+        f"replayed {replay_main} main rows, {replay_exact} exact, rejected {len(replay_rejected)}",
     )
 
     def has_json_estimate(raw: str) -> bool:
@@ -2103,7 +2144,7 @@ def verify_correction_note() -> None:
         else:
             a9_ok &= pair_band == old_band and (
                 f"`{label}`'s from `{old[1]:.3f}` to `{new[1]:.3f}`, though over all {len(pairs)} run "
-                f"pairs its median is `{pair_median:.3f}`, inside the LTCG window" in note
+                f"pairs its median is `{pair_median:.3f}`, inside the LTCG window. Under the table's" in note
             )
     check(
         "correction descending-quantile A9 effects",
@@ -2145,6 +2186,19 @@ def verify_correction_note() -> None:
                     or estimate.quantiles != row["quantiles"]
                 )
             archive[(model, quantity)] = (stored_values, reparsed_values, changed_runs, rejected_runs)
+    import subprocess
+
+    archive_day = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "show", "-s", "--format=%ad", "--date=short", build_tables.WORDING_ARCHIVE_COMMIT],
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                   "October", "November", "December"]
+    archive_label = (
+        f"{month_names[int(archive_day[5:7]) - 1]} {int(archive_day[8:10])}" if len(archive_day) == 10 else "?"
+    )
+    design = PAPER[PAPER.find("## Design"):PAPER.find("\n## ", PAPER.find("## Design") + 1)]
     gemini_pro = "gemini-3.1-pro-preview"
     moved_cells = {cell: (c, r) for cell, (_, _, c, r) in archive.items() if c or r}
     stored_net, reparsed_net, _, _ = archive[(gemini_pro, net_id)]
@@ -2156,7 +2210,11 @@ def verify_correction_note() -> None:
         and "*The April 19 archive.* Appendix Tables A18 and A19, and the text in the Design section and "
         "the appendix that cites them, use the superseded April 19 elicitations from git history as "
         "stored at collection." in note
-        and "April 19" in PAPER[PAPER.find("## Design"):PAPER.find("\n## ", PAPER.find("## Design") + 1)]
+        and archive_label == "April 19"
+        and f"The v4 prompt as elicited on {archive_label}, {archive_day[:4]} stated each direction" in design
+        and f"The superseded {archive_label} elicitations of the four premium-tier models — the only cells "
+        "answered under both wordings — remain in git history, so a within-model wording comparison is "
+        "reconstructible; Appendix Tables A18-A19 run it." in design
         and "changes 3 and rejects 5 of the 15 `Gemini 3.1 Pro` net-of-tax-rate runs there; "
         f"the other {len(archive) - 1} sign-clarified April 19 cells reparse unchanged" in note,
         f"got {moved_cells}, {len(archive)} cells",
@@ -2211,25 +2269,29 @@ def verify_cited_tables_fresh() -> None:
     """Rebuild, in memory, the tables the correction note and its effects cite
     and compare them with the committed CSV and Markdown table bodies.
 
-    ``results/elasticity-all-model-comparison.csv`` records each model's
-    ``source_dir`` as an absolute path into the checkout that generated it, so
-    the rows are pointed back at this checkout's ``results/`` first. Nothing is
-    written.
+    The rows come from build_tables.read_comparison_rows, the same reader the
+    table build uses, which resolves each run directory inside this checkout.
+    Nothing is written.
     """
-    import dataclasses
     import io
 
     tables = _build_tables_module()
-    comparison = [
-        dataclasses.replace(row, source_dir=row.source_dir[row.source_dir.rfind("results/"):])
-        if "results/" in row.source_dir
-        else row
-        for row in tables.read_comparison_rows(tables.MAIN_COMPARISON_PATH)
-    ]
+    comparison = tables.read_comparison_rows(tables.MAIN_COMPARISON_PATH)
+    check(
+        "comparison rows resolve their run directories inside this checkout",
+        bool(comparison)
+        and all(
+            Path(row.source_dir).is_relative_to(REPO_ROOT / "results") and Path(row.source_dir).is_dir()
+            for row in comparison
+        ),
+        f"{sorted({row.source_dir for row in comparison})[:2]}",
+    )
     canonical = [row for row in comparison if tables.quantity_panel(row.quantity_id) == "canonical"]
+    labor_tax = [row for row in canonical if row.quantity_id in tables.LABOR_TAX_QUANTITY_IDS]
     wording, wording_tau = tables.build_wording_comparison_tables()
     model_summary, spearman, _ = tables.build_correlates_tables()
     rebuilt = {
+        "benchmark-comparison-labor-tax": tables.build_benchmark_table(labor_tax),  # Table 3
         "quantity-disagreement": tables.build_quantity_disagreement_table(canonical),  # Table A6
         "armington-clarify-delta": tables.build_armington_delta_table(),  # Table A7
         "ies-clarify-delta": tables.build_ies_delta_table(),  # Table A8
@@ -2257,7 +2319,7 @@ def verify_cited_tables_fresh() -> None:
         check(
             f"table {stem} matches a fresh in-memory build",
             bool(rows)
-            and buffer.getvalue() == (TABLES / f"{stem}.csv").read_text(newline="")
+            and buffer.getvalue() == _read_exact(TABLES / f"{stem}.csv")
             and body == committed_md,
             f"{len(rows)} rebuilt rows",
         )

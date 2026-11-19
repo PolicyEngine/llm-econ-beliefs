@@ -1627,10 +1627,24 @@ def read_comparison_rows(path: Path) -> list[ComparisonRow]:
                 cost_per_run_usd=float(row["usage_estimated_total_cost_usd_per_successful_run"])
                 if row["usage_estimated_total_cost_usd_per_successful_run"]
                 else None,
-                source_dir=row["source_dir"],
+                source_dir=resolve_source_dir(row["source_dir"]),
             )
         )
     return rows
+
+
+def resolve_source_dir(source_dir: str) -> str:
+    """Point a comparison row's run directory at this checkout's ``results/``.
+
+    The comparison CSV records each directory as an absolute path into the
+    checkout that generated it. Read as written, a build from any other
+    checkout (a worktree, CI, a fresh clone) would load that checkout's runs.
+    """
+    marker = source_dir.replace("\\", "/").rfind("results/")
+    if marker >= 0:
+        return str(REPO_ROOT / source_dir.replace("\\", "/")[marker:])
+    path = Path(source_dir)
+    return str(path if path.is_absolute() else REPO_ROOT / path)
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
