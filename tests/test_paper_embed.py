@@ -35,6 +35,21 @@ def test_synced_render_exists_and_carries_the_manuscript() -> None:
     assert "How Large Language Models Answer Questions" in html
 
 
+def test_synced_render_applied_the_project_config() -> None:
+    # paper/_quarto.yml supplies the table of contents, section numbers and
+    # bibliography. Quarto skips project files whose absolute path contains a
+    # dot-directory (such as .claude/worktrees/...), and a render there comes
+    # out without all three, with every citation left as a raw @key.
+    html = (WEB / "index.html").read_text()
+    assert 'id="TOC"' in html
+    assert 'id="refs"' in html
+    assert html.count('class="header-section-number"') >= 50
+    raw_keys = re.findall(
+        r'<span class="citation"[^>]*>\s*\[?-?@[A-Za-z0-9_:.-]+', html
+    )
+    assert raw_keys == []
+
+
 def test_old_pdf_path_keeps_serving() -> None:
     # /ai-beliefs/paper.pdf predates the wrapper and has been shared;
     # next.config redirects it to the synced render.
