@@ -1329,13 +1329,15 @@ def _pooled_center(rows: list[dict], skip: int | None = None) -> float:
 
 
 def verify_correction_note() -> None:
-    """Recompute the counts and quoted numbers in the dated correction note.
+    """Recompute most counts and quoted numbers in the dated correction note.
 
-    Covers the run census, the moved and quoted centers, the downstream table
-    effects, each open item's effects and the ledger counts; band names, model
-    lists and run descriptions are matched as text against the data they name.
-    The run census compares each runs.jsonl with the pre-correction commit, so
-    this needs git history and stays in the local gate (CI clones are shallow).
+    Covers the run census, the moved and quoted centers, the sample counts, the
+    between-run item's scope, the downstream table effects, each open item's
+    effects and the ledger's header counts. Most checks match a sentence
+    fragment built from recomputed values, so wording outside those fragments
+    (some labels and descriptions) is not checked. The run census compares each
+    runs.jsonl with the pre-correction commit, so this needs git history and
+    stays in the local gate (CI clones are shallow).
     """
     from collections import Counter
 
@@ -1408,7 +1410,7 @@ def verify_correction_note() -> None:
     )
     check(
         "correction quantile-repair counts",
-        f"forced into ascending order, fall from {old_repairs} to {new_repairs}" in note,
+        f"raised to the largest value before it, fall from {old_repairs} to {new_repairs}" in note,
         f"got {old_repairs} -> {new_repairs}",
     )
     clarify_prose = kinds.get((False, "prose"), [])
@@ -1443,14 +1445,24 @@ def verify_correction_note() -> None:
     )
     rest = [c for c in moved if (c[0], c[1]) not in sign_cells and c is not k3]
     largest_rest = max(abs(b - a) for _, _, a, b in rest)
+    cell_kinds: dict[tuple[str, str], set[str]] = {}
+    for (is_main, kind), rows in kinds.items():
+        if is_main:
+            for model, quantity, *_ in rows:
+                cell_kinds.setdefault((model, quantity), set()).add(kind)
+    prose_only = all(
+        cell_kinds.get((m, q)) == {"prose"} for m, q, *_ in ([k3] if k3 else []) + rest
+    )
     check(
         "correction moved-center counts",
         f"{len(moved)} main-panel centers move, {len(through_sign)} of them through a lost sign"
         in note
         and k3 is not None
-        and f"from `{k3[2]:.3f}` to `{k3[3]:.3f}` and {len(rest)} other centers, the largest by "
-        f"`{largest_rest:.3f}`" in note,
-        f"got {len(moved)} moved, {len(through_sign)} via sign, K3 {k3}, "
+        and prose_only
+        and f"The prose defect moves `{MODEL_REGISTRY_BY_ID['kimi-k3'].display_label}`'s "
+        f"net-of-tax-rate capital-gains center from `{k3[2]:.3f}` to `{k3[3]:.3f}` and "
+        f"{len(rest)} other centers, the largest by `{largest_rest:.3f}`" in note,
+        f"got {len(moved)} moved, {len(through_sign)} via sign, K3 {k3}, prose only {prose_only}, "
         f"{len(rest)} others max {largest_rest:.4f}",
     )
     quoted = {
@@ -1479,21 +1491,25 @@ def verify_correction_note() -> None:
         f"(published: `{gem_cg[0]:+.3f}` and `{gem_inc[0]:+.3f}`)" in note,
         f"got {gem_cg[0]}, {gem_inc[0]}",
     )
+    sign_sensitive = [
+        row["point_estimate"]
+        for row in (
+            json.loads(line)
+            for line in (results / "gemini-3.5-flash-elasticities-batch15" / "runs.jsonl")
+            .read_text()
+            .splitlines()
+            if line.strip()
+        )
+        if row["quantity_id"]
+        in ("tax.capital_gains_realizations.elasticity", "labor_supply.income_elasticity.prime_age")
+    ]
     check(
         "Gemini 3.5 Flash sign-sensitive runs all negative",
-        all(
-            row["point_estimate"] < 0
-            for row in (
-                json.loads(line)
-                for line in (results / "gemini-3.5-flash-elasticities-batch15" / "runs.jsonl")
-                .read_text()
-                .splitlines()
-                if line.strip()
-            )
-            if row["quantity_id"]
-            in ("tax.capital_gains_realizations.elasticity", "labor_supply.income_elasticity.prime_age")
-        )
-        and "all 30 of its runs on the two sign-sensitive quantities are negative" in note,
+        len(sign_sensitive) == 30
+        and all(value < 0 for value in sign_sensitive)
+        and "The Gemini 3.5 Flash bimodality finding is withdrawn: all "
+        f"{len(sign_sensitive)} of its runs on the two sign-sensitive quantities are negative" in note,
+        f"got {len(sign_sensitive)} runs, {sum(v < 0 for v in sign_sensitive)} negative",
     )
 
     # Clarify-probe center in Table A7, before and after.
@@ -1526,6 +1542,72 @@ def verify_correction_note() -> None:
         in note,
     )
 
+    # Between-run variance: what the fix moved, and what it left alone.
+    parser_cells = {
+        (is_main, model, quantity)
+        for (is_main, _), rows in kinds.items()
+        for model, quantity, *_ in rows
+    }
+    stale_dirs = {
+        key.split("/")[1]
+        for key in json.loads((REPO_ROOT / "tests" / "fixtures" / "stale_cached_rows.json").read_text())
+    }
+
+    def summary_moves(pattern: str, is_main: bool):
+        centers_moved, bounds_moved, between_moved, bound_steps = [], [], [], {}
+        for path in sorted(results.glob(pattern)):
+            old_rows = {
+                r["quantity_id"]: r
+                for r in csv.DictReader((_git_show(path.relative_to(REPO_ROOT).as_posix()) or "").splitlines())
+            }
+            with path.open() as handle:
+                for row in csv.DictReader(handle):
+                    old = old_rows[row["quantity_id"]]
+                    cell = (is_main, row["model_name"], row["quantity_id"], path.parent.name)
+                    differs = lambda col: abs(float(old[col]) - float(row[col])) > 1e-12  # noqa: E731
+                    if differs("pooled_point_estimate"):
+                        centers_moved.append(cell)
+                    if differs("pooled_lower_bound") or differs("pooled_upper_bound"):
+                        bounds_moved.append(cell)
+                        bound_steps[cell] = max(
+                            abs(float(old[c]) - float(row[c]))
+                            for c in ("pooled_lower_bound", "pooled_upper_bound")
+                        )
+                    if differs("between_run_sd"):
+                        between_moved.append(cell)
+        return centers_moved, bounds_moved, between_moved, bound_steps
+
+    main_c, main_b, main_between, _ = summary_moves("*-elasticities-batch15/summary.csv", True)
+    clar_c, clar_b, _, clar_steps = summary_moves("*-clarify-batch15/summary.csv", False)
+    in_parser = lambda cell: cell[:3] in parser_cells  # noqa: E731
+    fallback_moves = [cell for cell in clar_b if not in_parser(cell)]
+    old_a18 = list(csv.DictReader((_git_show("paper/tables/wording-comparison.csv") or "").splitlines()))
+    new_a18 = read_rows("wording-comparison")
+    a18_changes = [
+        (index, column)
+        for index, (old, new) in enumerate(zip(old_a18, new_a18))
+        for column in new
+        if old.get(column) != new[column]
+    ]
+    check(
+        "correction between-run variance scope",
+        all(in_parser(cell) for cell in main_c + main_b + clar_c)
+        and sum(1 for cell in main_between if not in_parser(cell)) > 100
+        and all(cell[3] in stale_dirs for cell in fallback_moves)
+        and 0 < len(fallback_moves) <= 5
+        and max(clar_steps[cell] for cell in fallback_moves) < 0.05
+        and len(old_a18) == len(new_a18)
+        and len(a18_changes) == 1
+        and "width" in a18_changes[0][1]
+        and "used the variance of run medians in place of the variance of run means. Both now use "
+        "run means. The reported center, the mean of run medians, is unchanged, and the headline "
+        "pooled intervals do not depend on this term." in note
+        and "a few clarify-probe intervals in Appendix Tables A7 and A8 move slightly, as does one "
+        "interval in Appendix Table A18." in note,
+        f"main centers {len(main_c)}, bounds {len(main_b)}, between {len(main_between)}; clarify "
+        f"fallback moves {[(c[3], round(clar_steps[c], 4)) for c in fallback_moves]}; A18 {a18_changes}",
+    )
+
     cap_gains_row = next(
         r for r in read_rows("benchmark-comparison-labor-tax")
         if r["Quantity"] == "Capital gains realizations elasticity"
@@ -1552,12 +1634,32 @@ def verify_correction_note() -> None:
     )
 
     # Sample counts, open items and the changed-numbers ledger.
-    quantities = 26
+    main_rows = [
+        json.loads(line)
+        for path in sorted(results.glob("*-elasticities-batch15/runs.jsonl"))
+        for line in path.read_text().splitlines()
+        if line.strip()
+    ]
+    quantities = len({row["quantity_id"] for row in main_rows})
+    n_models = len(PANEL_MODEL_IDS)
+    n_runs = sum(1 for row in main_rows if row.get("parsed_ok"))
+    old_paper = _git_show("paper/paper.qmd") or ""
+    old_data = old_paper[old_paper.find("## Data"):]
+    old_count = re.search(r"\n- ([\d,]+) successful main-panel runs", old_data)
     check(
         "correction sample counts",
-        f"11,310 successful main-panel runs, the count for the 29-model panel (29 × {quantities} × 15)" in note
-        and f"holds {len(PANEL_MODEL_IDS) * quantities * 15:,} ({len(PANEL_MODEL_IDS)} × {quantities} × 15)" in note
-        and 29 * quantities * 15 == 11_310,
+        n_runs == n_models * quantities * 15
+        and old_count is not None
+        and int(old_count[1].replace(",", "")) == 29 * quantities * 15
+        and f"contains {n_runs:,} successful runs across {n_models} models" in old_paper
+        and f"The Data section stated {old_count[1]} successful main-panel runs, the count for the "
+        f"29-model panel (29 × {quantities} × 15)" in note
+        and f"The {n_models}-model panel holds {n_runs:,} ({n_models} × {quantities} × 15), "
+        "as the abstract already stated" in note
+        and f"contains {n_runs:,} successful runs across {n_models} models" in PAPER
+        and f"\n- {n_runs:,} successful main-panel runs, every one accepted as parsed at collection"
+        in PAPER,
+        f"got {n_runs} runs, {n_models} models, {quantities} quantities, old {old_count and old_count[1]}",
     )
     stale = json.loads((REPO_ROOT / "tests" / "fixtures" / "stale_cached_rows.json").read_text())
     main_stale = [key for key in stale if "-elasticities-batch15/" in key]
@@ -1656,6 +1758,39 @@ def verify_correction_note() -> None:
         f"`{_pooled_center(pro_armington, skip=12):.3f}`" in note,
     )
 
+    words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 7: "Seven", 8: "eight"}
+    fallback_dirs = {key.split("/")[1] for key in clarify_stale}
+    clarify_lower = {}
+    for path in sorted(results.glob("*-clarify-batch15/summary.csv")):
+        with path.open() as handle:
+            for row in csv.DictReader(handle):
+                clarify_lower[path.parent.name] = float(row["pooled_lower_bound"])
+
+    def cell_labels(kind: str) -> str:
+        labels = sorted(
+            MODEL_REGISTRY_BY_ID[d.split(f"-{kind}-clarify")[0]].display_label
+            for d in fallback_dirs
+            if f"-{kind}-clarify" in d
+        )
+        names = [f"`{label}`" for label in labels]
+        return names[0] if len(names) == 1 else (
+            " and ".join(names) if len(names) == 2 else ", ".join(names[:-1]) + f", and {names[-1]}"
+        )
+
+    check(
+        "correction describes the clarify fallback cells",
+        all(set(row.get("quantiles") or {}) != set(QUANTILE_KEYS) for row in clarify_stale.values())
+        and all(clarify_lower[d] == 0.0 for d in fallback_dirs)
+        and all(value > 0 for d, value in clarify_lower.items() if d not in fallback_dirs)
+        and "Dropping those three rows would move" in note
+        and f"Because all {words.get(len(clarify_stale), len(clarify_stale))} clarify-probe rows lack "
+        f"full quantiles, the {words.get(len(fallback_dirs), len(fallback_dirs))} clarify cells that "
+        f"hold them (the Armington cells of {cell_labels('armington')}, and the IES cells of "
+        f"{cell_labels('ies')}) use the normal approximation described above, and their lower ends in "
+        "Appendix Tables A7 and A8 sit at the support floor of `0`; no other clarify cell does." in note,
+        f"fallback cells {sorted(fallback_dirs)}",
+    )
+
     # Descending quantiles: the repair keeps the stated p05 as the point estimate.
     from collections import defaultdict
     from statistics import fmean, median
@@ -1677,7 +1812,6 @@ def verify_correction_note() -> None:
             )
             example_seen |= stated == [-0.1, -0.4, -0.7, -1.0, -1.5] and stated_estimate == -0.7
             repaired[(row["model_name"], row["quantity_id"])].append((row["point_estimate"], stated[2]))
-    words = {1: "one", 2: "two", 3: "three", 4: "four", 7: "Seven"}
     per_model = Counter()
     for (model, _), runs in repaired.items():
         per_model[model] += len(runs)
@@ -1723,6 +1857,63 @@ def verify_correction_note() -> None:
         and sum(1 for _, q in repaired if q == cap_gains_id) == 3
         and "All three capital-gains centers stay inside the Table 3 band" in note,
         f"cells {sorted(repaired)}",
+    )
+
+    # The same runs read at their stated medians, through the Table A9 bootstrap.
+    tables = _build_tables_module()
+    a9_rows = {r["Model"]: r for r in read_rows("cap-gains-convention-audit")}
+    band_column = list(next(iter(a9_rows.values())))[-1]
+    a9_counts = Counter(r[band_column] for r in a9_rows.values())
+    ordinary, ltcg = "ordinary-income-rate consistent", "LTCG-rate consistent"
+    a9_ok, a9_detail, moved_counts = True, [], Counter(a9_counts)
+    for model in sorted({m for m, q in repaired if q == cap_gains_id}):
+        directory = f"{model}-elasticities-batch15"
+        tax_points, net_points = tables._load_cap_gains_run_points(f"results/{directory}")
+        stated_tax = []
+        for row in cell_rows(directory, cap_gains_id):
+            if not row.get("parsed_ok") or row.get("point_estimate") is None:
+                continue
+            value = float(row["point_estimate"])
+            if row.get("quantiles_repaired"):
+                value = float(re.search('"p50"' + stated_number, row["raw_response"])[1])
+            stated_tax.append(value)
+        old = tables._bootstrap_implied_tau_quantiles(tax_points, net_points)
+        new = tables._bootstrap_implied_tau_quantiles(stated_tax, net_points)
+        old_band = tables._implied_tau_band_flag(old[1], old[3])
+        new_band = tables._implied_tau_band_flag(new[1], new[3])
+        pairs = [
+            -(x / y) / (1 - x / y) for x in stated_tax for y in net_points if y != 0 and x / y != 1
+        ]
+        pair_median = median(pairs)
+        pair_band = tables._implied_tau_band_flag(pair_median, sum(0 < v < 1 for v in pairs) / len(pairs))
+        label = MODEL_REGISTRY_BY_ID[model].display_label
+        a9_ok &= a9_rows[label]["Implied tau median [90%]"] == f"{old[1]:.3f} [{old[0]:.3f}, {old[2]:.3f}]"
+        a9_ok &= a9_rows[label][band_column] == old_band
+        a9_detail.append((label, round(old[1], 3), round(new[1], 3), new_band, round(pair_median, 4), pair_band))
+        if new_band == old_band:
+            continue
+        moved_counts[old_band] -= 1
+        moved_counts[new_band] += 1
+        if (old_band, new_band) != (ltcg, ordinary):
+            a9_ok = False
+        elif pair_band == new_band:
+            a9_ok &= (
+                f"`{label}`'s implied tau from `{old[1]:.3f}` to `{new[1]:.3f}`, from the LTCG window "
+                "into the ordinary-income window" in note
+            )
+        else:
+            a9_ok &= pair_band == old_band and (
+                f"`{label}`'s from `{old[1]:.3f}` to `{new[1]:.3f}`, though over all {len(pairs)} run "
+                f"pairs its median is `{pair_median:.3f}`, inside the LTCG window" in note
+            )
+    check(
+        "correction descending-quantile A9 effects",
+        a9_ok
+        and sum(1 for d in a9_detail if d[3] != a9_rows[d[0]][band_column]) == 2
+        and f"Table A9 would hold {moved_counts[ordinary]} ordinary-income-window rows and "
+        f"{moved_counts[ltcg]} LTCG-window rows rather than {a9_counts[ordinary]} and {a9_counts[ltcg]}"
+        in note,
+        f"got {a9_detail}, counts {dict(a9_counts)} -> {dict(moved_counts)}",
     )
 
     # April 19 archive behind Tables A18 and A19, reparsed.

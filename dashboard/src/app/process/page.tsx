@@ -491,10 +491,10 @@ export default function ProcessPage() {
             </li>
             <li>
               <span style={cellStyle}>The paper hardens toward review.</span>{" "}
-              Every number quoted in the manuscript stays pinned to the
-              generated tables by the verification script as the panel
-              grows, so review revisions and model additions cannot silently
-              disagree.
+              The verification script checks many of the numbers the
+              manuscript quotes against the generated tables; extending it
+              to the rest would keep review revisions and model additions
+              from silently disagreeing with them.
             </li>
           </ul>
         </section>

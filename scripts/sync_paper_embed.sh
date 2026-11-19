@@ -4,6 +4,15 @@
 # PAPER_VERSION in dashboard/src/app/paper/page.tsx.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Refuse a render that missed paper/_quarto.yml (TOC, section numbers,
+# bibliography). Quarto skips project files under a dot-directory, so render
+# from a path with no "/." component.
+for marker in 'id="TOC"' 'id="refs"' 'class="header-section-number"'; do
+  if ! grep -q "$marker" paper/paper.html; then
+    echo "paper/paper.html lacks $marker: the render did not apply paper/_quarto.yml" >&2
+    exit 1
+  fi
+done
 mkdir -p dashboard/public/paper/web
 cp paper/paper.html dashboard/public/paper/web/index.html
 cp paper/paper.pdf dashboard/public/paper/web/index.pdf
